@@ -3,7 +3,53 @@
   justify-content: center;
 }
 
-.profile__text {
+.profile__wrapper {
+  width: 900px;
+  min-height: 1000px;
+  border: 1px solid black;
+  margin: 1rem;
+  padding: 20px;
+}
+
+.profile__ava-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile__info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.profile__name,
+.profile__status {
+  color: black;
+}
+
+.profile__ava {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile__ava-img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-color: aqua;
+}
+
+.profile__input {
+  display: none;
+}
+
+.profile__label {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   color: black;
   font-size: 30px;
+  cursor: pointer;
 }
