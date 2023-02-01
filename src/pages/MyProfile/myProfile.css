@@ -1,0 +1,9 @@
+.my__page {
+  display: flex;
+  justify-content: center;
+}
+
+.profile__text {
+  color: black;
+  font-size: 30px;
+}

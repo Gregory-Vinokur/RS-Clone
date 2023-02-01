@@ -1,0 +1,81 @@
+footer {
+  margin-top: auto;
+  height: 105px;
+  margin-bottom: 0px;
+  width: 100%;
+  background: #0077ff;
+  font-size: 70%;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  padding-left: 2%;
+  padding-right: 2%;
+}
+
+.footer__wrap {
+  width: 1160px;
+  max-height: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.socials {
+  display: flex;
+  gap: 50px;
+  padding-top: 3px;
+}
+
+.github__img {
+  width: 34px;
+  height: 34px;
+  position: relative;
+  background: url(../../../assets/img/github.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 80%;
+  background-position: center;
+}
+
+.rs__img {
+  width: 120px;
+  height: 34px;
+  position: relative;
+  background: url(../../../assets/img/rs_school_js_white.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 80%;
+  background-position: center;
+}
+
+.footer__text {
+  margin-top: 12px;
+  font-size: 20px;
+  align-self: center;
+  font-weight: 900;
+}
+
+.footer__logo__link {
+  text-decoration: none;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.github__links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.github__text {
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: border-bottom 0.2s;
+}
+
+.github__text:hover {
+  border-bottom: 2px solid white;
+}

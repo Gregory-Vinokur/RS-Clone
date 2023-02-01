@@ -1,1 +1,4 @@
-console.log("Hello World!");
+import '../src/css/global.css';
+import App from './app/app';
+
+new App();
