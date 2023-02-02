@@ -18,5 +18,9 @@ export default class Navbar extends EventEmitter {
         myProfile.addEventListener('click', () => {
             this.emit('navigate', PATH.profilePage);
         });
+
+        messenger.addEventListener('click', () => {
+            this.emit('navigate', PATH.messagesPage);
+        });
     }
 }

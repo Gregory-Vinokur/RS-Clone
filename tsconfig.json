@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "outDir": "./",
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
     "strict": true,
@@ -8,6 +9,6 @@
     "target": "ES6",
     "allowJs": true
   },
-  "files": ["src/index.ts"]
+  "files": ["src/index.ts", "src/module.d.ts"]
 }
 
