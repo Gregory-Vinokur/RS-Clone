@@ -39,7 +39,6 @@ export default class myProfileInfo extends Page {
 
     profileNameBtn.addEventListener('click', this.editProfileName);
     profileStatusBtn.addEventListener('click', this.editProfileStatus);
-    console.log(userProfile.url);
   }
   render(): HTMLElement {
     return this.mainWrapper;
