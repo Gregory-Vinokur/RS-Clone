@@ -60,7 +60,7 @@ export default class ViewerMessasges extends Page {
       title.append(ava);
       createHtmlElement('span', '', `${document.name}`, title);
       createHtmlElement('p', 'message_text', `${document.text}`, containerMessage);
-      // createHtmlElement('p', 'message_data', `${document.created}`, containerMessage);
+      containerMessage.scrollIntoView();
     });
   };
 }
