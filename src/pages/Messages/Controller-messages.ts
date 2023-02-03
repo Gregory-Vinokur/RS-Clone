@@ -8,6 +8,7 @@ export default class ControllerMessages {
     this.model = model;
     this.viewer = viewer;
     this.viewer.on('send', (message) => this.sendMessage(message));
+    this.viewer.on('setLimit', (limit) => this.setLimit(limit));
     this.model.getMessage();
   }
 
@@ -15,6 +16,9 @@ export default class ControllerMessages {
     if (message) {
       this.model.sendMessage(message);
     }
+  };
 
-  }
+  setLimit = (limit = '') => {
+    this.model.setLimit(limit);
+  };
 }

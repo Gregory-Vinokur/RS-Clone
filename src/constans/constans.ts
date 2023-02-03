@@ -18,6 +18,10 @@ const LANGTEXT = {
     'rus': 'Удалить',
     'eng': 'Delete',
   },
+  'inputLimit': {
+    'rus': 'Лимит сообщений: ',
+    'eng': 'Limit messages: ',
+  },
 }
 
 type LangNameElement = keyof typeof LANGTEXT;

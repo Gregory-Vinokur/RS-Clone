@@ -1,9 +1,9 @@
 import { EventEmitter } from 'events';
-import { getAuth, onAuthStateChanged, User } from "firebase/auth"
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 // import 'firebase/firestore';
-import { Lang } from '../../constans/constans'
+import { Lang } from '../../constans/constans';
 
-type EmitsName = "authorized" | "changeLang" | "updateData";
+type EmitsName = 'authorized' | 'changeLang' | 'updateData' | 'setLimit';
 
 export default abstract class Model extends EventEmitter {
   isLogin = false;
@@ -37,6 +37,5 @@ export default abstract class Model extends EventEmitter {
       }
       this.emit('authorized');
     });
-    
   }
 }

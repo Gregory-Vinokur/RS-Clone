@@ -49,23 +49,43 @@
   padding: 6px;
 }
 
-.input__message {
-  margin-top: 5px;
+input {
   color: blue;
-  width: 100%;
   background-color: aliceblue;
   border: 1px solid blue;
   border-radius: 5px;
-  outline: none;
   padding: 2px 5px;
+  outline: none;
+}
+
+.input__message {
+  margin-top: 5px;
+  width: 100%;
+  
+}
+
+.input__limit {
+  width: 60px;
+}
+
+.input-limit-title {
+  color: #8282e6;
 }
 
 .message__containerButtons {
   padding: 5px 0;
   width: 100%;
   display: flex;
-  justify-content: end;
+  justify-content: space-between;
 }
+
+.button.button_deleteButton {
+  width: 70px;
+  height: 20px;
+  font-size: 0.8em;
+}
+
+/* /////////////////////////// */
 
 .lds-spinner {
   color: official;
