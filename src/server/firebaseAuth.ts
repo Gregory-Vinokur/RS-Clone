@@ -5,6 +5,7 @@ import { createHtmlElement } from '../utils/createElement';
 import { firebaseConfig } from './firebase.config';
 import { app } from './../index';
 import { PATH } from '../app/app';
+import { IError } from './../interfaces/IError';
 
 firebase.initializeApp(firebaseConfig);
 
@@ -24,7 +25,7 @@ export async function signIn(usernameInput: HTMLInputElement, passwordInput: HTM
                 console.log("Wrong password entered!");
 
             }
-            if (error.code === "auth/user-not-found") {
+            if (error.code === "auth/user-not-found" || error.code === "auth/invalid-email") {
                 usernameInput.classList.toggle('invalid');
                 ErrorMessageUser.textContent = 'Wrong e-mail';
                 ErrorMessageUser.classList.toggle('active');
@@ -60,17 +61,26 @@ export async function checkAuthStatus(loginForm: HTMLElement, buttonsWrap: HTMLE
     });
 }
 
-const auth = firebase.auth();
+// const auth = firebase.auth();
 
 // Function to sign up a new user
-export async function signUp(email: string, password: string) {
-    try {
-        const response = await auth.createUserWithEmailAndPassword(email, password);
-        console.log("Sign up successful!", response);
-        app.navigate(PATH.profilePage);
-    } catch (error) {
-        console.error("Error signing up:", error);
-    }
+export async function signUp(email: string, password: string, passwordInput: HTMLInputElement, ErrorMessagePassword: HTMLElement) {
+    firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then(function () {
+            console.log("Sign up successful!");
+            app.navigate(PATH.profilePage);
+        })
+        .catch(function (error) {
+            if (error.code === "auth/weak-password") {
+                passwordInput.classList.toggle('invalid');
+                ErrorMessagePassword.textContent = 'Password should be at least 6 characters.';
+                ErrorMessagePassword.classList.toggle('active');
+                console.log("Weak password entered!");
+
+            } else {
+                console.error("Error signing up:", error);
+            }
+        });
 }
 
 
