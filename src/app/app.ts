@@ -17,6 +17,7 @@ export const PATH = {
 class App {
     private wrapper: HTMLElement;
     private container: HTMLElement;
+    private navbarWrap: HTMLElement;
     private routes;
     header: Header;
     navbar: Navbar;
@@ -24,7 +25,8 @@ class App {
         this.header = new Header();
         this.navbar = new Navbar();
         this.wrapper = createHtmlElement('main', 'main__wrapper', '', document.body);
-        this.wrapper.append(this.navbar.render());
+        this.navbarWrap = this.navbar.render();
+        this.wrapper.append(this.navbarWrap);
         this.container = createHtmlElement('main', 'main__content', '', this.wrapper);
         const footer = new Footer();
         footer.createFooter();
@@ -61,6 +63,7 @@ class App {
         const main = new LoginPage(PATH.login);
         main.on('navigate', this.navigate);
         this.container.append(main.render());
+        this.navbarWrap.style.display = 'none';
     };
     private errorPage = () => {
         this.container.innerHTML = '';
@@ -71,6 +74,7 @@ class App {
         this.container.innerHTML = '';
         const page = new myProfile(PATH.profilePage);
         this.container.append(page.render());
+        this.navbarWrap.style.display = 'block';
     };
 
     private messagesPage = () => {

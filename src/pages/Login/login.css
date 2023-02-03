@@ -28,6 +28,38 @@
   color: black;
 }
 
+.show__svg {
+  width: 24px;
+  height: 15px;
+  display: inline-block;
+  -webkit-mask: url(../../../assets/img/eye.svg) no-repeat 50% 50%;
+  mask: url(../../../assets/img/eye.svg) no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: #99a2ad;
+  margin-left: -30px;
+  margin-top: 10px;
+  position: relative;
+  z-index: 20;
+  cursor: pointer;
+}
+
+.hide__svg {
+  width: 24px;
+  height: 15px;
+  display: inline-block;
+  -webkit-mask: url(../../../assets/img/eye-hide.svg) no-repeat 50% 50%;
+  mask: url(../../../assets/img/eye-hide.svg) no-repeat 50% 50%;
+  -webkit-mask-size: cover;
+  mask-size: cover;
+  background-color: #99a2ad;
+  margin-left: -30px;
+  margin-top: 10px;
+  position: relative;
+  z-index: 20;
+  cursor: pointer;
+}
+
 .reset__link {
   color: #2d81e0;
   display: none;
