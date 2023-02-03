@@ -1,4 +1,4 @@
 import '../src/css/global.css';
 import App from './app/app';
 
-new App();
+export const app = new App();
