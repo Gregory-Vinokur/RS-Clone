@@ -21,6 +21,7 @@ export default abstract class Model extends EventEmitter {
   constructor() {
     super();
     const auth = getAuth();
+    this.setMaxListeners(0);
     this.user = null;
     this.lang = 'eng';
     // const firestore = firebase.firestore();

@@ -4,7 +4,7 @@ import ModelMessages from './Model-messages';
 import Button from '../../base/button/Button';
 import avatar from '../../../assets/img/ava.jpg'
 
-type EmitsName = 'send' | 'changeLang';
+type EmitsName = 'send' | 'changeLang' | 'delete';
 
 export default class ViewerMessasges extends Page {
   model: ModelMessages;
@@ -48,6 +48,10 @@ export default class ViewerMessasges extends Page {
     this.input.value = '';
   };
 
+  deleteMessage = (id: string) => {
+    this.model.deleteMessage(id)
+  }
+
   createMessages = () => {
     this.messagesField.innerHTML = '';
     this.model.messages?.forEach((doc) => {
@@ -59,6 +63,10 @@ export default class ViewerMessasges extends Page {
       ava.src = document.photo ? document.photo : avatar;
       title.append(ava);
       createHtmlElement('span', '', `${document.name}`, title);
+      if (document.uid === this.model.user?.uid) {
+        const buttonDelete = new Button('deleteButton', this.model, () => this.deleteMessage(doc.id));
+        title.append(buttonDelete.render());
+      }
       createHtmlElement('p', 'message_text', `${document.text}`, containerMessage);
       containerMessage.scrollIntoView();
     });

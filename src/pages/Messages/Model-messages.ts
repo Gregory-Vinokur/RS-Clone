@@ -1,7 +1,7 @@
 import Model from '../Template/Model';
 import { firebaseConfig } from '../../server/firebase.config';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, serverTimestamp, collection, addDoc, getDocs, onSnapshot, query, orderBy, DocumentData, QuerySnapshot, Firestore } from 'firebase/firestore';
+import { getFirestore, serverTimestamp, collection, addDoc, doc, deleteDoc, getDocs, onSnapshot, query, orderBy, DocumentData, QuerySnapshot, Firestore } from 'firebase/firestore';
 
 export default class ModelMessages extends Model {
   db: Firestore;
@@ -14,6 +14,10 @@ export default class ModelMessages extends Model {
       this.messages = querySnapshot;
       this.emit('updateData');
     })
+  }
+
+  deleteMessage = async(docum: string) => {
+    await deleteDoc(doc(this.db, 'messages', docum))
   }
 
   sendMessage = async (message: string) => {

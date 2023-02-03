@@ -14,6 +14,10 @@ const LANGTEXT = {
     'rus': 'Отправить',
     'eng': 'Send',
   },
+  'deleteButton': {
+    'rus': 'Удалить',
+    'eng': 'Delete',
+  },
 }
 
 type LangNameElement = keyof typeof LANGTEXT;
