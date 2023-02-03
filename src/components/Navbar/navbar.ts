@@ -8,7 +8,7 @@ export default class Navbar extends EventEmitter {
     constructor() {
         super();
         this.element = createHtmlElement('aside', 'side__bar');
-        document.body.append(this.element);
+        // document.body.append(this.element);
         const wrapper = createHtmlElement('div', 'side__bar-nav', '', this.element);
         const sideBarOl = createHtmlElement('ol', 'side__bar-ol', '', wrapper);
         const myProfile = createHtmlElement('li', 'side__bar-item my__pr', 'My Profile', sideBarOl);
@@ -18,5 +18,8 @@ export default class Navbar extends EventEmitter {
         myProfile.addEventListener('click', () => {
             this.emit('navigate', PATH.profilePage);
         });
+    }
+    render(): HTMLElement {
+        return this.element;
     }
 }

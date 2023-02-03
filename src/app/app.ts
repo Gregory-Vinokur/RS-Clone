@@ -13,6 +13,7 @@ export const PATH = {
 };
 
 class App {
+    private wrapper: HTMLElement;
     private container: HTMLElement;
     private routes;
     header: Header;
@@ -20,7 +21,9 @@ class App {
     constructor() {
         this.header = new Header();
         this.navbar = new Navbar();
-        this.container = createHtmlElement('main', 'main__content', '', document.body);
+        this.wrapper = createHtmlElement('main', 'main__wrapper', '', document.body);
+        this.wrapper.append(this.navbar.render());
+        this.container = createHtmlElement('main', 'main__content', '', this.wrapper);
         const footer = new Footer();
         footer.createFooter();
         this.routes = {
@@ -53,6 +56,7 @@ class App {
     private loginPage = async () => {
         this.container.innerHTML = '';
         const main = new LoginPage(PATH.login);
+        main.on('navigate', this.navigate);
         this.container.append(main.render());
     };
     private errorPage = () => {
