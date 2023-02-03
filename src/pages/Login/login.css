@@ -28,6 +28,10 @@
   color: black;
 }
 
+.password__wrap {
+  display: flex;
+}
+
 .show__svg {
   width: 24px;
   height: 15px;
@@ -37,8 +41,8 @@
   -webkit-mask-size: cover;
   mask-size: cover;
   background-color: #99a2ad;
-  margin-left: -30px;
-  margin-top: 10px;
+  margin-left: -35px;
+  margin-top: 16px;
   position: relative;
   z-index: 20;
   cursor: pointer;
@@ -53,8 +57,8 @@
   -webkit-mask-size: cover;
   mask-size: cover;
   background-color: #99a2ad;
-  margin-left: -30px;
-  margin-top: 10px;
+  margin-left: -35px;
+  margin-top: 16px;
   position: relative;
   z-index: 20;
   cursor: pointer;

@@ -82,10 +82,8 @@ export default class LoginPage extends Page {
         })
 
         const signInButton = createHtmlElement('button', 'sign__in', 'Sign in', form);
-        // signInButton.setAttribute('type', 'submit');
 
         const signUpButton = createHtmlElement('button', 'sign__up', 'Sign up', form);
-        // signUpButton.setAttribute('type', 'submit');
 
         const submitButtonForSigIn = createHtmlElement('button', 'submit', 'Submit', form);
         const submitButtonForSigUp = createHtmlElement('button', 'submit', 'Submit', form);
