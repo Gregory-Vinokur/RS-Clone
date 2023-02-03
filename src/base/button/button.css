@@ -1,0 +1,24 @@
+.button {
+  width: 100px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: blue;
+  box-shadow: #6161c8 0 0 5px;
+  background-color: aliceblue;
+  border: 1px solid #6161c8;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+
+.button:hover {
+  background-color: #bcd8f1;
+  transition: all 0.5s;
+}
+
+.button:active {
+  box-shadow: none;
+  transition: all 0.1s;
+}

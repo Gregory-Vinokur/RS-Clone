@@ -2,7 +2,6 @@ import './navbar.css';
 import { EventEmitter } from 'events';
 import { createHtmlElement } from '../../utils/createElement';
 import { PATH } from '../../app/app';
-
 export default class Navbar extends EventEmitter {
     element: HTMLElement;
     constructor() {
@@ -17,6 +16,10 @@ export default class Navbar extends EventEmitter {
 
         myProfile.addEventListener('click', () => {
             this.emit('navigate', PATH.profilePage);
+        });
+
+        messenger.addEventListener('click', () => {
+            this.emit('navigate', PATH.messagesPage);
         });
     }
     render(): HTMLElement {

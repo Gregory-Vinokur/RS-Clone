@@ -5,11 +5,13 @@ import ErrorPage from './../pages/ErrorPage/errorPage';
 import LoginPage from './../pages/Login/login';
 import Navbar from './../components/Navbar/navbar';
 import myProfile from './../pages/MyProfile/myProfile';
+import Messages from './../pages/Messages/Messages';
 
 export const PATH = {
     login: '/',
     errorPage: '/404',
-    profilePage: '/profile'
+    profilePage: '/profile',
+    messagesPage: '/messages',
 };
 
 class App {
@@ -30,6 +32,7 @@ class App {
             [PATH.login]: this.loginPage,
             [PATH.errorPage]: this.errorPage,
             [PATH.profilePage]: this.profilePage,
+            [PATH.messagesPage]: this.messagesPage,
         };
 
         window.addEventListener('popstate', () => {
@@ -67,6 +70,12 @@ class App {
     private profilePage = () => {
         this.container.innerHTML = '';
         const page = new myProfile(PATH.profilePage);
+        this.container.append(page.render());
+    };
+
+    private messagesPage = () => {
+        this.container.innerHTML = '';
+        const page = new Messages(PATH.messagesPage);
         this.container.append(page.render());
     };
 }
