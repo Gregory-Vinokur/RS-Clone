@@ -8,7 +8,6 @@
   min-height: 100vh;
   border: 1px solid black;
   margin: 1rem;
-  padding: 20px;
   position: relative;
   border-radius: 20px;
 }
@@ -18,6 +17,7 @@
   align-items: end;
   gap: 60px;
   margin-top: 80px;
+  padding: 20px;
 }
 
 .profile__name {
@@ -75,7 +75,6 @@
   z-index: -1;
 }
 .profile__cover-img {
-  background-image: url(../../../assets/img/default-cover.jpg);
   width: 100%;
   height: 260px;
   background-size: cover;
@@ -126,5 +125,50 @@
   height: 20px;
   border: none;
   background-color: inherit;
+  cursor: pointer;
+}
+
+/* Profile Main */
+
+.profile__main {
+  display: flex;
+  gap: 20px;
+}
+.profile__news {
+  flex: 1 0 70%;
+  height: 400px;
+  background-color: aliceblue;
+  border-radius: 15px;
+}
+
+.profile__friends {
+  flex: 0 0 25%;
+  height: 400px;
+  background: aqua;
+  border-radius: 15px;
+}
+
+.create__news {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  gap: 20px;
+  background: #fff;
+  border-radius: 15px;
+}
+
+.input__create-news {
+  width: 100%;
+  color: black;
+  padding: 10px 20px;
+  border: none;
+  outline: none;
+}
+
+.create__news-btn {
+  padding: 5px;
+  border: none;
+  background: blue;
+  border-radius: 5px;
   cursor: pointer;
 }

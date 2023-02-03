@@ -2,7 +2,7 @@ import { createHtmlElement } from '../../utils/createElement';
 import Page from '../Template/page';
 import ModelMessages from './Model-messages';
 import Button from '../../base/button/Button';
-import avatar from '../../../assets/img/ava.jpg'
+import avatar from '../../../assets/img/ava.jpg';
 
 type EmitsName = 'send' | 'changeLang';
 
