@@ -5,7 +5,11 @@ import Button from '../../base/button/Button';
 import avatar from '../../../assets/img/ava.jpg';
 import { LANGTEXT } from '../../constans/constans';
 
-type EmitsName = 'send' | 'changeLang' | 'delete' | 'setLimit';
+type EmitsName = 'send' | 'changeLang' | 'delete' | 'setLimit' | 'setSort';
+enum SORTBY {
+  DESC = 'desc',
+  ASC = 'asc',
+}
 
 export default class ViewerMessasges extends Page {
   model: ModelMessages;
@@ -14,6 +18,9 @@ export default class ViewerMessasges extends Page {
   containerButtons: HTMLElement;
   inputLimit: HTMLInputElement;
   limitText: HTMLElement;
+  sortSelect: HTMLSelectElement;
+  sortDESC: HTMLElement;
+  sortASC: HTMLElement;
 
   emit(event: EmitsName, data?: string) {
     return super.emit(event, data);
@@ -38,7 +45,16 @@ export default class ViewerMessasges extends Page {
     this.inputLimit.setAttribute('min', '1');
     this.inputLimit.setAttribute('max', '30');
     this.inputLimit.value = this.model.limit.toString();
-    this.inputLimit.addEventListener('change', () => this.emit('setLimit', this.inputLimit.value));
+    this.inputLimit.addEventListener('input', () => this.emit('setLimit', this.inputLimit.value));
+
+    this.sortSelect = createHtmlElement('select', 'sort__select', '', containerLimit) as HTMLSelectElement;
+    this.sortDESC = createHtmlElement('option', 'sort__option', `${LANGTEXT['sortDesc'][this.model.lang]}`, this.sortSelect);
+    this.sortDESC.setAttribute('value', SORTBY.DESC);
+    this.sortASC = createHtmlElement('option', 'sort__option', `${LANGTEXT['sortAsc'][this.model.lang]}`, this.sortSelect);
+    this.sortASC.setAttribute('value', SORTBY.ASC);
+    this.sortSelect.value = this.model.sort;
+    this.sortSelect.addEventListener('change', () => this.emit('setSort', this.sortSelect.value));
+
     const buttonSend = new Button('sendButton', this.model, this.sendMessage);
     this.containerButtons.append(buttonSend.render());
     this.createContent();

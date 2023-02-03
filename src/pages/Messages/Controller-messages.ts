@@ -1,5 +1,6 @@
 import ModelMessages from './Model-messages';
 import ViewerMessasges from './Viewer-messages';
+import { Sort } from '../../constans/types';
 
 export default class ControllerMessages {
   model: ModelMessages;
@@ -9,6 +10,7 @@ export default class ControllerMessages {
     this.viewer = viewer;
     this.viewer.on('send', (message) => this.sendMessage(message));
     this.viewer.on('setLimit', (limit) => this.setLimit(limit));
+    this.viewer.on('setSort', (sort) => this.setSort(sort as Sort));
     this.model.getMessage();
   }
 
@@ -20,5 +22,9 @@ export default class ControllerMessages {
 
   setLimit = (limit = '') => {
     this.model.setLimit(limit);
+  };
+
+  setSort = (sort: Sort) => {
+    this.model.setSort(sort);
   };
 }
