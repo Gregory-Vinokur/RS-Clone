@@ -10,16 +10,16 @@ export default class myProfile extends Page {
   viewer: ViewProfile;
   controller: CotrollerProfile;
 
-  constructor(id: string) {
+  constructor(id: string, lang: Lang) {
     super(id);
 
-    this.model = new ModelProfule();
+    this.model = new ModelProfule(lang);
     this.viewer = new ViewProfile(id, this.model);
     this.controller = new CotrollerProfile(this.model, this.viewer);
   }
 
   changeLang = (lang: Lang) => {
-    console.log(lang);
+    this.model.changeLang(lang);
   };
 
   render(): HTMLElement {

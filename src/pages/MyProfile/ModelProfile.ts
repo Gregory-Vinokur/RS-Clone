@@ -5,6 +5,7 @@ import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/
 import getUserProfileToLocalStorage from '../../utils/getUserToLocalStorage';
 import { getDatabase, ref as refDB, set, update, get, child } from 'firebase/database';
 import { getAuth, updateProfile } from 'firebase/auth';
+import { Lang } from '../../constans/constans';
 
 //TODO: исправить загрузку фото без перезагрузки страницы
 type UserProfile = {
@@ -18,8 +19,8 @@ export default class ModelProfile extends Model {
   userProfile: UserProfile;
   user: User | null;
 
-  constructor() {
-    super();
+  constructor(lang: Lang) {
+    super(lang);
     this.userProfile = JSON.parse(localStorage.getItem('user-profile') || '{}');
 
     this.user = null;

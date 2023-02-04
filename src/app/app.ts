@@ -91,7 +91,7 @@ class App {
   };
   private profilePage = () => {
     this.container.innerHTML = '';
-    const page = new myProfile(PATH.profilePage);
+    const page = new myProfile(PATH.profilePage, this.lang);
     this.page = page;
     this.container.append(page.render());
     this.navbarWrap.style.display = 'block';
