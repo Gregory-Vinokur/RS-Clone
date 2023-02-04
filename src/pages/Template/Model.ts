@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
-// import 'firebase/firestore';
 import { Lang } from '../../constans/constans';
 
 type EmitsName = 'authorized' | 'changeLang' | 'updateData' | 'setLimit';
@@ -18,13 +17,12 @@ export default abstract class Model extends EventEmitter {
     return super.on(event, callback);
   }
 
-  constructor() {
+  constructor(lang: Lang) {
     super();
     const auth = getAuth();
     this.setMaxListeners(0);
     this.user = null;
-    this.lang = 'eng';
-    // const firestore = firebase.firestore();
+    this.lang = lang;
     onAuthStateChanged(auth, (user) => {
       if (user) {
         // User is signed in, see docs for a list of available properties
@@ -38,4 +36,9 @@ export default abstract class Model extends EventEmitter {
       this.emit('authorized');
     });
   }
+
+  changeLang = (lang: Lang) => {
+    this.lang = lang;
+    this.emit('changeLang');
+  };
 }

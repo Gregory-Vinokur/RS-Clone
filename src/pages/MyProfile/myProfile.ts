@@ -4,6 +4,7 @@ import Page from '../Template/page';
 import 'firebase/compat/storage';
 import myProfileInfo from './myProfileInfo';
 import myProfileCover from './myProfileCover';
+import { Lang } from '../../constans/constans';
 export default class myProfile extends Page {
   constructor(id: string) {
     super(id);
@@ -18,6 +19,10 @@ export default class myProfile extends Page {
     const profileCover = new myProfileCover('profile__cover');
     profileWrapper.append(profileCover.render());
   }
+
+  changeLang = (lang: Lang) => {
+    console.log(lang);
+  };
 
   render(): HTMLElement {
     return this.mainWrapper;

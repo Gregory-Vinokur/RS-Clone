@@ -1,10 +1,13 @@
+const CLASSTHEME = 'dark-theme';
+const THEME = 'THEME';
+
 type LangFild = {
   rus: string;
   eng: string;
 };
-type LangText = {
-  [prop: string]: LangFild;
-};
+// type LangText = {
+//   [prop: string]: LangFild;
+// };
 
 type Lang = keyof LangFild;
 
@@ -16,6 +19,10 @@ const LANGTEXT = {
   deleteButton: {
     rus: 'Удалить',
     eng: 'Delete',
+  },
+  langButton: {
+    rus: 'Рус',
+    eng: 'Eng',
   },
   inputLimit: {
     rus: 'Лимит сообщений: ',
@@ -29,8 +36,24 @@ const LANGTEXT = {
     rus: 'Сначала старые',
     eng: 'First old',
   },
+  myProfile: {
+    rus: 'Мой профиль',
+    eng: 'My Profile',
+  },
+  news: {
+    rus: 'Новости',
+    eng: 'News',
+  },
+  messenger: {
+    rus: 'Сообщения',
+    eng: 'Messenger',
+  },
+  Logout: {
+    rus: 'Выйти',
+    eng: 'Logout',
+  },
 };
 
 type LangNameElement = keyof typeof LANGTEXT;
 
-export { LANGTEXT, Lang, LangNameElement };
+export { LANGTEXT, Lang, LangNameElement, CLASSTHEME, THEME };

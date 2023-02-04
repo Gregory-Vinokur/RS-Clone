@@ -34,6 +34,7 @@ export default class ViewerMessasges extends Page {
     super(id);
     this.mainWrapper.className = 'messages__page';
     this.model = model;
+    this.model.on('changeLang', this.changeLang);
     this.messagesField = createHtmlElement('div', 'messages__field');
     this.input = createHtmlElement('input', 'input__message') as HTMLInputElement;
     this.input.setAttribute('type', 'text');
@@ -104,5 +105,11 @@ export default class ViewerMessasges extends Page {
       createHtmlElement('p', 'message_text', `${document.text}`, containerMessage);
     });
     this.messagesField.scrollTop = this.messagesField.scrollHeight;
+  };
+
+  changeLang = () => {
+    this.limitText.innerText = LANGTEXT['inputLimit'][this.model.lang];
+    this.sortDESC.innerText = LANGTEXT['sortDesc'][this.model.lang];
+    this.sortASC.innerText = LANGTEXT['sortAsc'][this.model.lang];
   };
 }
