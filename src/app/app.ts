@@ -1,3 +1,5 @@
+import './app.css';
+import ModelApp from './Model-app';
 import Header from '../components/Header/header';
 import Footer from '../components/Footer/footer';
 import { createHtmlElement } from '../utils/createElement';
@@ -6,82 +8,112 @@ import LoginPage from './../pages/Login/login';
 import Navbar from './../components/Navbar/navbar';
 import myProfile from './../pages/MyProfile/myProfile';
 import Messages from './../pages/Messages/Messages';
+import { CLASSTHEME, Lang, THEME } from '../constans/constans';
+
+const LANG = 'LANG';
 
 export const PATH = {
-    login: '/',
-    errorPage: '/404',
-    profilePage: '/profile',
-    messagesPage: '/messages',
+  login: '/',
+  errorPage: '/404',
+  profilePage: '/profile',
+  messagesPage: '/messages',
 };
 
 class App {
-    private wrapper: HTMLElement;
-    private container: HTMLElement;
-    private navbarWrap: HTMLElement;
-    private routes;
-    header: Header;
-    navbar: Navbar;
-    constructor() {
-        this.header = new Header();
-        this.navbar = new Navbar();
-        this.wrapper = createHtmlElement('main', 'main__wrapper', '', document.body);
-        this.navbarWrap = this.navbar.render();
-        this.wrapper.append(this.navbarWrap);
-        this.container = createHtmlElement('main', 'main__content', '', this.wrapper);
-        const footer = new Footer();
-        footer.createFooter();
-        this.routes = {
-            [PATH.login]: this.loginPage,
-            [PATH.errorPage]: this.errorPage,
-            [PATH.profilePage]: this.profilePage,
-            [PATH.messagesPage]: this.messagesPage,
-        };
-
-        window.addEventListener('popstate', () => {
-            this.routes[window.location.pathname.split('/').slice(0, 2).join('/')]();
-        });
-        window.addEventListener('DOMContentLoaded', () => {
-            const path = window.location.pathname.split('/').slice(0, 2).join('/');
-            if (this.routes[path]) {
-                this.routes[path]();
-            } else {
-                window.history.pushState({}, 'path', window.location.origin + PATH.errorPage);
-                this.routes[PATH.errorPage]();
-            }
-        });
-
-        this.header.on('navigate', this.navigate);
-        this.navbar.on('navigate', this.navigate);
+  private wrapper: HTMLElement;
+  private container: HTMLElement;
+  private navbarWrap: HTMLElement;
+  private routes;
+  page: LoginPage | ErrorPage | myProfile | Messages | null;
+  header: Header;
+  navbar: Navbar;
+  model: ModelApp;
+  lang: Lang;
+  constructor() {
+    this.page = null;
+    const lang = localStorage.getItem(LANG);
+    this.lang = lang === 'eng' || lang === 'rus' ? lang : 'eng';
+    const theme = localStorage.getItem(THEME);
+    if (theme === CLASSTHEME) {
+      document.body.classList.add(CLASSTHEME);
     }
-
-    navigate = (path: string) => {
-        window.history.pushState({}, 'path', window.location.origin + path);
-        this.routes[path.split('/').slice(0, 2).join('/')]();
-    };
-    private loginPage = async () => {
-        this.container.innerHTML = '';
-        const main = new LoginPage(PATH.login);
-        main.on('navigate', this.navigate);
-        this.container.append(main.render());
-        this.navbarWrap.style.display = 'none';
-    };
-    private errorPage = () => {
-        this.container.innerHTML = '';
-        const page = new ErrorPage(PATH.errorPage);
-        this.container.append(page.render());
-    };
-    private profilePage = () => {
-        this.container.innerHTML = '';
-        const page = new myProfile(PATH.profilePage);
-        this.container.append(page.render());
-        this.navbarWrap.style.display = 'block';
+    this.model = new ModelApp(this.lang);
+    this.header = new Header(this.model);
+    this.navbar = new Navbar(this.model);
+    this.header.on('changeLang', this.changeLang);
+    this.wrapper = createHtmlElement('main', 'main__wrapper', '', document.body);
+    this.navbarWrap = this.navbar.render();
+    this.wrapper.append(this.navbarWrap);
+    this.container = createHtmlElement('div', 'main__content', '', this.wrapper);
+    const footer = new Footer();
+    footer.createFooter();
+    this.routes = {
+      [PATH.login]: this.loginPage,
+      [PATH.errorPage]: this.errorPage,
+      [PATH.profilePage]: this.profilePage,
+      [PATH.messagesPage]: this.messagesPage,
     };
 
-    private messagesPage = () => {
-        this.container.innerHTML = '';
-        const page = new Messages(PATH.messagesPage);
-        this.container.append(page.render());
-    };
+    window.addEventListener('popstate', () => {
+      this.routes[window.location.pathname.split('/').slice(0, 2).join('/')]();
+    });
+    window.addEventListener('DOMContentLoaded', () => {
+      const path = window.location.pathname.split('/').slice(0, 2).join('/');
+      if (this.routes[path]) {
+        this.routes[path]();
+      } else {
+        window.history.pushState({}, 'path', window.location.origin + PATH.errorPage);
+        this.routes[PATH.errorPage]();
+      }
+    });
+
+    this.header.on('navigate', this.navigate);
+    this.navbar.on('navigate', this.navigate);
+  }
+
+  navigate = (path: string) => {
+    window.history.pushState({}, 'path', window.location.origin + path);
+    this.routes[path.split('/').slice(0, 2).join('/')]();
+  };
+  private loginPage = async () => {
+    this.container.innerHTML = '';
+    const main = new LoginPage(PATH.login);
+    this.page = main;
+    main.on('navigate', this.navigate);
+    this.container.append(main.render());
+    this.navbarWrap.style.display = 'none';
+  };
+  private errorPage = () => {
+    this.container.innerHTML = '';
+    const page = new ErrorPage(PATH.errorPage);
+    this.page = page;
+    this.container.append(page.render());
+  };
+  private profilePage = () => {
+    this.container.innerHTML = '';
+    const page = new myProfile(PATH.profilePage, this.lang);
+    this.page = page;
+    this.container.append(page.render());
+    this.navbarWrap.style.display = 'block';
+  };
+
+  private messagesPage = () => {
+    this.container.innerHTML = '';
+    const page = new Messages(PATH.messagesPage, this.lang);
+    this.page = page;
+    this.container.append(page.render());
+  };
+
+  changeLang = () => {
+    if (this.lang === 'eng') {
+      this.lang = 'rus';
+    } else {
+      this.lang = 'eng';
+    }
+    localStorage.setItem(LANG, this.lang);
+    this.model.changeLang(this.lang);
+    this.page?.changeLang(this.lang);
+  };
 }
 
 export default App;

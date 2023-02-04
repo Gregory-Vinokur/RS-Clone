@@ -28,3 +28,37 @@
   cursor: pointer;
   transition: all 0.5s;
 }
+
+.containerButtons__header {
+  display: flex;
+  gap: 20px;
+}
+
+.button.button_langButton {
+  width: 50px;
+  height: 25px;
+  font-size: 0.8em;
+  box-shadow: #efeff9 0 0 5px;
+  border-radius: 8px;
+}
+
+.theme-button {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  box-shadow: #efeff9 0 0 5px;
+  background-color: inherit;
+  background-image: url('../../../assets/img/icon-sun.png');
+  background-size: contain;
+  transition: transform 2s;
+  cursor: pointer;
+}
+
+.theme-button:hover {
+  transition: transform 2s;
+  transform: rotate(360deg);
+}
+
+.dark-theme .theme-button {
+  background-image: url('../../../assets/img/icon-moon.png');
+}

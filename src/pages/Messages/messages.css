@@ -1,6 +1,6 @@
 .messages__page {
   display: flex;
-  margin: 0 auto;
+  margin: 10px auto;
   width: 80%;
   flex-direction: column;
   align-items: center;
@@ -8,8 +8,9 @@
 
 .messages__field {
   width: 100%;
-  height: 55vh;
-  padding: 5px;
+  height: 60vh;
+  padding: 5px 10px;
+  border-radius: 5px;
   background-color: aliceblue;
   overflow-y: auto;
 }
@@ -57,6 +58,8 @@ select {
   border-radius: 5px;
   padding: 2px 5px;
   margin: 5px;
+  box-shadow: #6161c8 0 0 5px;
+
   outline: none;
 }
 
@@ -65,7 +68,7 @@ option {
 }
 
 .input__message {
-  margin-top: 5px;
+  margin-top: 10px;
   width: 100%;
 }
 

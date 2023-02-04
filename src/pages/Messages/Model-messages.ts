@@ -18,14 +18,15 @@ import {
   Firestore,
 } from 'firebase/firestore';
 import { Sort } from '../../constans/types';
+import { Lang } from '../../constans/constans';
 
 export default class ModelMessages extends Model {
   db: Firestore;
   messages: QuerySnapshot<DocumentData> | undefined;
   limit: number;
   sort: Sort;
-  constructor() {
-    super();
+  constructor(lang: Lang) {
+    super(lang);
     this.limit = 10;
     this.sort = 'desc';
     const app = initializeApp(firebaseConfig);

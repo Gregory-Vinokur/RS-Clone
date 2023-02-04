@@ -3,30 +3,48 @@ import { EventEmitter } from 'events';
 import { createHtmlElement } from '../../utils/createElement';
 import { PATH } from '../../app/app';
 import { handleLogout } from '../../server/firebaseAuth';
+import ModelApp from '../../app/Model-app';
+import { LANGTEXT } from '../../constans/constans';
+
 export default class Navbar extends EventEmitter {
   element: HTMLElement;
-  constructor() {
+  model: ModelApp;
+  myProfile: HTMLElement;
+  news: HTMLElement;
+  messenger: HTMLElement;
+  Logout: HTMLElement;
+  constructor(model: ModelApp) {
     super();
+    this.model = model;
+    this.model.on('changeLang', this.changeLang);
     this.element = createHtmlElement('aside', 'side__bar');
     const wrapper = createHtmlElement('div', 'side__bar-nav', '', this.element);
     const sideBarOl = createHtmlElement('ol', 'side__bar-ol', '', wrapper);
-    const myProfile = createHtmlElement('li', 'side__bar-item my__pr', 'My Profile', sideBarOl);
-    const news = createHtmlElement('li', 'side__bar-item my__pr', 'News', sideBarOl);
-    const messenger = createHtmlElement('li', 'side__bar-item my__pr', 'Messenger', sideBarOl);
-    const Logout = createHtmlElement('li', 'side__bar-item my__pr', 'Logout', sideBarOl);
+    this.myProfile = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
+    this.news = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
+    this.messenger = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
+    this.Logout = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
+    this.changeLang();
 
-    myProfile.addEventListener('click', () => {
+    this.myProfile.addEventListener('click', () => {
       this.emit('navigate', PATH.profilePage);
     });
 
-    messenger.addEventListener('click', () => {
+    this.messenger.addEventListener('click', () => {
       this.emit('navigate', PATH.messagesPage);
     });
 
-    Logout.addEventListener('click', () => {
+    this.Logout.addEventListener('click', () => {
       handleLogout();
-    })
+    });
   }
+
+  changeLang = () => {
+    this.myProfile.innerText = LANGTEXT['myProfile'][this.model.lang];
+    this.news.innerText = LANGTEXT['news'][this.model.lang];
+    this.messenger.innerText = LANGTEXT['messenger'][this.model.lang];
+    this.Logout.innerText = LANGTEXT['Logout'][this.model.lang];
+  };
   render(): HTMLElement {
     return this.element;
   }
