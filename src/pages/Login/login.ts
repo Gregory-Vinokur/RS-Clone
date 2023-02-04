@@ -51,12 +51,14 @@ export default class LoginPage extends Page {
         });
 
         const passwordLabel = createHtmlElement('label', '', 'Password:', userNamePasswordWrap);
-        const passwordInput = createHtmlElement('input', 'password', '', passwordLabel) as HTMLInputElement;
+        const passwordWrap = createHtmlElement('div', 'password__wrap', '', passwordLabel);
+        const passwordInput = createHtmlElement('input', 'password', '', passwordWrap) as HTMLInputElement;
         const resetPasswordLink = createHtmlElement('a', 'reset__link', 'Forgot your password?', userNamePasswordWrap);
         const resetPasswordMessage = createHtmlElement('div', 'reset__text', '', userNamePasswordWrap);
         passwordInput.setAttribute('type', 'password');
         passwordInput.setAttribute('required', '');
         passwordInput.setAttribute('pattern', `[A-Za-zА-Яа-яЁё0-9-]{6,}`);
+        const hidePasswordSvg = createHtmlElement('i', 'show__svg', '', passwordWrap);
         const ErrorMessagePassword = createHtmlElement('span', 'error__message', 'Invalid password', passwordLabel);
 
         passwordInput.addEventListener('invalid', function (e: Event) {
@@ -72,18 +74,16 @@ export default class LoginPage extends Page {
                 passwordInput.classList.toggle('invalid');
             }
         });
-        passwordInput.addEventListener('blur', function () {
-            if (!usernameInput.validity.valid) {
-                ErrorMessagePassword.classList.toggle('active');
-                passwordInput.classList.toggle('invalid');
-            }
-        });
+
+        hidePasswordSvg.addEventListener('click', (e: Event) => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            hidePasswordSvg.classList.toggle('hide__svg');
+        })
 
         const signInButton = createHtmlElement('button', 'sign__in', 'Sign in', form);
-        // signInButton.setAttribute('type', 'submit');
 
         const signUpButton = createHtmlElement('button', 'sign__up', 'Sign up', form);
-        // signUpButton.setAttribute('type', 'submit');
 
         const submitButtonForSigIn = createHtmlElement('button', 'submit', 'Submit', form);
         const submitButtonForSigUp = createHtmlElement('button', 'submit', 'Submit', form);
@@ -121,7 +121,7 @@ export default class LoginPage extends Page {
 
         submitButtonForSigUp.addEventListener('click', (e: Event) => {
             e.preventDefault();
-            signUp(usernameInput.value, passwordInput.value);
+            signUp(usernameInput.value, passwordInput.value, passwordInput, ErrorMessagePassword);
         })
 
         checkAuthStatus(form, buttonsWrap)
