@@ -21,6 +21,8 @@ export default class ViewerMessasges extends Page {
   sortSelect: HTMLSelectElement;
   sortDESC: HTMLElement;
   sortASC: HTMLElement;
+  buttons: Button<ModelMessages>[];
+  buttonSend: Button<ModelMessages>;
 
   emit(event: EmitsName, data?: string) {
     return super.emit(event, data);
@@ -35,6 +37,7 @@ export default class ViewerMessasges extends Page {
     this.mainWrapper.className = 'messages__page';
     this.model = model;
     this.model.on('changeLang', this.changeLang);
+    this.buttons = [];
     this.messagesField = createHtmlElement('div', 'messages__field');
     this.input = createHtmlElement('input', 'input__message') as HTMLInputElement;
     this.input.setAttribute('type', 'text');
@@ -56,21 +59,13 @@ export default class ViewerMessasges extends Page {
     this.sortSelect.value = this.model.sort;
     this.sortSelect.addEventListener('change', () => this.emit('setSort', this.sortSelect.value));
 
-    const buttonSend = new Button('sendButton', this.model, this.sendMessage);
-    this.containerButtons.append(buttonSend.render());
-    this.createContent();
-    this.model.on('authorized', this.createContent);
+    this.buttonSend = new Button('sendButton', this.model, this.sendMessage);
+    this.containerButtons.append(this.buttonSend.render());
+    this.mainWrapper.append(this.messagesField, this.input, this.containerButtons);
+    this.messagesField.innerHTML = `<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`;
+    this.messagesField.classList.add('messages__field_load');
     this.model.on('updateData', this.updateData);
   }
-
-  createContent = () => {
-    this.mainWrapper.innerHTML = '';
-    if (!this.model.isLogin) {
-      this.mainWrapper.innerHTML = `<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`;
-    } else {
-      this.mainWrapper.append(this.messagesField, this.input, this.containerButtons);
-    }
-  };
 
   sendMessage = () => {
     this.emit('send', this.input.value);
@@ -88,6 +83,8 @@ export default class ViewerMessasges extends Page {
 
   createMessages = () => {
     this.messagesField.innerHTML = '';
+    this.messagesField.classList.remove('messages__field_load');
+    this.buttons = [];
     this.model.messages?.forEach((doc) => {
       const document = doc.data();
       const classMessage = document.uid === this.model.user?.uid ? 'my_message' : 'other_message';
@@ -100,6 +97,7 @@ export default class ViewerMessasges extends Page {
       createHtmlElement('span', '', `${document.name}`, title);
       if (document.uid === this.model.user?.uid) {
         const buttonDelete = new Button('deleteButton', this.model, () => this.deleteMessage(doc.id));
+        this.buttons.push(buttonDelete);
         title.append(buttonDelete.render());
       }
       createHtmlElement('p', 'message_text', `${document.text}`, containerMessage);
@@ -108,6 +106,8 @@ export default class ViewerMessasges extends Page {
   };
 
   changeLang = () => {
+    this.buttons.forEach((button) => button.changeLang());
+    this.buttonSend.changeLang();
     this.limitText.innerText = LANGTEXT['inputLimit'][this.model.lang];
     this.sortDESC.innerText = LANGTEXT['sortDesc'][this.model.lang];
     this.sortASC.innerText = LANGTEXT['sortAsc'][this.model.lang];

@@ -9,6 +9,7 @@ import Navbar from './../components/Navbar/navbar';
 import myProfile from './../pages/MyProfile/myProfile';
 import Messages from './../pages/Messages/Messages';
 import { CLASSTHEME, Lang, THEME } from '../constans/constans';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 
 const LANG = 'LANG';
 
@@ -24,6 +25,7 @@ class App {
   private container: HTMLElement;
   private navbarWrap: HTMLElement;
   private routes;
+  user: User | null;
   page: LoginPage | ErrorPage | myProfile | Messages | null;
   header: Header;
   navbar: Navbar;
@@ -31,13 +33,25 @@ class App {
   lang: Lang;
   constructor() {
     this.page = null;
+    this.user = null;
+    const auth = getAuth();
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        this.user = user;
+      } else {
+        // User is signed out
+        this.user = null;
+      }
+      this.loadPages();
+    });
     const lang = localStorage.getItem(LANG);
     this.lang = lang === 'eng' || lang === 'rus' ? lang : 'eng';
     const theme = localStorage.getItem(THEME);
     if (theme === CLASSTHEME) {
       document.body.classList.add(CLASSTHEME);
     }
-    this.model = new ModelApp(this.lang);
+    this.model = new ModelApp(this.lang, this.user);
     this.header = new Header(this.model);
     this.navbar = new Navbar(this.model);
     this.header.on('changeLang', this.changeLang);
@@ -54,10 +68,13 @@ class App {
       [PATH.messagesPage]: this.messagesPage,
     };
 
-    window.addEventListener('popstate', () => {
-      this.routes[window.location.pathname.split('/').slice(0, 2).join('/')]();
-    });
-    window.addEventListener('DOMContentLoaded', () => {
+    window.addEventListener('popstate', this.loadPages);
+    this.header.on('navigate', this.navigate);
+    this.navbar.on('navigate', this.navigate);
+  }
+
+  loadPages = () => {
+    if (this.user) {
       const path = window.location.pathname.split('/').slice(0, 2).join('/');
       if (this.routes[path]) {
         this.routes[path]();
@@ -65,11 +82,10 @@ class App {
         window.history.pushState({}, 'path', window.location.origin + PATH.errorPage);
         this.routes[PATH.errorPage]();
       }
-    });
-
-    this.header.on('navigate', this.navigate);
-    this.navbar.on('navigate', this.navigate);
-  }
+    } else {
+      this.routes[PATH.login]();
+    }
+  };
 
   navigate = (path: string) => {
     window.history.pushState({}, 'path', window.location.origin + path);
@@ -91,7 +107,7 @@ class App {
   };
   private profilePage = () => {
     this.container.innerHTML = '';
-    const page = new myProfile(PATH.profilePage, this.lang);
+    const page = new myProfile(PATH.profilePage, this.lang, this.user);
     this.page = page;
     this.container.append(page.render());
     this.navbarWrap.style.display = 'block';
@@ -99,7 +115,7 @@ class App {
 
   private messagesPage = () => {
     this.container.innerHTML = '';
-    const page = new Messages(PATH.messagesPage, this.lang);
+    const page = new Messages(PATH.messagesPage, this.lang, this.user);
     this.page = page;
     this.container.append(page.render());
   };

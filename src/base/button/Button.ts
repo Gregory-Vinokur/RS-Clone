@@ -13,12 +13,11 @@ export default class Button<T extends Model> {
     this.model = model;
     this.changeLang();
     this.element.addEventListener('click', callback);
-    this.model.on('changeLang', this.changeLang);
   }
 
   changeLang = () => {
     this.element.innerText = LANGTEXT[this.name][this.model.lang];
-  }
+  };
 
   render = () => this.element;
 }
