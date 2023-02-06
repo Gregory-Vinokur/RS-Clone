@@ -47,6 +47,7 @@ export default class ViewProfile extends Page {
     this.renderProfileAvatar();
     this.renderProfileName();
     this.renderProfileContainer();
+    this.renderNews();
 
     this.inputAvatar.addEventListener('change', (e: Event) => {
       this.model.uploadUserAvatar(e);
@@ -60,7 +61,8 @@ export default class ViewProfile extends Page {
       this.createNews();
     });
 
-    this.model.on('updateData', this.renderNews);
+    //this.model.on('updateData', this.renderNews);
+    //this.model.on('createdNews', this.renderNews);
   }
 
   renderProfileAvatar() {
@@ -145,11 +147,26 @@ export default class ViewProfile extends Page {
   createNews() {
     this.emit('createNews', this.inputCreateNews.value);
     this.inputCreateNews.value = '';
+    this.renderNews();
   }
 
-  renderNews() {
-    // this.model.news?.forEach((news) => {
-    //   console.log(news);
-    // });
+  async renderNews() {
+    const userPost: { [key: string]: any } = await this.model.getUserNews();
+
+    const createdPostContainer: HTMLElement | null = document.querySelector('.news__container');
+    if (createdPostContainer) createdPostContainer.innerHTML = '';
+
+    Object.keys(userPost).forEach((postId: string) => {
+      const postContainer = createHtmlElement('div', 'post__container', '', createdPostContainer as HTMLElement);
+      const postHeader = createHtmlElement('div', 'post__header', '', postContainer);
+      createHtmlElement('p', 'post__author', `Autor: ${userPost[postId].author}`, postHeader);
+      createHtmlElement('p', 'post__date', `Time: ${userPost[postId].time}`, postHeader);
+
+      const postContent = createHtmlElement('div', 'post__content', '', postContainer);
+      createHtmlElement('p', 'post__text', `${userPost[postId].text}`, postContent);
+
+      createdPostContainer?.append(postContainer);
+      console.log(userPost);
+    });
   }
 }

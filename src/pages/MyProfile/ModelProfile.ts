@@ -3,7 +3,7 @@ import Model from '../Template/Model';
 import 'firebase/compat/storage';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import getUserProfileToLocalStorage from '../../utils/getUserToLocalStorage';
-import { getDatabase, ref as refDB, set, update, get, child } from 'firebase/database';
+import { getDatabase, ref as refDB, update, get, child, push, onValue } from 'firebase/database';
 import { getAuth, updateProfile } from 'firebase/auth';
 import { Lang } from '../../constans/constans';
 
@@ -15,18 +15,25 @@ type UserProfile = {
   avaCoverUrl: string | null;
 };
 
+type UserPosts = {
+  author?: string;
+  time?: string;
+  text?: string;
+};
+
 export default class ModelProfile extends Model {
   userProfile: UserProfile;
   user: User | null;
+  userPosts: UserPosts;
 
   constructor(lang: Lang) {
     super(lang);
     this.userProfile = JSON.parse(localStorage.getItem('user-profile') || '{}');
-
     this.user = null;
+    this.userPosts = {};
   }
+
   db = getDatabase();
-  // auth = getAuth();
 
   getAvatarImgUrl() {
     return this.userProfile.avaImgUrl || '';
@@ -70,7 +77,6 @@ export default class ModelProfile extends Model {
       .catch((error) => {
         console.log('Oops Error, ', error);
       });
-    console.log(this.user);
   }
 
   getUserStatus() {
@@ -137,10 +143,50 @@ export default class ModelProfile extends Model {
   }
 
   createNews(newsText: string) {
-    // const db = getDatabase();
-    // set(refDB(db, 'users/' + '1'), {
-    //   username: newsText,
-    // });
-    console.log(newsText);
+    const optionsTime: { [key: string]: string } = { hour: 'numeric', minute: 'numeric' };
+    const timeDate = new Date().toLocaleTimeString([], optionsTime);
+    const dayDate = new Date().toLocaleDateString();
+
+    const db = getDatabase();
+    const postData = {
+      author: this.getUserName(),
+      text: newsText,
+      time: `${timeDate} / ${dayDate}`,
+    };
+    const newPostKey = push(child(refDB(db), 'posts')).key;
+    const updates: { [key: string]: object } = {};
+
+    updates['/users/' + this.user?.uid + '/userPost/' + newPostKey] = postData;
+
+    update(refDB(db), updates);
+    this.emit('createdNews');
+  }
+
+  async getUserNews() {
+    // const dbRef = refDB(getDatabase());
+    // await get(child(dbRef, `users/${this.user?.uid}/userPost`))
+    //   .then((snapshot) => {
+    //     if (snapshot.exists()) {
+    //       const userNews = snapshot.val();
+    //       this.userPosts = userNews;
+    //       console.log(this.user);
+    //     } else {
+    //       console.log('No data available');
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.error(error);
+    //   });
+
+    const db = getDatabase();
+    const dbRef = refDB(getDatabase());
+    const userId = this.user;
+    const starCountRef = refDB(db, 'users/01RXeSH493bwfR3JMtmwMDvgjb63/userPost');
+    onValue(starCountRef, (snapshot) => {
+      const data = snapshot.val();
+      this.userPosts = data;
+      console.log(this.userPosts);
+    });
+    return this.userPosts;
   }
 }

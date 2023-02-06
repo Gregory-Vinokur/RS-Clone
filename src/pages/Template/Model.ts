@@ -2,7 +2,7 @@ import { EventEmitter } from 'events';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { Lang } from '../../constans/constans';
 
-type EmitsName = 'authorized' | 'changeLang' | 'updateData' | 'setLimit';
+type EmitsName = 'authorized' | 'changeLang' | 'updateData' | 'setLimit' | 'createdNews';
 
 export default abstract class Model extends EventEmitter {
   isLogin = false;

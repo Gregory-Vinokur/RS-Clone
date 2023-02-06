@@ -136,9 +136,6 @@
 }
 .profile__news {
   flex: 1 0 70%;
-  height: 400px;
-  background-color: aliceblue;
-  border-radius: 15px;
 }
 
 .profile__friends {
@@ -171,4 +168,24 @@
   background: blue;
   border-radius: 5px;
   cursor: pointer;
+}
+
+.post__container {
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 10px 20px;
+  margin-top: 10px;
+}
+.post__header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.post__author,
+.post__date {
+  color: black;
+}
+
+.post__text {
+  color: black;
 }
