@@ -39,8 +39,12 @@ export default class ViewerMessasges extends Page {
     this.model.on('changeLang', this.changeLang);
     this.buttons = [];
     this.messagesField = createHtmlElement('div', 'messages__field');
-    this.input = createHtmlElement('input', 'input__message') as HTMLInputElement;
-    this.input.setAttribute('type', 'text');
+
+    this.input = createHtmlElement('textarea', 'input__message') as HTMLInputElement;
+    this.input.setAttribute('rows', '1');
+    this.setTextAreaHeight();
+    this.input.addEventListener('input', this.setTextAreaHeight);
+
     this.containerButtons = createHtmlElement('div', 'message__containerButtons');
     const containerLimit = createHtmlElement('div', 'container-limit', '', this.containerButtons);
     this.limitText = createHtmlElement('span', 'input-limit-title', LANGTEXT['inputLimit'][this.model.lang], containerLimit);
@@ -67,9 +71,15 @@ export default class ViewerMessasges extends Page {
     this.model.on('updateData', this.updateData);
   }
 
+  setTextAreaHeight = () => {
+    this.input.style.height = `auto`;
+    this.input.style.height = `${this.input.scrollHeight}px`;
+  };
+
   sendMessage = () => {
     this.emit('send', this.input.value);
     this.input.value = '';
+    this.setTextAreaHeight();
   };
 
   deleteMessage = (id: string) => {
@@ -101,6 +111,13 @@ export default class ViewerMessasges extends Page {
         title.append(buttonDelete.render());
       }
       createHtmlElement('p', 'message_text', `${document.text}`, containerMessage);
+      const timeSec = document.created?.seconds ? document.created.seconds * 1000 : Date.now();
+      const time = new Date(timeSec);
+      const timeText = `${time.getDate().toString().padStart(2, '0')}.${time
+        .getMonth()
+        .toString()
+        .padStart(2, '0')}.${time.getFullYear()} ${time.getHours()}:${time.getMinutes()}`;
+      createHtmlElement('p', 'message_time', timeText, containerMessage);
     });
     this.messagesField.scrollTop = this.messagesField.scrollHeight;
   };
