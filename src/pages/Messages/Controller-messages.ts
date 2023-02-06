@@ -11,6 +11,7 @@ export default class ControllerMessages {
     this.viewer.on('send', (message) => this.sendMessage(message));
     this.viewer.on('setLimit', (limit) => this.setLimit(limit));
     this.viewer.on('setSort', (sort) => this.setSort(sort as Sort));
+    this.viewer.on('deleteMessage', (id: string) => this.deleteMessage(id));
     this.model.getMessage();
   }
 
@@ -18,6 +19,10 @@ export default class ControllerMessages {
     if (message) {
       this.model.sendMessage(message);
     }
+  };
+
+  deleteMessage = (id: string) => {
+    this.model.deleteMessage(id);
   };
 
   setLimit = (limit = '') => {

@@ -1,13 +1,12 @@
 import { EventEmitter } from 'events';
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { Lang } from '../../constans/constans';
+import { TypeUser } from '../../constans/types';
 
 type EmitsName = 'authorized' | 'changeLang' | 'updateData' | 'setLimit' | 'createdNews';
 
 export default abstract class Model extends EventEmitter {
-  isLogin = false;
   lang: Lang;
-  user: User | null;
+  user: TypeUser;
 
   emit(event: EmitsName, data?: number) {
     return super.emit(event, data);
@@ -17,24 +16,10 @@ export default abstract class Model extends EventEmitter {
     return super.on(event, callback);
   }
 
-  constructor(lang: Lang) {
+  constructor(lang: Lang, user: TypeUser) {
     super();
-    const auth = getAuth();
-    this.setMaxListeners(0);
-    this.user = null;
+    this.user = user;
     this.lang = lang;
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in, see docs for a list of available properties
-        this.isLogin = true;
-        this.user = user;
-      } else {
-        // User is signed out
-        this.isLogin = false;
-        this.user = null;
-      }
-      this.emit('authorized');
-    });
   }
 
   changeLang = (lang: Lang) => {
