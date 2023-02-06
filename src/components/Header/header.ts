@@ -12,6 +12,7 @@ export default class Header extends EventEmitter {
   element: HTMLElement;
   logo: HTMLElement;
   model: ModelApp;
+  buttonLang: Button<ModelApp>;
 
   emit(event: EmitsName, data?: string) {
     return super.emit(event, data);
@@ -24,14 +25,15 @@ export default class Header extends EventEmitter {
   constructor(model: ModelApp) {
     super();
     this.model = model;
+    this.model.on('changeLang', this.changeLang);
     this.element = createHtmlElement('header', 'header');
     document.body.prepend(this.element);
     const wrapper = createHtmlElement('div', 'header__wrapper', '', this.element);
     this.logo = createHtmlElement('div', 'logo__img', '', wrapper);
 
     const buttonContainer = createHtmlElement('div', 'containerButtons__header', '', wrapper);
-    const buttonLang = new Button('langButton', this.model, () => this.emit('changeLang'));
-    buttonContainer.append(buttonLang.render());
+    this.buttonLang = new Button('langButton', this.model, () => this.emit('changeLang'));
+    buttonContainer.append(this.buttonLang.render());
     const buttonTheme = createHtmlElement('div', 'theme-button', '', buttonContainer);
     buttonTheme.addEventListener('click', this.changeTheme);
 
@@ -44,5 +46,9 @@ export default class Header extends EventEmitter {
     document.body.classList.toggle(CLASSTHEME);
     const theme = document.body.classList.contains(CLASSTHEME) ? CLASSTHEME : '';
     localStorage.setItem(THEME, theme);
+  };
+
+  private changeLang = () => {
+    this.buttonLang.changeLang();
   };
 }

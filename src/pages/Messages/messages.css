@@ -15,6 +15,13 @@
   overflow-y: auto;
 }
 
+.messages__field_load {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
 .containerMessage {
   width: 60%;
   margin: 10px 0;

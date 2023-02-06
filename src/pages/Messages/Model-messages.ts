@@ -17,7 +17,8 @@ import {
   QuerySnapshot,
   Firestore,
 } from 'firebase/firestore';
-import { Sort } from '../../constans/types';
+
+import { Sort, TypeUser } from '../../constans/types';
 import { Lang } from '../../constans/constans';
 
 export default class ModelMessages extends Model {
@@ -25,8 +26,8 @@ export default class ModelMessages extends Model {
   messages: QuerySnapshot<DocumentData> | undefined;
   limit: number;
   sort: Sort;
-  constructor(lang: Lang) {
-    super(lang);
+  constructor(lang: Lang, user: TypeUser) {
+    super(lang, user);
     this.limit = 10;
     this.sort = 'desc';
     const app = initializeApp(firebaseConfig);
