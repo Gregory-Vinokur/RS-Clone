@@ -5,7 +5,7 @@ import Button from '../../base/button/Button';
 import avatar from '../../../assets/img/ava.jpg';
 import { LANGTEXT } from '../../constans/constans';
 
-type EmitsName = 'send' | 'changeLang' | 'delete' | 'setLimit' | 'setSort';
+type EmitsName = 'send' | 'changeLang' | 'deleteMessage' | 'setLimit' | 'setSort';
 enum SORTBY {
   DESC = 'desc',
   ASC = 'asc',
@@ -24,11 +24,11 @@ export default class ViewerMessasges extends Page {
   buttons: Button<ModelMessages>[];
   buttonSend: Button<ModelMessages>;
 
-  emit(event: EmitsName, data?: string) {
+  emit(event: EmitsName, data: string) {
     return super.emit(event, data);
   }
 
-  on(event: EmitsName, callback: (data?: string) => void) {
+  on(event: EmitsName, callback: (data: string) => void) {
     return super.on(event, callback);
   }
 
@@ -73,7 +73,7 @@ export default class ViewerMessasges extends Page {
   };
 
   deleteMessage = (id: string) => {
-    this.model.deleteMessage(id);
+    this.emit('deleteMessage', id);
   };
 
   updateData = () => {
