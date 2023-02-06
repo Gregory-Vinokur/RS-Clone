@@ -10,6 +10,7 @@ import myProfile from './../pages/MyProfile/myProfile';
 import Messages from './../pages/Messages/Messages';
 import { CLASSTHEME, Lang, THEME } from '../constans/constans';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
+import NewsPage from './../pages/News/news';
 
 const LANG = 'LANG';
 
@@ -18,6 +19,7 @@ export const PATH = {
   errorPage: '/404',
   profilePage: '/profile',
   messagesPage: '/messages',
+  newsPage: '/news'
 };
 
 class App {
@@ -26,7 +28,7 @@ class App {
   private navbarWrap: HTMLElement;
   private routes;
   user: User | null;
-  page: LoginPage | ErrorPage | myProfile | Messages | null;
+  page: LoginPage | ErrorPage | myProfile | Messages | NewsPage | null;
   header: Header;
   navbar: Navbar;
   model: ModelApp;
@@ -66,6 +68,7 @@ class App {
       [PATH.errorPage]: this.errorPage,
       [PATH.profilePage]: this.profilePage,
       [PATH.messagesPage]: this.messagesPage,
+      [PATH.newsPage]: this.newsPage,
     };
 
     window.addEventListener('popstate', this.loadPages);
@@ -116,6 +119,13 @@ class App {
   private messagesPage = () => {
     this.container.innerHTML = '';
     const page = new Messages(PATH.messagesPage, this.lang, this.user);
+    this.page = page;
+    this.container.append(page.render());
+  };
+
+  private newsPage = () => {
+    this.container.innerHTML = '';
+    const page = new NewsPage(PATH.newsPage);
     this.page = page;
     this.container.append(page.render());
   };
