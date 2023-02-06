@@ -5,9 +5,11 @@ import { createHtmlElement } from '../utils/createElement';
 import { firebaseConfig } from './firebase.config';
 import { app } from './../index';
 import { PATH } from '../app/app';
-import { IError } from './../interfaces/IError';
+import "firebase/compat/database";
 
 firebase.initializeApp(firebaseConfig);
+
+export const database = firebase.database();
 
 // Login function
 export async function signIn(usernameInput: HTMLInputElement, passwordInput: HTMLInputElement, ErrorMessageUser: HTMLElement, ErrorMessagePassword: HTMLElement) {
@@ -30,6 +32,12 @@ export async function signIn(usernameInput: HTMLInputElement, passwordInput: HTM
                 ErrorMessageUser.textContent = 'Wrong e-mail';
                 ErrorMessageUser.classList.toggle('active');
                 console.log("Wrong user!");
+
+            }
+            if (error.code === "auth/too-many-requests") {
+                passwordInput.classList.toggle('invalid');
+                ErrorMessagePassword.textContent = 'Too many requests. Try again later.';
+                ErrorMessagePassword.classList.toggle('active');
 
             } else {
                 console.error(error.code);
@@ -60,8 +68,6 @@ export async function checkAuthStatus(loginForm: HTMLElement, buttonsWrap: HTMLE
         }
     });
 }
-
-// const auth = firebase.auth();
 
 // Function to sign up a new user
 export async function signUp(email: string, password: string, passwordInput: HTMLInputElement, ErrorMessagePassword: HTMLElement) {

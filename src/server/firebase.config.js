@@ -11,5 +11,6 @@ export const firebaseConfig = {
     storageBucket: "rs-clone-ts.appspot.com",
     messagingSenderId: "477843895732",
     appId: "1:477843895732:web:199667278ada36b32e6ee1",
-    measurementId: "G-3026BHB96G"
+    measurementId: "G-3026BHB96G",
+    databaseURL: "https://rs-clone-ts-default-rtdb.firebaseio.com/",
 };

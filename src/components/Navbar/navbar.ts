@@ -5,6 +5,7 @@ import { PATH } from '../../app/app';
 import { handleLogout } from '../../server/firebaseAuth';
 import ModelApp from '../../app/Model-app';
 import { LANGTEXT } from '../../constans/constans';
+import { loadCatsPosts } from './../../data/news_api/cats_api';
 
 export default class Navbar extends EventEmitter {
   element: HTMLElement;
@@ -32,6 +33,11 @@ export default class Navbar extends EventEmitter {
 
     this.messenger.addEventListener('click', () => {
       this.emit('navigate', PATH.messagesPage);
+    });
+
+    this.news.addEventListener('click', () => {
+      this.emit('navigate', PATH.newsPage);
+      loadCatsPosts();
     });
 
     this.Logout.addEventListener('click', () => {
