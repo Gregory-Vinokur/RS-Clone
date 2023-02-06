@@ -24,13 +24,11 @@ type UserPosts = {
 
 export default class ModelProfile extends Model {
   userProfile: UserProfile;
-  user: User | null;
   userPosts: UserPosts;
 
   constructor(lang: Lang, user: TypeUser) {
     super(lang, user);
     this.userProfile = JSON.parse(localStorage.getItem('user-profile') || '{}');
-    this.user = null;
     this.userPosts = {};
   }
 
@@ -78,6 +76,7 @@ export default class ModelProfile extends Model {
       .catch((error) => {
         console.log('Oops Error, ', error);
       });
+    console.log(this.user);
   }
 
   getUserStatus() {

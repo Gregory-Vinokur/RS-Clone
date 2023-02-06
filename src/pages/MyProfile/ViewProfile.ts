@@ -156,17 +156,17 @@ export default class ViewProfile extends Page {
     const createdPostContainer: HTMLElement | null = document.querySelector('.news__container');
     if (createdPostContainer) createdPostContainer.innerHTML = '';
 
-    Object.keys(userPost).forEach((postId: string) => {
-      const postContainer = createHtmlElement('div', 'post__container', '', createdPostContainer as HTMLElement);
-      const postHeader = createHtmlElement('div', 'post__header', '', postContainer);
-      createHtmlElement('p', 'post__author', `Autor: ${userPost[postId].author}`, postHeader);
-      createHtmlElement('p', 'post__date', `Time: ${userPost[postId].time}`, postHeader);
+    // Object.keys(userPost).forEach((postId: string) => {
+    //   const postContainer = createHtmlElement('div', 'post__container', '', createdPostContainer as HTMLElement);
+    //   const postHeader = createHtmlElement('div', 'post__header', '', postContainer);
+    //   createHtmlElement('p', 'post__author', `Autor: ${userPost[postId].author}`, postHeader);
+    //   createHtmlElement('p', 'post__date', `Time: ${userPost[postId].time}`, postHeader);
 
-      const postContent = createHtmlElement('div', 'post__content', '', postContainer);
-      createHtmlElement('p', 'post__text', `${userPost[postId].text}`, postContent);
+    //   const postContent = createHtmlElement('div', 'post__content', '', postContainer);
+    //   createHtmlElement('p', 'post__text', `${userPost[postId].text}`, postContent);
 
-      createdPostContainer?.append(postContainer);
-      console.log(userPost);
-    });
+    //   createdPostContainer?.append(postContainer);
+    //   console.log(userPost);
+    // });
   }
 }
