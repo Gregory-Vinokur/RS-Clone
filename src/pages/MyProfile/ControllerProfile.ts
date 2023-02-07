@@ -11,11 +11,13 @@ export default class ControllerProfule {
       this.uploadProfileAvatar();
     });
     this.view.on('changeName', (name) => {
-      this.model.setUserName(name !== undefined ? name : '');
+      // this.model.setUserName(name !== undefined ? name : '');
+      this.model.setUserName((name as string) || '');
     });
 
     this.view.on('changeStatus', (status) => {
-      this.model.setUserStatus(status !== undefined ? status : '');
+      //this.model.setUserStatus(status !== undefined ? status : '');
+      this.model.setUserStatus((status as string) || '');
     });
 
     this.view.on('createNews', (newsText) => {
@@ -24,6 +26,10 @@ export default class ControllerProfule {
 
     this.view.on('deletePost', (id) => {
       this.model.deleteUserPost(id as string);
+    });
+
+    this.view.on('uploadPostImg', (img) => {
+      this.model.createPostImg(img as File);
     });
   }
 

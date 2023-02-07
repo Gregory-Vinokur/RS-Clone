@@ -4,7 +4,7 @@ import ModelProfile from './ModelProfile';
 import 'firebase/compat/storage';
 import defaultCover from '../../../assets/img/default-cover.jpg';
 
-type EmitsName = 'uploadAvatar' | 'changeLang' | 'changeName' | 'changeStatus' | 'createNews' | 'deletePost';
+type EmitsName = 'uploadAvatar' | 'changeLang' | 'changeName' | 'changeStatus' | 'createNews' | 'deletePost' | 'uploadPostImg';
 
 export default class ViewProfile extends Page {
   model: ModelProfile;
@@ -14,24 +14,23 @@ export default class ViewProfile extends Page {
   profileWrapper: HTMLElement;
   profileInfo: HTMLElement;
   createNewsBtn: HTMLElement;
-  //deletePostBtn: HTMLElement;
+  inputCreatePostImg: HTMLInputElement;
 
-  emit(event: EmitsName, data?: string) {
+  emit(event: EmitsName, data?: string | File) {
     return super.emit(event, data);
   }
 
-  on(event: EmitsName, callback: (data?: string) => void) {
+  on(event: EmitsName, callback: (data?: string | File) => void) {
     return super.on(event, callback);
   }
 
   constructor(id: string, model: ModelProfile) {
     super(id);
-
+    this.model = model;
     this.mainWrapper.className = 'my__page';
     this.profileWrapper = createHtmlElement('div', 'profile__wrapper', '', this.mainWrapper);
     this.profileInfo = createHtmlElement('div', 'profile__info', '', this.profileWrapper);
 
-    this.model = model;
     this.inputAvatar = createHtmlElement('input', 'profile__input') as HTMLInputElement;
     this.inputAvatar.setAttribute('type', 'file');
     this.inputAvatar.id = 'profile__input';
@@ -44,7 +43,7 @@ export default class ViewProfile extends Page {
 
     this.createNewsBtn = createHtmlElement('button', 'create__news-btn', 'Поделиться');
 
-    //this.deletePostBtn = createHtmlElement('button', 'delete__post_user', 'X');
+    this.inputCreatePostImg = createHtmlElement('input', 'input__news-img') as HTMLInputElement;
 
     this.renderProfileCover();
     this.renderProfileAvatar();
@@ -64,12 +63,13 @@ export default class ViewProfile extends Page {
       this.createNews();
     });
 
-    // this.deletePostBtn.addEventListener('click', () => {
-    //   console.log('click delete');
-    //   this.emit('deletePost');
-    // });
+    this.inputCreatePostImg.addEventListener('change', () => {
+      this.emit('uploadPostImg', this.inputCreatePostImg.files![0]);
+    });
 
     this.model.on('updateData', async () => await this.renderNews());
+    this.model.on('loadPostImg', async () => ((this.createNewsBtn as HTMLButtonElement).disabled = true));
+    this.model.on('postImgLoaded', async () => ((this.createNewsBtn as HTMLButtonElement).disabled = false));
   }
 
   renderProfileAvatar() {
@@ -147,14 +147,18 @@ export default class ViewProfile extends Page {
     const profileFriends = createHtmlElement('div', 'profile__friends', '', profileMainContainer);
     const profileCreateNews = createHtmlElement('div', 'create__news', '', profileNews);
     this.inputCreateNews.setAttribute('placeholder', 'Что у вас нового?');
-    profileCreateNews.append(this.inputCreateNews, this.createNewsBtn);
+    this.inputCreatePostImg.id = 'input__news-img';
+    this.inputCreatePostImg.type = 'file';
+    const labelPostImg = createHtmlElement('label', 'label__news-img', '');
+    profileCreateNews.append(this.inputCreateNews, this.inputCreatePostImg, labelPostImg, this.createNewsBtn);
+
+    labelPostImg.setAttribute('for', `${this.inputCreatePostImg.id}`);
     const newsContainer = createHtmlElement('div', 'news__container', '', profileNews);
   }
 
   createNews() {
     this.emit('createNews', this.inputCreateNews.value);
     this.inputCreateNews.value = '';
-    this.renderNews();
   }
 
   async renderNews() {
@@ -165,14 +169,18 @@ export default class ViewProfile extends Page {
     Object.keys(userPost).forEach((postId: string) => {
       const postContainer = createHtmlElement('div', 'post__container_user', '', createdPostContainer as HTMLElement);
       postContainer.id = `${userPost[postId].id}`;
-      const postHeader = createHtmlElement('div', 'post__header', '', postContainer);
-      createHtmlElement('p', 'post__author', `Autor: ${userPost[postId].author}`, postHeader);
-      createHtmlElement('p', 'post__date', `Time: ${userPost[postId].time}`, postHeader);
-      const deleteBtn = createHtmlElement('button', 'delete__post_user', 'X', postHeader);
-      //postHeader.append(this.deletePostBtn);
+      const postHeader = createHtmlElement('div', 'post__header_user', '', postContainer);
+      const postInfo = createHtmlElement('div', 'post__info_user', '', postHeader);
+      createHtmlElement('p', 'post__author', `Autor: ${userPost[postId].author}`, postInfo);
+      createHtmlElement('p', 'post__date', `Time: ${userPost[postId].time}`, postInfo);
+
+      const deleteBtn = createHtmlElement('button', 'delete__post_user', '', postHeader);
+
       const postContent = createHtmlElement('div', 'post__content', '', postContainer);
       createHtmlElement('p', 'post__text', `${userPost[postId].text}`, postContent);
-
+      const postImgContainer = createHtmlElement('div', 'post__container_img', '', postContent);
+      const postImg = createHtmlElement('img', 'post__img_user', '', postImgContainer) as HTMLImageElement;
+      postImg.src = `${userPost[postId].img}`;
       createdPostContainer?.prepend(postContainer);
 
       deleteBtn.addEventListener('click', () => {

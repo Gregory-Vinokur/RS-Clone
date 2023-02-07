@@ -20,11 +20,12 @@ type UserProfile = {
 export default class ModelProfile extends Model {
   userProfile: UserProfile;
   userPosts: { [key: string]: any };
-
+  postImgUrl: string;
   constructor(lang: Lang, user: TypeUser) {
     super(lang, user);
     this.userProfile = JSON.parse(localStorage.getItem('user-profile') || '{}');
     this.userPosts = {};
+    this.postImgUrl = '';
   }
 
   db = getDatabase();
@@ -149,10 +150,13 @@ export default class ModelProfile extends Model {
       author: this.getUserName(),
       text: newsText,
       time: `${timeDate} / ${dayDate}`,
+      img: this.postImgUrl,
     };
     updates['/users/' + this.user?.uid + '/userPost/' + newPostKey] = postData;
 
     update(refDB(db), updates);
+    this.emit('updateData');
+    this.postImgUrl = '';
   }
 
   async getUserNews() {
@@ -177,5 +181,41 @@ export default class ModelProfile extends Model {
     const databaseRef = database.ref(`users/${this.user?.uid}/userPost/${id}`);
     databaseRef.remove();
     this.emit('updateData');
+  }
+
+  async createPostImg(img: File) {
+    const metadata = {
+      contentType: 'image/jpeg',
+    };
+    const fileItem = img;
+    const fileName = fileItem?.name;
+
+    const storage = getStorage();
+    const storageRef = ref(storage, `images/${this.user?.uid}/posts/${fileName}`);
+    const uploadTask = uploadBytesResumable(storageRef, fileItem, metadata);
+
+    // Listen for state changes, errors, and completion of the upload.
+    await uploadTask.on(
+      'state_changed',
+      (snapshot) => {
+        this.emit('loadPostImg');
+        // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+      },
+      (error) => {
+        console.log('Oops, Error', error.code);
+        console.log('Чтобы обновить фото Вы должны быть авторизованы');
+      },
+      () => {
+        // Upload completed successfully, now we can get the download URL
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          if (downloadURL !== '') {
+            this.postImgUrl = downloadURL;
+            this.emit('postImgLoaded');
+          }
+        });
+      }
+    );
   }
 }
