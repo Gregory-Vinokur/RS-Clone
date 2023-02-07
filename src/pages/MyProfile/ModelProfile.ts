@@ -3,7 +3,7 @@ import Model from '../Template/Model';
 import 'firebase/compat/storage';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import getUserProfileToLocalStorage from '../../utils/getUserToLocalStorage';
-import { getDatabase, ref as refDB, update, get, child, push, onValue } from 'firebase/database';
+import { getDatabase, ref as refDB, update, get, child, push, onValue, DataSnapshot } from 'firebase/database';
 import { getAuth, updateProfile } from 'firebase/auth';
 import { Lang } from '../../constans/constans';
 import { TypeUser } from '../../constans/types';
@@ -24,7 +24,7 @@ type UserPosts = {
 
 export default class ModelProfile extends Model {
   userProfile: UserProfile;
-  userPosts: UserPosts;
+  userPosts: { [key: string]: any };
 
   constructor(lang: Lang, user: TypeUser) {
     super(lang, user);
@@ -76,7 +76,6 @@ export default class ModelProfile extends Model {
       .catch((error) => {
         console.log('Oops Error, ', error);
       });
-    console.log(this.user);
   }
 
   getUserStatus() {
@@ -159,34 +158,64 @@ export default class ModelProfile extends Model {
     updates['/users/' + this.user?.uid + '/userPost/' + newPostKey] = postData;
 
     update(refDB(db), updates);
-    this.emit('createdNews');
   }
 
   async getUserNews() {
-    // const dbRef = refDB(getDatabase());
-    // await get(child(dbRef, `users/${this.user?.uid}/userPost`))
-    //   .then((snapshot) => {
-    //     if (snapshot.exists()) {
-    //       const userNews = snapshot.val();
-    //       this.userPosts = userNews;
-    //       console.log(this.user);
-    //     } else {
-    //       console.log('No data available');
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.error(error);
-    //   });
-
-    const db = getDatabase();
     const dbRef = refDB(getDatabase());
-    const userId = this.user;
-    const starCountRef = refDB(db, 'users/01RXeSH493bwfR3JMtmwMDvgjb63/userPost');
-    onValue(starCountRef, (snapshot) => {
-      const data = snapshot.val();
-      this.userPosts = data;
-      console.log(this.userPosts);
-    });
+    await get(child(dbRef, `users/${this.user?.uid}/userPost`))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const userNews = snapshot.val();
+          this.userPosts = userNews;
+          this.emit('createdNews');
+        } else {
+          console.log('No data available');
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    // const db = getDatabase();
+    // const dbRef = refDB(getDatabase());
+    // const userId = this.user;
+    // const starCountRef = refDB(db, 'users/01RXeSH493bwfR3JMtmwMDvgjb63/userPost');
+    // onValue(starCountRef, (snapshot) => {
+    //   const data = snapshot.val();
+    //   this.userPosts = data;
+    //   console.log(this.userPosts);
+    // });
+
+    //   export const loadPosts = (wrapper: HTMLElement) => {
+    //     const postsRef = database.ref("posts");
+
+    //     postsRef.once("value", (snapshot: DataSnapshot) => {
+    //         snapshot.forEach((childSnapshot) => {
+    //             const postData = childSnapshot.val();
+    //             const post = new Post(postData);
+    //             const postImageElement = post.element.querySelector(".post__image") as HTMLImageElement;
+    //             postImageElement.src = postData.image;
+    //             const postLogo = post.element.querySelector(".post__logo") as HTMLImageElement;
+    //             postLogo.src = postData.logo;
+    //             const postAuthor = post.element.querySelector(".post__author") as HTMLElement;
+    //             postAuthor.textContent = postData.author;
+    //             const postDate = post.element.querySelector(".post__date") as HTMLElement;
+    //             postDate.textContent = ${getTimeDifference(postData.date)};
+    //             const postText = post.element.querySelector(".post__text") as HTMLElement;
+    //             postText.textContent = postData.text;
+    //             const postLikesCounter = post.element.querySelector(".like__counter") as HTMLElement;
+    //             if (postData.likes > 0) {
+    //                 postLikesCounter.textContent = ${postData.likes};
+    //             }
+    //             const postSharesCounter = post.element.querySelector(".share__counter") as HTMLElement;
+    //             if (postData.shares > 0) {
+    //                 postSharesCounter.textContent = ${postData.shares};
+    //             }
+    //             post.element.setAttribute('id', ${childSnapshot.key});
+    //             wrapper.prepend(post.element);
+    //         });
+    //     });
+    // };
     return this.userPosts;
   }
 }

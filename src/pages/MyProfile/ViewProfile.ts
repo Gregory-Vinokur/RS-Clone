@@ -47,7 +47,7 @@ export default class ViewProfile extends Page {
     this.renderProfileAvatar();
     this.renderProfileName();
     this.renderProfileContainer();
-    this.renderNews();
+    this.model.getUserNews();
 
     this.inputAvatar.addEventListener('change', (e: Event) => {
       this.model.uploadUserAvatar(e);
@@ -61,8 +61,9 @@ export default class ViewProfile extends Page {
       this.createNews();
     });
 
-    //this.model.on('updateData', this.renderNews);
-    //this.model.on('createdNews', this.renderNews);
+    this.model.on('createdNews', async () => {
+      await this.renderNews();
+    });
   }
 
   renderProfileAvatar() {
@@ -156,17 +157,16 @@ export default class ViewProfile extends Page {
     const createdPostContainer: HTMLElement | null = document.querySelector('.news__container');
     if (createdPostContainer) createdPostContainer.innerHTML = '';
 
-    // Object.keys(userPost).forEach((postId: string) => {
-    //   const postContainer = createHtmlElement('div', 'post__container', '', createdPostContainer as HTMLElement);
-    //   const postHeader = createHtmlElement('div', 'post__header', '', postContainer);
-    //   createHtmlElement('p', 'post__author', `Autor: ${userPost[postId].author}`, postHeader);
-    //   createHtmlElement('p', 'post__date', `Time: ${userPost[postId].time}`, postHeader);
+    Object.keys(userPost).forEach((postId: string) => {
+      const postContainer = createHtmlElement('div', 'post__container', '', createdPostContainer as HTMLElement);
+      const postHeader = createHtmlElement('div', 'post__header', '', postContainer);
+      createHtmlElement('p', 'post__author', `Autor: ${userPost[postId].author}`, postHeader);
+      createHtmlElement('p', 'post__date', `Time: ${userPost[postId].time}`, postHeader);
 
-    //   const postContent = createHtmlElement('div', 'post__content', '', postContainer);
-    //   createHtmlElement('p', 'post__text', `${userPost[postId].text}`, postContent);
+      const postContent = createHtmlElement('div', 'post__content', '', postContainer);
+      createHtmlElement('p', 'post__text', `${userPost[postId].text}`, postContent);
 
-    //   createdPostContainer?.append(postContainer);
-    //   console.log(userPost);
-    // });
+      createdPostContainer?.prepend(postContainer);
+    });
   }
 }
