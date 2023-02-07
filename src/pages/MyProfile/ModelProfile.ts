@@ -8,7 +8,7 @@ import { Lang } from '../../constans/constans';
 import { TypeUser } from '../../constans/types';
 import { database } from '../../server/firebaseAuth';
 
-//TODO добавить блок при отсутствии репостов на странице
+//TODO добавить блок при отсутствии репостов на странице, сделать правильный путь к фото
 export default class ModelProfile extends Model {
   userPosts: { [key: string]: any };
   postImgUrl: string;
