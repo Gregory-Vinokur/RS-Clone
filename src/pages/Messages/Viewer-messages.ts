@@ -104,6 +104,9 @@ export default class ViewerMessasges extends Page {
 
       const ava = new Image();
       ava.src = document.photo ? document.photo : avatar;
+      ava.onerror = () => {
+        ava.src = avatar;
+      };
       title.append(ava);
 
       if (document.uid !== this.model.user?.uid) {
