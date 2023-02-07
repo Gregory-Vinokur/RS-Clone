@@ -2,7 +2,16 @@ import { EventEmitter } from 'events';
 import { Lang } from '../../constans/constans';
 import { TypeUser } from '../../constans/types';
 
-type EmitsName = 'authorized' | 'changeLang' | 'updateData' | 'setLimit' | 'createdNews' | 'loadPostImg' | 'postImgLoaded';
+type EmitsName =
+  | 'authorized'
+  | 'changeLang'
+  | 'updateData'
+  | 'setLimit'
+  | 'createdNews'
+  | 'loadPostImg'
+  | 'postImgLoaded'
+  | 'uploadAvatar'
+  | 'uploadCover';
 
 export default abstract class Model extends EventEmitter {
   lang: Lang;

@@ -2,84 +2,58 @@ import { User } from 'firebase/auth';
 import Model from '../Template/Model';
 import 'firebase/compat/storage';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import getUserProfileToLocalStorage from '../../utils/getUserToLocalStorage';
-import { getDatabase, ref as refDB, update, get, child, push, remove } from 'firebase/database';
-import { getAuth, updateProfile } from 'firebase/auth';
+import { getDatabase, ref as refDB, update, get, child, push } from 'firebase/database';
+import { updateProfile } from 'firebase/auth';
 import { Lang } from '../../constans/constans';
 import { TypeUser } from '../../constans/types';
 import { database } from '../../server/firebaseAuth';
 
-//TODO: исправить загрузку фото без перезагрузки страницы
-type UserProfile = {
-  avaImgUrl: string | null;
-  name: string | null;
-  status: string | null;
-  avaCoverUrl: string | null;
-};
-
+//TODO добавить блок при отсутствии репостов на странице
 export default class ModelProfile extends Model {
-  userProfile: UserProfile;
   userPosts: { [key: string]: any };
   postImgUrl: string;
+  userPage: { [key: string]: string };
   constructor(lang: Lang, user: TypeUser) {
     super(lang, user);
-    this.userProfile = JSON.parse(localStorage.getItem('user-profile') || '{}');
     this.userPosts = {};
     this.postImgUrl = '';
+    this.userPage = {};
   }
 
   db = getDatabase();
 
-  getAvatarImgUrl() {
-    return this.userProfile.avaImgUrl || '';
-  }
-
-  getCoverImgUrl() {
-    return this.userProfile.avaCoverUrl || '';
-  }
-
-  getUserName() {
-    // const dbRef = refDB(this.db);
-    // await get(child(dbRef, `users/01RXeSH493bwfR3JMtmwMDvgjb63`))
-    //   .then((snapshot) => {
-    //     if (snapshot.exists()) {
-    //       const { userName } = snapshot.val();
-    //       return userName;
-    //     } else {
-    //       console.log('No data available');
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.error(error);
-    //   });
-    return this.userProfile.name || 'Кот Петр';
+  async getUserInfo() {
+    const dbRef = refDB(this.db);
+    await get(child(dbRef, `users/${this.user?.uid}`))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const { userName, userStatus, userAvatar, userCover } = snapshot.val();
+          this.userPage = {
+            userName: userName || 'Кот Петр',
+            userStatus: userStatus || 'Обновите ваш статус :)',
+            userAvatar: userAvatar,
+            userCover: userCover,
+          };
+        } else {
+          console.log('No data available');
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    return this.userPage;
   }
 
   setUserName(name: string) {
     update(refDB(this.db, 'users/' + this.user?.uid), {
-      // Обновление имени юзера по ID в БД
       userName: name,
     });
-    getUserProfileToLocalStorage('name', name);
-    const auth = getAuth();
-    updateProfile(auth.currentUser as User, {
-      displayName: name,
-      photoURL: this.userProfile.avaImgUrl,
-    })
-      .then(() => {
-        console.log('Profile updated!');
-      })
-      .catch((error) => {
-        console.log('Oops Error, ', error);
-      });
-  }
-
-  getUserStatus() {
-    return this.userProfile.status || 'Хочу кушать';
+    updateProfile(this.user as User, {
+      displayName: name || 'Кот Петр',
+    });
   }
 
   setUserStatus(status: string) {
-    getUserProfileToLocalStorage('status', status);
     update(refDB(this.db, 'users/' + this.user?.uid), {
       userStatus: status,
     });
@@ -115,22 +89,22 @@ export default class ModelProfile extends Model {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           if (downloadURL !== '') {
             if ((target as HTMLInputElement).id === 'profile__input') {
-              getUserProfileToLocalStorage('avaImgUrl', `${downloadURL}`);
+              this.userPage.userAva = downloadURL;
               update(refDB(this.db, 'users/' + this.user?.uid), {
                 userAvatar: downloadURL,
               });
-              const auth = getAuth();
-              updateProfile(auth.currentUser as User, {
+              updateProfile(this.user as User, {
                 photoURL: downloadURL,
               });
+              this.emit('uploadAvatar');
             }
             if ((target as HTMLInputElement).id === 'profile__input-cover') {
-              getUserProfileToLocalStorage('avaCoverUrl', `${downloadURL}`);
               update(refDB(this.db, 'users/' + this.user?.uid), {
                 userCover: downloadURL,
               });
+              this.userPage.userCover = downloadURL;
+              this.emit('uploadCover');
             }
-            //window.location.reload();
           }
         });
       }
@@ -147,7 +121,7 @@ export default class ModelProfile extends Model {
 
     const postData = {
       id: newPostKey,
-      author: this.getUserName(),
+      author: this.user?.displayName,
       text: newsText,
       time: `${timeDate} / ${dayDate}`,
       img: this.postImgUrl,

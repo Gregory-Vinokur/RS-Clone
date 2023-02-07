@@ -40,7 +40,6 @@
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  background-image: url(../../../assets/img/default-ava.jpg);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -239,4 +238,60 @@
   background-repeat: no-repeat;
   background-color: inherit;
   border: none;
+}
+
+.post__action_user {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.post__action_user {
+  padding: 10px 0;
+}
+/* Animation */
+
+.spinner__load {
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 10px;
+}
+
+.spinner__load:after {
+  animation: changeContent 0.8s linear infinite;
+  display: block;
+  content: '⠋';
+  font-size: 20px;
+}
+
+@keyframes changeContent {
+  10% {
+    content: '⠙';
+  }
+  20% {
+    content: '⠹';
+  }
+  30% {
+    content: '⠸';
+  }
+  40% {
+    content: '⠼';
+  }
+  50% {
+    content: '⠴';
+  }
+  60% {
+    content: '⠦';
+  }
+  70% {
+    content: '⠧';
+  }
+  80% {
+    content: '⠇';
+  }
+  90% {
+    content: '⠏';
+  }
 }

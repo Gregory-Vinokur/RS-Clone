@@ -7,9 +7,7 @@ export default class ControllerProfule {
   constructor(model: ModelProfule, view: ViewProfile) {
     this.model = model;
     this.view = view;
-    this.view.on('uploadAvatar', () => {
-      this.uploadProfileAvatar();
-    });
+
     this.view.on('changeName', (name) => {
       // this.model.setUserName(name !== undefined ? name : '');
       this.model.setUserName((name as string) || '');
@@ -32,8 +30,4 @@ export default class ControllerProfule {
       this.model.createPostImg(img as File);
     });
   }
-
-  uploadProfileAvatar = () => {
-    this.model.getAvatarImgUrl();
-  };
 }
