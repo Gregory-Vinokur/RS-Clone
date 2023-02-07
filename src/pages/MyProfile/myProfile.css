@@ -1,12 +1,12 @@
 .my__page {
   display: flex;
   justify-content: center;
+  max-width: 900px;
 }
 
 .profile__wrapper {
-  width: 900px;
+  width: 100%;
   min-height: 100vh;
-  border: 1px solid black;
   margin: 1rem;
   position: relative;
   border-radius: 20px;
@@ -40,7 +40,6 @@
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  background-image: url(../../../assets/img/default-ava.jpg);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -136,9 +135,6 @@
 }
 .profile__news {
   flex: 1 0 70%;
-  height: 400px;
-  background-color: aliceblue;
-  border-radius: 15px;
 }
 
 .profile__friends {
@@ -171,4 +167,131 @@
   background: blue;
   border-radius: 5px;
   cursor: pointer;
+}
+
+.create__news-btn:disabled {
+  background: gray;
+}
+
+.post__container_user {
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 10px 20px;
+  margin-top: 10px;
+}
+.post__header_user {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.post__info_user {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.post__author,
+.post__date {
+  color: black;
+}
+
+.post__text {
+  color: black;
+}
+
+.input__news-img {
+  display: none;
+}
+
+.label__news-img {
+  color: black;
+  cursor: pointer;
+  background-image: url(../../../assets/img/add-img-user-post.svg);
+  width: 40px;
+  height: 30px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.post__container_img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.post__img_user {
+  max-width: 100%;
+  max-height: 400px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 5px;
+}
+
+.delete__post_user {
+  cursor: pointer;
+  background-image: url(../../../assets/img/delete-user-post.svg);
+  width: 25px;
+  height: 25px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-color: inherit;
+  border: none;
+}
+
+.post__action_user {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.post__action_user {
+  padding: 10px 0;
+}
+/* Animation */
+
+.spinner__load {
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 10px;
+}
+
+.spinner__load:after {
+  animation: changeContent 0.8s linear infinite;
+  display: block;
+  content: '⠋';
+  font-size: 20px;
+}
+
+@keyframes changeContent {
+  10% {
+    content: '⠙';
+  }
+  20% {
+    content: '⠹';
+  }
+  30% {
+    content: '⠸';
+  }
+  40% {
+    content: '⠼';
+  }
+  50% {
+    content: '⠴';
+  }
+  60% {
+    content: '⠦';
+  }
+  70% {
+    content: '⠧';
+  }
+  80% {
+    content: '⠇';
+  }
+  90% {
+    content: '⠏';
+  }
 }
