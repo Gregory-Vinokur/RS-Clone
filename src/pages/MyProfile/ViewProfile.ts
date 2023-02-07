@@ -4,7 +4,7 @@ import ModelProfile from './ModelProfile';
 import 'firebase/compat/storage';
 import defaultCover from '../../../assets/img/default-cover.jpg';
 
-type EmitsName = 'uploadAvatar' | 'changeLang' | 'changeName' | 'changeStatus' | 'createNews';
+type EmitsName = 'uploadAvatar' | 'changeLang' | 'changeName' | 'changeStatus' | 'createNews' | 'deletePost';
 
 export default class ViewProfile extends Page {
   model: ModelProfile;
@@ -14,6 +14,7 @@ export default class ViewProfile extends Page {
   profileWrapper: HTMLElement;
   profileInfo: HTMLElement;
   createNewsBtn: HTMLElement;
+  //deletePostBtn: HTMLElement;
 
   emit(event: EmitsName, data?: string) {
     return super.emit(event, data);
@@ -43,6 +44,8 @@ export default class ViewProfile extends Page {
 
     this.createNewsBtn = createHtmlElement('button', 'create__news-btn', 'Поделиться');
 
+    //this.deletePostBtn = createHtmlElement('button', 'delete__post_user', 'X');
+
     this.renderProfileCover();
     this.renderProfileAvatar();
     this.renderProfileName();
@@ -60,6 +63,13 @@ export default class ViewProfile extends Page {
     this.createNewsBtn.addEventListener('click', () => {
       this.createNews();
     });
+
+    // this.deletePostBtn.addEventListener('click', () => {
+    //   console.log('click delete');
+    //   this.emit('deletePost');
+    // });
+
+    this.model.on('updateData', async () => await this.renderNews());
   }
 
   renderProfileAvatar() {
@@ -153,15 +163,21 @@ export default class ViewProfile extends Page {
     if (createdPostContainer) createdPostContainer.innerHTML = '';
 
     Object.keys(userPost).forEach((postId: string) => {
-      const postContainer = createHtmlElement('div', 'post__container', '', createdPostContainer as HTMLElement);
+      const postContainer = createHtmlElement('div', 'post__container_user', '', createdPostContainer as HTMLElement);
+      postContainer.id = `${userPost[postId].id}`;
       const postHeader = createHtmlElement('div', 'post__header', '', postContainer);
       createHtmlElement('p', 'post__author', `Autor: ${userPost[postId].author}`, postHeader);
       createHtmlElement('p', 'post__date', `Time: ${userPost[postId].time}`, postHeader);
-
+      const deleteBtn = createHtmlElement('button', 'delete__post_user', 'X', postHeader);
+      //postHeader.append(this.deletePostBtn);
       const postContent = createHtmlElement('div', 'post__content', '', postContainer);
       createHtmlElement('p', 'post__text', `${userPost[postId].text}`, postContent);
 
       createdPostContainer?.prepend(postContainer);
+
+      deleteBtn.addEventListener('click', () => {
+        this.emit('deletePost', postContainer.id);
+      });
     });
   }
 }

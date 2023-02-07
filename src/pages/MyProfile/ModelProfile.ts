@@ -3,10 +3,11 @@ import Model from '../Template/Model';
 import 'firebase/compat/storage';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import getUserProfileToLocalStorage from '../../utils/getUserToLocalStorage';
-import { getDatabase, ref as refDB, update, get, child, push, onValue, DataSnapshot } from 'firebase/database';
+import { getDatabase, ref as refDB, update, get, child, push, remove } from 'firebase/database';
 import { getAuth, updateProfile } from 'firebase/auth';
 import { Lang } from '../../constans/constans';
 import { TypeUser } from '../../constans/types';
+import { database } from '../../server/firebaseAuth';
 
 //TODO: исправить загрузку фото без перезагрузки страницы
 type UserProfile = {
@@ -139,16 +140,16 @@ export default class ModelProfile extends Model {
     const optionsTime: { [key: string]: string } = { hour: 'numeric', minute: 'numeric' };
     const timeDate = new Date().toLocaleTimeString([], optionsTime);
     const dayDate = new Date().toLocaleDateString();
-
     const db = getDatabase();
+    const newPostKey = push(child(refDB(db), 'posts')).key;
+    const updates: { [key: string]: object } = {};
+
     const postData = {
+      id: newPostKey,
       author: this.getUserName(),
       text: newsText,
       time: `${timeDate} / ${dayDate}`,
     };
-    const newPostKey = push(child(refDB(db), 'posts')).key;
-    const updates: { [key: string]: object } = {};
-
     updates['/users/' + this.user?.uid + '/userPost/' + newPostKey] = postData;
 
     update(refDB(db), updates);
@@ -162,6 +163,7 @@ export default class ModelProfile extends Model {
           const userNews = snapshot.val();
           this.userPosts = userNews;
         } else {
+          this.userPosts = {};
           console.log('No data available');
         }
       })
@@ -169,5 +171,11 @@ export default class ModelProfile extends Model {
         console.error(error);
       });
     return this.userPosts;
+  }
+
+  deleteUserPost(id: string) {
+    const databaseRef = database.ref(`users/${this.user?.uid}/userPost/${id}`);
+    databaseRef.remove();
+    this.emit('updateData');
   }
 }

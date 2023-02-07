@@ -21,6 +21,10 @@ export default class ControllerProfule {
     this.view.on('createNews', (newsText) => {
       this.model.createNews(newsText as string);
     });
+
+    this.view.on('deletePost', (id) => {
+      this.model.deleteUserPost(id as string);
+    });
   }
 
   uploadProfileAvatar = () => {
