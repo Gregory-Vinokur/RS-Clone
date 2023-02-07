@@ -47,7 +47,7 @@ export default class ViewProfile extends Page {
     this.renderProfileAvatar();
     this.renderProfileName();
     this.renderProfileContainer();
-    this.model.getUserNews();
+    this.renderNews();
 
     this.inputAvatar.addEventListener('change', (e: Event) => {
       this.model.uploadUserAvatar(e);
@@ -59,10 +59,6 @@ export default class ViewProfile extends Page {
 
     this.createNewsBtn.addEventListener('click', () => {
       this.createNews();
-    });
-
-    this.model.on('createdNews', async () => {
-      await this.renderNews();
     });
   }
 
@@ -152,8 +148,7 @@ export default class ViewProfile extends Page {
   }
 
   async renderNews() {
-    const userPost: { [key: string]: any } = await this.model.getUserNews();
-
+    const userPost = await this.model.getUserNews();
     const createdPostContainer: HTMLElement | null = document.querySelector('.news__container');
     if (createdPostContainer) createdPostContainer.innerHTML = '';
 
