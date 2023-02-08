@@ -17,6 +17,8 @@ export default class myProfile extends Page {
     this.model = new ModelProfule(lang, user);
     this.viewer = new ViewProfile(id, this.model);
     this.controller = new CotrollerProfile(this.model, this.viewer);
+
+    this.model.setUserId(this.model.user?.uid as string);
   }
 
   changeLang = (lang: Lang) => {

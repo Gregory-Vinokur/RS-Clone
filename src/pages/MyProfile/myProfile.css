@@ -1,7 +1,7 @@
 .my__page {
   display: flex;
   justify-content: center;
-  max-width: 900px;
+  max-width: 1076px;
 }
 
 .profile__wrapper {
@@ -134,14 +134,22 @@
   gap: 20px;
 }
 .profile__news {
-  flex: 1 0 70%;
+  flex: 1 0 65%;
 }
 
-.profile__friends {
-  flex: 0 0 25%;
-  height: 400px;
-  background: aqua;
+.profile__friends_wrapper {
+  background: #fff;
+  padding: 10px 10px 20px 10px;
+  height: 100%;
+  width: 100%;
   border-radius: 15px;
+}
+.profile__friends {
+  flex: 0 0 32%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 15px 18px;
 }
 
 .create__news {
@@ -248,6 +256,51 @@
 
 .post__action_user {
   padding: 10px 0;
+}
+
+/* Firends */
+
+.profile__friends_content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.profile__friends_ava {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  cursor: pointer;
+}
+
+.profile__friends_name {
+  font-size: 12px;
+  color: black;
+}
+
+.profile__friends_text {
+  color: #000000;
+  font-weight: 300;
+  margin-bottom: 10px;
+}
+/* Empty block */
+
+.empty__block_user {
+  width: 100%;
+  height: 300px;
+  background: #fff;
+  border-radius: 15px;
+  padding: 10px 20px;
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty__block_text {
+  color: #000000;
 }
 /* Animation */
 
