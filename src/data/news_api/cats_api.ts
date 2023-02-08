@@ -17,7 +17,8 @@ export const loadCatsPosts = async () => {
             image,
             likes: 0,
             shares: 0,
-            logo: cat_logo
+            logo: cat_logo,
+            comments: []
 
         };
 
@@ -30,5 +31,5 @@ export const loadCatsPosts = async () => {
             .catch((error) => {
                 console.error("Error saving post: ", error);
             });
-    }, 1000); // Add a new post every minute (60 seconds * 1000 milliseconds)
+    }, 60 * 1000);
 }

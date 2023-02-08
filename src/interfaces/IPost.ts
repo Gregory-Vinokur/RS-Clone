@@ -5,5 +5,6 @@ export interface IPost {
     image: string,
     likes: number,
     shares: number,
-    logo: string
+    logo: string,
+    comments: Array<string>
 }
