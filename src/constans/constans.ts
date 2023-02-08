@@ -52,6 +52,14 @@ const LANGTEXT = {
     rus: 'Выйти',
     eng: 'Logout',
   },
+  addSubscriptions: {
+    rus: 'Подписаться',
+    eng: 'Subscribe',
+  },
+  writeUser: {
+    rus: 'Написать сообщение',
+    eng: 'Write a message',
+  },
 };
 
 type LangNameElement = keyof typeof LANGTEXT;
