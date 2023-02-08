@@ -4,10 +4,11 @@ import { database } from './../../server/firebaseAuth';
 import Post from './../../components/Post/post';
 import { getTimeDifference } from './../../utils/getTimeDifference';
 
-export const loadPosts = (wrapper: HTMLElement) => {
-    const postsRef = database.ref("posts");
+export const loadPosts = (wrapper: HTMLElement, postLimit: number) => {
+    const postsRef = database.ref("posts").limitToLast(postLimit);
 
     postsRef.once("value", (snapshot) => {
+        wrapper.innerHTML = "";
         snapshot.forEach((childSnapshot) => {
             const postData: IPost = childSnapshot.val();
             const post = new Post(postData);
