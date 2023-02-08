@@ -8,48 +8,33 @@ import { Lang } from '../../constans/constans';
 import { TypeUser } from '../../constans/types';
 import { database } from '../../server/firebaseAuth';
 
-//TODO добавить блок при отсутствии репостов на странице, сделать правильный путь к фото
 export default class ModelProfile extends Model {
   userPosts: { [key: string]: any };
   postImgUrl: string;
   userPage: { [key: string]: string };
+  userFriends: { [key: string]: any };
+
   constructor(lang: Lang, user: TypeUser) {
     super(lang, user);
     this.userPosts = {};
     this.postImgUrl = '';
     this.userPage = {};
+    this.userFriends = {};
   }
 
   db = getDatabase();
 
-  async getUserInfo() {
-    const dbRef = refDB(this.db);
-    await get(child(dbRef, `users/${this.user?.uid}`))
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          const { userName, userStatus, userAvatar, userCover } = snapshot.val();
-          this.userPage = {
-            userName: userName || 'Кот Петр',
-            userStatus: userStatus || 'Обновите ваш статус :)',
-            userAvatar: userAvatar,
-            userCover: userCover,
-          };
-        } else {
-          console.log('No data available');
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    return this.userPage;
+  setUserId(id: string) {
+    update(refDB(this.db, 'users/' + this.user?.uid), {
+      userId: id,
+    });
   }
-
   setUserName(name: string) {
     update(refDB(this.db, 'users/' + this.user?.uid), {
       userName: name,
     });
     updateProfile(this.user as User, {
-      displayName: name || 'Кот Петр',
+      displayName: name || 'Иван Иванов',
     });
   }
 
@@ -69,7 +54,7 @@ export default class ModelProfile extends Model {
     const fileName = fileItem.name;
 
     const storage = getStorage();
-    const storageRef = ref(storage, 'images/' + fileName);
+    const storageRef = ref(storage, `images/${this.user?.uid}/avatar/${fileName}`);
     const uploadTask = uploadBytesResumable(storageRef, fileItem, metadata);
 
     // Listen for state changes, errors, and completion of the upload.
@@ -133,16 +118,15 @@ export default class ModelProfile extends Model {
     this.postImgUrl = '';
   }
 
-  async getUserNews() {
+  async getUserNews(userId: string) {
     const dbRef = refDB(getDatabase());
-    await get(child(dbRef, `users/${this.user?.uid}/userPost`))
+    await get(child(dbRef, `users/${userId}/userPost`))
       .then((snapshot) => {
         if (snapshot.exists()) {
           const userNews = snapshot.val();
           this.userPosts = userNews;
         } else {
           this.userPosts = {};
-          console.log('No data available');
         }
       })
       .catch((error) => {
@@ -191,5 +175,29 @@ export default class ModelProfile extends Model {
         });
       }
     );
+  }
+
+  async getUserInfo(userId: string) {
+    const dbRef = refDB(this.db);
+    await get(child(dbRef, `users/${userId}`))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const { userName, userStatus, userAvatar, userCover, subscripts, userId } = snapshot.val();
+          this.userPage = {
+            userName: userName || 'Кот Петр',
+            userStatus: userStatus || 'Обновите ваш статус :)',
+            userAvatar: userAvatar,
+            userCover: userCover,
+            userSubscripts: subscripts,
+            userId: userId,
+          };
+        } else {
+          console.log('No data available');
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    return this.userPage;
   }
 }
