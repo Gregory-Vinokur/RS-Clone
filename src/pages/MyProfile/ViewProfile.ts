@@ -19,7 +19,9 @@ export default class ViewProfile extends Page {
   profileCover: HTMLElement;
   profileAvatar: HTMLElement;
   spinnerLoad: HTMLElement;
-
+  profilePerson: HTMLElement;
+  userNewsContainer: HTMLElement;
+  profileFriends: HTMLElement;
   emit(event: EmitsName, data?: string | File) {
     return super.emit(event, data);
   }
@@ -36,6 +38,9 @@ export default class ViewProfile extends Page {
     this.profileInfo = createHtmlElement('div', 'profile__info', '', this.profileWrapper);
     this.profileCover = createHtmlElement('div', 'profile__cover', '', this.profileWrapper);
     this.profileAvatar = createHtmlElement('div', 'profile__ava', '', this.profileInfo);
+    this.profilePerson = createHtmlElement('div', 'profile__preson', '', this.profileInfo);
+    this.userNewsContainer = createHtmlElement('div', 'news__container_user');
+    this.profileFriends = createHtmlElement('div', 'profile__friends');
 
     this.inputAvatar = createHtmlElement('input', 'profile__input') as HTMLInputElement;
     this.inputAvatar.setAttribute('type', 'file');
@@ -53,13 +58,13 @@ export default class ViewProfile extends Page {
 
     this.spinnerLoad = createHtmlElement('div', 'spinner__load');
 
-    // this.profileInfo.append(this.spinnerLoad);
-
-    this.renderProfileCover();
-    this.renderProfileAvatar();
-    this.renderProfileName();
+    this.renderProfileCover(this.model.user?.uid as string);
+    this.renderProfileAvatar(this.model.user?.uid as string);
+    this.renderProfileName(this.model.user?.uid as string);
     this.renderProfileContainer();
-    this.renderNews();
+    this.renderNews(this.model.user?.uid as string);
+    this.renderUserFriends(this.model.user?.uid as string);
+    this.renderFriendProfile();
 
     this.inputAvatar.addEventListener('change', (e: Event) => {
       this.model.uploadUserAvatar(e);
@@ -77,14 +82,14 @@ export default class ViewProfile extends Page {
       this.emit('uploadPostImg', this.inputCreatePostImg.files![0]);
     });
 
-    this.model.on('updateData', async () => await this.renderNews());
+    this.model.on('updateData', async () => await this.renderNews(this.model.user?.uid as string));
     this.model.on('uploadAvatar', () => {
       this.profileAvatar.innerHTML = '';
-      this.renderProfileAvatar();
+      this.renderProfileAvatar(this.model.user?.uid as string);
     });
     this.model.on('uploadCover', () => {
       this.profileCover.innerHTML = '';
-      this.renderProfileCover();
+      this.renderProfileCover(this.model.user?.uid as string);
     });
     this.model.on('loadPostImg', () => {
       (this.createNewsBtn as HTMLButtonElement).disabled = true;
@@ -97,8 +102,8 @@ export default class ViewProfile extends Page {
     });
   }
 
-  async renderProfileAvatar() {
-    const user = await this.model.getUserInfo();
+  async renderProfileAvatar(userId: string) {
+    const user = await this.model.getUserInfo(userId);
     const profileAvatarImg = createHtmlElement('img', 'profile__ava-img', '', this.profileAvatar);
     const uploadAvaForm = createHtmlElement('form', 'profile__ava-form', '', this.profileAvatar);
     const uploadAvaLabel = createHtmlElement('label', 'profile__label', 'Изменить аватар', uploadAvaForm);
@@ -107,13 +112,12 @@ export default class ViewProfile extends Page {
     profileAvatarImg.setAttribute('src', `${user.userAvatar || defaultAva}`);
   }
 
-  async renderProfileName() {
-    const user = await this.model.getUserInfo();
-    const profilePerson = createHtmlElement('div', 'profile__preson', '', this.profileInfo);
-    const profileNameWrapper = createHtmlElement('div', 'profile__name-wrapper', '', profilePerson);
-    createHtmlElement('div', 'profile__name', `${user.userName || 'Кот Петр'}`, profileNameWrapper);
+  async renderProfileName(userId: string) {
+    const user = await this.model.getUserInfo(userId);
+    const profileNameWrapper = createHtmlElement('div', 'profile__name-wrapper', '', this.profilePerson);
+    createHtmlElement('div', 'profile__name', `${user.userName || 'Иван Иванов'}`, profileNameWrapper);
     const profileNameBtn = createHtmlElement('button', 'profile__name-btn', '', profileNameWrapper);
-    const profileNameInput = createHtmlElement('input', 'profile__name-input', '', profilePerson);
+    const profileNameInput = createHtmlElement('input', 'profile__name-input', '', this.profilePerson);
     profileNameInput.setAttribute('type', 'text');
     profileNameInput.setAttribute('placeholder', 'Введите новые данные');
 
@@ -121,10 +125,10 @@ export default class ViewProfile extends Page {
       this.editProfileName();
     });
 
-    const profileStatusWrapper = createHtmlElement('div', 'profile__status-wrapper', '', profilePerson);
+    const profileStatusWrapper = createHtmlElement('div', 'profile__status-wrapper', '', this.profilePerson);
     createHtmlElement('div', 'profile__status', `${user.userStatus || 'Обновите ваш статус:)'}`, profileStatusWrapper);
     const profileStatusBtn = createHtmlElement('button', 'profile__status-btn', '', profileStatusWrapper);
-    const profileStatusInput = createHtmlElement('input', 'profile__status-input', '', profilePerson);
+    const profileStatusInput = createHtmlElement('input', 'profile__status-input', '', this.profilePerson);
     profileStatusInput.setAttribute('type', 'text');
     profileStatusInput.setAttribute('placeholder', 'Введите новые данные');
 
@@ -133,8 +137,8 @@ export default class ViewProfile extends Page {
     });
   }
 
-  async renderProfileCover() {
-    const user = await this.model.getUserInfo();
+  async renderProfileCover(userId: string) {
+    const user = await this.model.getUserInfo(userId);
     const profileCoverImg = createHtmlElement('img', 'profile__cover-img', '', this.profileCover);
     const uploadCoverLabel = createHtmlElement('label', 'profile__label-cover', '', this.profileWrapper);
     uploadCoverLabel.setAttribute('for', 'profile__input-cover');
@@ -170,7 +174,9 @@ export default class ViewProfile extends Page {
   renderProfileContainer() {
     const profileMainContainer = createHtmlElement('div', 'profile__main', '', this.profileWrapper);
     const profileNews = createHtmlElement('div', 'profile__news', '', profileMainContainer);
-    const profileFriends = createHtmlElement('div', 'profile__friends', 'Друзья', profileMainContainer);
+    const profileFriends = createHtmlElement('div', 'profile__friends_wrapper', '', profileMainContainer);
+    createHtmlElement('div', 'profile__friends_text', 'Друзья', profileFriends);
+    profileFriends.append(this.profileFriends);
     const profileCreateNews = createHtmlElement('div', 'create__news', '', profileNews);
     this.inputCreateNews.setAttribute('placeholder', 'Что у вас нового?');
     this.inputCreatePostImg.id = 'input__news-img';
@@ -179,7 +185,7 @@ export default class ViewProfile extends Page {
     profileCreateNews.append(this.inputCreateNews, this.inputCreatePostImg, labelPostImg, this.createNewsBtn);
 
     labelPostImg.setAttribute('for', `${this.inputCreatePostImg.id}`);
-    const newsContainer = createHtmlElement('div', 'news__container', '', profileNews);
+    profileNews.append(this.userNewsContainer);
   }
 
   createNews() {
@@ -187,9 +193,9 @@ export default class ViewProfile extends Page {
     this.inputCreateNews.value = '';
   }
 
-  async renderNews() {
-    const userPost = await this.model.getUserNews();
-    const createdPostContainer: HTMLElement | null = document.querySelector('.news__container');
+  async renderNews(userId: string) {
+    const userPost = await this.model.getUserNews(userId);
+    const createdPostContainer: HTMLElement | null = document.querySelector('.news__container_user');
     if (createdPostContainer) createdPostContainer.innerHTML = '';
 
     Object.keys(userPost).forEach((postId: string) => {
@@ -223,4 +229,60 @@ export default class ViewProfile extends Page {
       });
     });
   }
+
+  async renderUserFriends(userId: string) {
+    const user = await this.model.getUserInfo(userId);
+    if (this.profileFriends) this.profileFriends.innerHTML = '';
+    if (user.userSubscripts !== undefined) {
+      Object.keys(user.userSubscripts).forEach(async (userId) => {
+        const userPage = await this.model.getUserInfo(userId);
+        const onlyName = userPage.userName.split(' ').slice(0, 1).join('');
+
+        const userInfoWrapper = createHtmlElement('div', 'profile__friends_content', '', this.profileFriends);
+        userInfoWrapper.id = `${userPage.userId}`;
+        const userAva = createHtmlElement('img', 'profile__friends_ava', '', userInfoWrapper);
+        const userName = createHtmlElement('div', 'profile__friends_name', '', userInfoWrapper);
+        userName.textContent = `${onlyName || 'Иван'}`;
+        (userAva as HTMLImageElement).src = `${userPage.userAvatar || defaultAva}`;
+      });
+    }
+  }
+  renderFriendProfile() {
+    this.profileFriends?.addEventListener('click', async (e: Event) => {
+      const { target } = e;
+      const userId = (target as HTMLElement).parentElement?.id;
+
+      this.profileAvatar.innerHTML = '';
+      this.profileCover.innerHTML = '';
+      this.profilePerson.innerHTML = '';
+      this.userNewsContainer.innerHTML = '';
+      this.profileFriends.innerHTML = '';
+      await this.renderProfileAvatar(userId as string);
+      await this.renderProfileName(userId as string);
+      await this.renderProfileCover(userId as string);
+      await this.renderNews(userId as string);
+      await this.renderUserFriends(userId as string);
+
+      //const profileLabelCover: HTMLElement | null = this.profileWrapper.querySelector('.profile__label-cover');
+      const profileAvaBtn: HTMLElement | null = document.querySelector('.profile__label');
+      const createNews: HTMLElement | null = document.querySelector('.create__news');
+      const deleteNewsBtn: HTMLElement | null = this.userNewsContainer.querySelector('.delete__post_user');
+      const changeNameBtn: HTMLElement | null = document.querySelector('.profile__name-btn');
+      const changeStatusBtn: HTMLElement | null = document.querySelector('.profile__status-btn');
+      if (profileAvaBtn) profileAvaBtn.style.visibility = 'hidden';
+      if (createNews) createNews.style.display = 'none';
+      if (deleteNewsBtn) deleteNewsBtn.style.display = 'none';
+      if (changeNameBtn) changeNameBtn.style.display = 'none';
+      if (changeStatusBtn) changeStatusBtn.style.display = 'none';
+    });
+  }
+  // renderEmptyPostBlock(element: HTMLElement) {
+  //   const newsContainer = document.querySelector('.profile__news');
+  //   if (element && element.childNodes) {
+  //     if (element.childNodes.length + 1 > 0) newsContainer?.classList.add('empty-user');
+  //     else newsContainer?.classList.remove('empty-user');
+  //   }
+  //   const emptyBlockWrapper = createHtmlElement('div', 'empty__block_user', '', newsContainer as HTMLElement);
+  //   createHtmlElement('p', 'empty__block_text', 'Вы пока не добавили ни одной записи', emptyBlockWrapper);
+  // }
 }
