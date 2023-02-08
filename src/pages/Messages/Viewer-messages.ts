@@ -5,7 +5,17 @@ import Button from '../../base/button/Button';
 import avatar from '../../../assets/img/ava.jpg';
 import { LANGTEXT } from '../../constans/constans';
 
-type EmitsName = 'send' | 'changeLang' | 'deleteMessage' | 'setLimit' | 'setSort' | 'subscripte' | 'writeUser';
+type EmitsName =
+  | 'send'
+  | 'changeLang'
+  | 'deleteMessage'
+  | 'setLimit'
+  | 'setSort'
+  | 'subscripte'
+  | 'unsubscripte'
+  | 'writeUser'
+  | 'toChat'
+  | 'toRooms';
 enum SORTBY {
   DESC = 'desc',
   ASC = 'asc',
@@ -22,13 +32,18 @@ export default class ViewerMessasges extends Page {
   sortDESC: HTMLElement;
   sortASC: HTMLElement;
   buttons: Button<ModelMessages>[];
+  buttonsHeader: Button<ModelMessages>[];
   buttonSend: Button<ModelMessages>;
+  messagesChat: HTMLElement;
+  messagesRooms: HTMLElement;
+  messagesRoomsMembers: HTMLElement;
+  messagesRoomsChat: HTMLElement;
 
-  emit(event: EmitsName, data: string) {
+  emit(event: EmitsName, data?: string) {
     return super.emit(event, data);
   }
 
-  on(event: EmitsName, callback: (data: string) => void) {
+  on(event: EmitsName, callback: ((data: string) => void) | (() => void)) {
     return super.on(event, callback);
   }
 
@@ -38,22 +53,23 @@ export default class ViewerMessasges extends Page {
     this.model = model;
     this.model.on('changeLang', this.changeLang);
     this.buttons = [];
-    this.messagesField = createHtmlElement('div', 'messages__field');
+    this.buttonsHeader = [];
 
-    this.input = createHtmlElement('textarea', 'input__message') as HTMLInputElement;
-    this.input.setAttribute('rows', '1');
+    this.messagesField = createHtmlElement('div', 'messages__field');
+    this.messagesChat = createHtmlElement('div', 'messages__chat', '', this.messagesField);
+    this.messagesRooms = createHtmlElement('div', 'messages__rooms');
+    this.messagesRoomsMembers = createHtmlElement('div', 'messages__members', 'Members', this.messagesRooms);
+    this.messagesRoomsChat = createHtmlElement('div', 'messages__roomsChat', 'Chat', this.messagesRooms);
+
+    const buttonsHeaderContainer = this.createButtonsHeader();
+    this.input = this.createInputMessage();
     this.setTextAreaHeight();
-    this.input.addEventListener('input', this.setTextAreaHeight);
 
     this.containerButtons = createHtmlElement('div', 'message__containerButtons');
     const containerLimit = createHtmlElement('div', 'container-limit', '', this.containerButtons);
+
     this.limitText = createHtmlElement('span', 'input-limit-title', LANGTEXT['inputLimit'][this.model.lang], containerLimit);
-    this.inputLimit = createHtmlElement('input', 'input__limit', '', containerLimit) as HTMLInputElement;
-    this.inputLimit.setAttribute('type', 'number');
-    this.inputLimit.setAttribute('min', '1');
-    this.inputLimit.setAttribute('max', '100');
-    this.inputLimit.value = this.model.limit.toString();
-    this.inputLimit.addEventListener('input', () => this.emit('setLimit', this.inputLimit.value));
+    this.inputLimit = this.createLimit(containerLimit);
 
     this.sortSelect = createHtmlElement('select', 'sort__select', '', containerLimit) as HTMLSelectElement;
     this.sortDESC = createHtmlElement('option', 'sort__option', `${LANGTEXT['sortDesc'][this.model.lang]}`, this.sortSelect);
@@ -65,41 +81,91 @@ export default class ViewerMessasges extends Page {
 
     this.buttonSend = new Button('sendButton', this.model, this.sendMessage);
     this.containerButtons.append(this.buttonSend.render());
-    this.mainWrapper.append(this.messagesField, this.input, this.containerButtons);
-    this.messagesField.innerHTML = `<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`;
-    this.messagesField.classList.add('messages__field_load');
+
+    this.mainWrapper.append(buttonsHeaderContainer, this.messagesField, this.input, this.containerButtons);
+    this.messagesChat.innerHTML = `<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`;
+    this.messagesChat.classList.add('messages__field_load');
     this.model.on('updateData', this.updateData);
+    this.model.on('updateDialog', this.createRooms);
   }
 
-  setTextAreaHeight = () => {
+  private createButtonsHeader = () => {
+    const buttonsHeaderContainer = createHtmlElement('div', 'buttons-header');
+    const buttonChat = new Button('chatButton', this.model, () => {
+      this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
+      buttonChat.element.classList.add('button_active');
+      this.messagesField.innerHTML = '';
+      this.emit('toChat');
+      this.messagesField.append(this.messagesChat);
+      this.messagesField.scrollTop = this.messagesField.scrollHeight;
+    });
+    buttonChat.element.classList.add('button_active');
+    const buttonRooms = new Button('roomsButton', this.model, () => {
+      this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
+      buttonRooms.element.classList.add('button_active');
+      this.messagesField.innerHTML = '';
+      this.emit('toRooms');
+      this.messagesField.append(this.messagesRooms);
+    });
+    this.buttonsHeader.push(buttonChat, buttonRooms);
+    buttonsHeaderContainer.append(...this.buttonsHeader.map((button) => button.render()));
+    return buttonsHeaderContainer;
+  };
+
+  private createInputMessage = () => {
+    const input = createHtmlElement('textarea', 'input__message') as HTMLInputElement;
+    input.setAttribute('rows', '1');
+    input.addEventListener('input', this.setTextAreaHeight);
+    return input;
+  };
+
+  private createLimit = (containerLimit: HTMLElement) => {
+    const inputLimit = createHtmlElement('input', 'input__limit', '', containerLimit) as HTMLInputElement;
+    inputLimit.setAttribute('type', 'number');
+    inputLimit.setAttribute('min', '1');
+    inputLimit.setAttribute('max', '100');
+    inputLimit.value = this.model.limit.toString();
+    inputLimit.addEventListener('input', () => this.emit('setLimit', inputLimit.value));
+    return inputLimit;
+  };
+
+  private setTextAreaHeight = () => {
     this.input.style.height = `auto`;
     this.input.style.height = `${this.input.scrollHeight}px`;
   };
 
-  sendMessage = () => {
+  private sendMessage = () => {
     this.emit('send', this.input.value);
     this.input.value = '';
     this.setTextAreaHeight();
   };
 
-  deleteMessage = (id: string) => {
+  private deleteMessage = (id: string) => {
     this.emit('deleteMessage', id);
   };
 
-  updateData = () => {
+  private updateData = () => {
     this.inputLimit.value = this.model.limit.toString();
     this.createMessages();
   };
 
-  createMessages = () => {
-    this.messagesField.innerHTML = '';
-    this.messagesField.classList.remove('messages__field_load');
+  private createRooms = () => {
+    this.messagesRoomsMembers.innerHTML = '';
+    this.model.dialogMembers.forEach((el, index) => {
+      const member = createHtmlElement('div', 'messages__member', `${el} => ${this.model.dialogRooms[index]}`, this.messagesRoomsMembers);
+      member.addEventListener('click', () => console.log(index));
+    });
+  };
+
+  private createMessages = () => {
+    this.messagesChat.innerHTML = '';
+    this.messagesChat.classList.remove('messages__field_load');
     this.buttons = [];
     this.model.messages?.forEach((doc) => {
       const document = doc.data();
       const classMessage = document.uid === this.model.user?.uid ? 'my_message' : 'other_message';
       const containerMessage = createHtmlElement('div', `containerMessage ${classMessage}`);
-      this.messagesField.prepend(containerMessage);
+      this.messagesChat.prepend(containerMessage);
       const title = createHtmlElement('div', 'messageTitle', '', containerMessage);
 
       const ava = new Image();
@@ -110,7 +176,7 @@ export default class ViewerMessasges extends Page {
       title.append(ava);
 
       if (document.uid !== this.model.user?.uid) {
-        ava.addEventListener('click', (e) => this.createModalUserWindow(e, containerMessage, document.uid));
+        ava.addEventListener('click', (e) => this.createModalUserWindow(e, document.uid));
       }
 
       createHtmlElement('span', '', `${document.name}`, title);
@@ -131,22 +197,25 @@ export default class ViewerMessasges extends Page {
     this.messagesField.scrollTop = this.messagesField.scrollHeight;
   };
 
-  createModalUserWindow = (e: Event, container: HTMLElement, id: string) => {
+  private createModalUserWindow = (e: Event, id: string) => {
     e.stopPropagation();
-    const wrapper = createHtmlElement('div', 'modal-user-window', '', container);
+    const shadow = createHtmlElement('div', 'modal', '', this.mainWrapper);
+    const wrapper = createHtmlElement('div', 'modal-user-window', '', shadow);
     const addSubscriptions = createHtmlElement('p', '', LANGTEXT['addSubscriptions'][this.model.lang], wrapper);
-    addSubscriptions.addEventListener('click', () => this.emit('subscripte', id));
+    if (this.model.subscripts.includes(id)) {
+      addSubscriptions.innerText = LANGTEXT['delSubscriptions'][this.model.lang];
+      addSubscriptions.addEventListener('click', () => this.emit('unsubscripte', id));
+    } else {
+      addSubscriptions.addEventListener('click', () => this.emit('subscripte', id));
+    }
     const writeUser = createHtmlElement('p', '', LANGTEXT['writeUser'][this.model.lang], wrapper);
     writeUser.addEventListener('click', () => this.emit('writeUser', id));
-    const delleteModal = () => {
-      window.removeEventListener('click', delleteModal);
-      wrapper.remove();
-    };
-    window.addEventListener('click', delleteModal);
+    shadow.addEventListener('click', () => shadow.remove());
   };
 
-  changeLang = () => {
+  private changeLang = () => {
     this.buttons.forEach((button) => button.changeLang());
+    this.buttonsHeader.forEach((button) => button.changeLang());
     this.buttonSend.changeLang();
     this.limitText.innerText = LANGTEXT['inputLimit'][this.model.lang];
     this.sortDESC.innerText = LANGTEXT['sortDesc'][this.model.lang];

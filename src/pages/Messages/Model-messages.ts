@@ -18,55 +18,65 @@ import {
   Firestore,
 } from 'firebase/firestore';
 
-import { Database, get, getDatabase, ref, update } from 'firebase/database';
+import { Database, get, getDatabase, ref, update, onChildAdded, onChildRemoved, child, push } from 'firebase/database';
 
 import { Sort, TypeUser } from '../../constans/types';
 import { Lang } from '../../constans/constans';
+
+type DialogMembersProp = {
+  name: string;
+  imgSrc: string;
+};
 
 export default class ModelMessages extends Model {
   db: Firestore;
   messages: QuerySnapshot<DocumentData> | undefined;
   limit: number;
   sort: Sort;
-  rtdb: Database;
+  isChat: boolean;
+  isRooms: boolean;
+  dialogRooms: string[];
+  dialogMembers: string[];
+  dialogMembersProp: [];
   constructor(lang: Lang, user: TypeUser) {
     super(lang, user);
     this.limit = 10;
     this.sort = 'desc';
+    this.dialogRooms = [];
+    this.dialogMembers = [];
+    this.dialogMembersProp = [];
+    this.isChat = true;
+    this.isRooms = false;
     const app = initializeApp(firebaseConfig);
     this.db = getFirestore(app);
-    this.rtdb = getDatabase(app);
     onSnapshot(query(collection(this.db, 'messages'), orderBy('created', this.sort), limit(this.limit)), (querySnapshot) => {
       this.messages = querySnapshot;
       this.emit('updateData');
     });
+    const dialogRef = ref(this.rtdb, `users/${this.user?.uid}/dialogRooms`);
+    onChildAdded(dialogRef, (data) => {
+      if (data && data.key) {
+        this.dialogMembers.push(data.key);
+        this.dialogRooms.push(data.val());
+      }
+      this.emit('updateDialog');
+    });
   }
-
-  showUser = async (uid: string) => {
-    const Ref = ref(this.rtdb, `users/${uid}`);
-    const user = await get(Ref);
-    console.log(user.val() ? user.val().userName : 'undefined');
-  };
-
-  subscripteUser = async (userId: string) => {
-    const Ref = ref(this.rtdb, `users/${this.user?.uid}/subscripts`);
-    update(Ref, {
-      [userId]: true,
-    });
-  };
-
-  unSubscripteUser = async (uid: string) => {
-    const Ref = ref(this.rtdb, `users/${this.user?.uid}/subscripts`);
-    update(Ref, {
-      [uid]: null,
-    });
-  };
 
   deleteMessage = async (docum: string) => {
     await deleteDoc(doc(this.db, 'messages', docum));
   };
 
-  sendMessage = async (message: string) => {
+  sendMessage = (message: string) => {
+    if (this.isChat) {
+      this.sendMessageToChat(message);
+    }
+    if (this.isRooms) {
+      this.sendMessageToRooms(message);
+    }
+  };
+
+  private sendMessageToChat = async (message: string) => {
     try {
       const docRef = await addDoc(collection(this.db, 'messages'), {
         uid: this.user?.uid,
@@ -78,6 +88,30 @@ export default class ModelMessages extends Model {
       console.log('Document written with ID: ', docRef.id);
     } catch (e) {
       console.error('Error adding document: ', e);
+    }
+  };
+
+  private sendMessageToRooms = (message: string) => {
+    console.log(message);
+  };
+
+  writeUser = async (uid: string) => {
+    const currentUserUid = this.user?.uid;
+    if (currentUserUid) {
+      const currentUserRef = `users/${currentUserUid}/dialogRooms`;
+      const userRef = `users/${uid}/dialogRooms`;
+      if (!this.dialogMembers.includes(uid)) {
+        const newDialog = push(child(ref(this.rtdb), 'dialogRooms')).key;
+        const updates: { [index: string]: string } = {};
+        if (newDialog) {
+          updates[`${currentUserRef}/${uid}`] = newDialog;
+          updates[`${userRef}/${currentUserUid}`] = newDialog;
+          update(ref(this.rtdb), updates);
+        }
+        console.log('createRoom');
+      } else {
+        console.log('room already exist');
+      }
     }
   };
 

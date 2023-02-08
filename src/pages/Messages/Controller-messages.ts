@@ -13,7 +13,16 @@ export default class ControllerMessages {
     this.viewer.on('setSort', (sort) => this.setSort(sort as Sort));
     this.viewer.on('deleteMessage', (id: string) => this.deleteMessage(id));
     this.viewer.on('subscripte', (uid: string) => this.model.subscripteUser(uid));
-    this.viewer.on('writeUser', (uid: string) => this.model.showUser(uid));
+    this.viewer.on('unsubscripte', (uid: string) => this.model.unSubscripteUser(uid));
+    this.viewer.on('writeUser', (uid: string) => this.model.writeUser(uid));
+    this.viewer.on('toChat', () => {
+      this.model.isChat = true;
+      this.model.isRooms = false;
+    });
+    this.viewer.on('toRooms', () => {
+      this.model.isChat = false;
+      this.model.isRooms = true;
+    });
     this.model.getMessage();
   }
 
