@@ -24,6 +24,14 @@ const LANGTEXT = {
     rus: 'Рус',
     eng: 'Eng',
   },
+  chatButton: {
+    rus: 'Чат',
+    eng: 'Chat',
+  },
+  roomsButton: {
+    rus: 'Группы',
+    eng: 'Rooms',
+  },
   inputLimit: {
     rus: 'Лимит сообщений: ',
     eng: 'Limit messages: ',
@@ -56,9 +64,17 @@ const LANGTEXT = {
     rus: 'Подписаться',
     eng: 'Subscribe',
   },
+  delSubscriptions: {
+    rus: 'Отписаться',
+    eng: 'Unsubscribe',
+  },
   writeUser: {
     rus: 'Написать сообщение',
     eng: 'Write a message',
+  },
+  textInRooms: {
+    rus: 'Выберите кому хотите написать.',
+    eng: 'Select who you want to write.',
   },
 };
 
