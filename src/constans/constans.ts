@@ -72,6 +72,10 @@ const LANGTEXT = {
     rus: 'Написать сообщение',
     eng: 'Write a message',
   },
+  textInRooms: {
+    rus: 'Выберите кому хотите написать.',
+    eng: 'Select who you want to write.',
+  },
 };
 
 type LangNameElement = keyof typeof LANGTEXT;

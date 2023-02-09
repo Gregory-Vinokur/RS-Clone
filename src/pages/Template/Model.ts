@@ -15,6 +15,8 @@ type EmitsName =
   | 'postImgLoaded'
   | 'uploadAvatar'
   | 'uploadCover'
+  | 'updateDialog'
+  | 'showDialog'
   | 'updateDialog';
 
 export default abstract class Model extends EventEmitter {
@@ -49,6 +51,17 @@ export default abstract class Model extends EventEmitter {
       this.subscripts = this.subscripts.filter((user) => user !== data.key);
     });
   }
+
+  // debounceMethod = (callback: <T>(...args: T[]) => void, delay = 250) => {
+  //   let timeoutId: ReturnType<typeof setTimeout>;
+  //   return <T>(...args: T[]) => {
+  //     clearTimeout(timeoutId);
+  //     timeoutId = setTimeout(() => {
+  //       // timeoutId = null;
+  //       callback(...args);
+  //     }, delay);
+  //   };
+  // };
 
   subscripteUser = async (userId: string) => {
     const Ref = ref(this.rtdb, `users/${this.user?.uid}/subscripts`);

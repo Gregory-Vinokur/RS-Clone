@@ -15,11 +15,15 @@ type EmitsName =
   | 'unsubscripte'
   | 'writeUser'
   | 'toChat'
-  | 'toRooms';
+  | 'toRooms'
+  | 'checkDialog';
+
 enum SORTBY {
   DESC = 'desc',
   ASC = 'asc',
 }
+
+type Callback = ((data: string) => void) | ((data: number) => void) | (() => void);
 
 export default class ViewerMessasges extends Page {
   model: ModelMessages;
@@ -38,12 +42,13 @@ export default class ViewerMessasges extends Page {
   messagesRooms: HTMLElement;
   messagesRoomsMembers: HTMLElement;
   messagesRoomsChat: HTMLElement;
+  titleInRooms: HTMLElement;
 
-  emit(event: EmitsName, data?: string) {
+  emit(event: EmitsName, data?: string | number) {
     return super.emit(event, data);
   }
 
-  on(event: EmitsName, callback: ((data: string) => void) | (() => void)) {
+  on(event: EmitsName, callback: Callback) {
     return super.on(event, callback);
   }
 
@@ -59,7 +64,8 @@ export default class ViewerMessasges extends Page {
     this.messagesChat = createHtmlElement('div', 'messages__chat', '', this.messagesField);
     this.messagesRooms = createHtmlElement('div', 'messages__rooms');
     this.messagesRoomsMembers = createHtmlElement('div', 'messages__members', 'Members', this.messagesRooms);
-    this.messagesRoomsChat = createHtmlElement('div', 'messages__roomsChat', 'Chat', this.messagesRooms);
+    this.messagesRoomsChat = createHtmlElement('div', 'messages__roomsChat', '', this.messagesRooms);
+    this.titleInRooms = createHtmlElement('h2', '', LANGTEXT['textInRooms'][this.model.lang], this.messagesRoomsChat);
 
     const buttonsHeaderContainer = this.createButtonsHeader();
     this.input = this.createInputMessage();
@@ -87,6 +93,9 @@ export default class ViewerMessasges extends Page {
     this.messagesChat.classList.add('messages__field_load');
     this.model.on('updateData', this.updateData);
     this.model.on('updateDialog', this.createRooms);
+    this.model.on('showDialog', this.showDialog);
+    this.model.on('updateDialog', (index?: number) => this.updateDialog(index));
+    this.createRooms();
   }
 
   private createButtonsHeader = () => {
@@ -135,9 +144,11 @@ export default class ViewerMessasges extends Page {
   };
 
   private sendMessage = () => {
-    this.emit('send', this.input.value);
-    this.input.value = '';
-    this.setTextAreaHeight();
+    if (this.model.isChat || this.model.isRooms) {
+      this.emit('send', this.input.value);
+      this.input.value = '';
+      this.setTextAreaHeight();
+    }
   };
 
   private deleteMessage = (id: string) => {
@@ -149,12 +160,33 @@ export default class ViewerMessasges extends Page {
     this.createMessages();
   };
 
-  private createRooms = () => {
+  private createRooms = async () => {
     this.messagesRoomsMembers.innerHTML = '';
-    this.model.dialogMembers.forEach((el, index) => {
-      const member = createHtmlElement('div', 'messages__member', `${el} => ${this.model.dialogRooms[index]}`, this.messagesRoomsMembers);
-      member.addEventListener('click', () => console.log(index));
+    const userProp = await Promise.all(this.model.dialogMembersProp);
+    for (let index = 0; index < userProp.length; index++) {
+      const member = createHtmlElement('div', 'messages__member', ``, this.messagesRoomsMembers);
+      const ava = this.createAva(`${userProp[index].userAvatar}`);
+      const name = createHtmlElement('span', '', `${userProp[index].userName}`);
+      member.append(ava, name);
+      member.addEventListener('click', () => this.emit('checkDialog', index));
+    }
+  };
+
+  private showDialog = () => {
+    this.messagesRoomsChat.innerHTML = '';
+    this.model.dialogsMessages[this.model.currentDialogIndex].forEach((element) => {
+      const className = element.uid === this.model.user?.uid ? 'my_message' : 'other_message';
+      const message = createHtmlElement('div', `containerMessage ${className}`, '', this.messagesRoomsChat);
+      const text = createHtmlElement('p', '', element?.text, message);
+      const time = this.createDataElement(element?.time);
+      message.append(time);
     });
+  };
+
+  private updateDialog = (index?: number) => {
+    if (index === this.model.currentDialogIndex) {
+      this.showDialog();
+    }
   };
 
   private createMessages = () => {
@@ -168,11 +200,7 @@ export default class ViewerMessasges extends Page {
       this.messagesChat.prepend(containerMessage);
       const title = createHtmlElement('div', 'messageTitle', '', containerMessage);
 
-      const ava = new Image();
-      ava.src = document.photo ? document.photo : avatar;
-      ava.onerror = () => {
-        ava.src = avatar;
-      };
+      const ava = this.createAva(document.photo);
       title.append(ava);
 
       if (document.uid !== this.model.user?.uid) {
@@ -186,15 +214,28 @@ export default class ViewerMessasges extends Page {
         title.append(buttonDelete.render());
       }
       createHtmlElement('p', 'message_text', `${document.text}`, containerMessage);
-      const timeSec = document.created?.seconds ? document.created.seconds * 1000 : Date.now();
-      const time = new Date(timeSec);
-      const timeText = `${time.getDate().toString().padStart(2, '0')}.${time
-        .getMonth()
-        .toString()
-        .padStart(2, '0')}.${time.getFullYear()} ${time.getHours()}:${time.getMinutes()}`;
-      createHtmlElement('p', 'message_time', timeText, containerMessage);
+      containerMessage.append(this.createDataElement(document.created?.seconds));
     });
     this.messagesField.scrollTop = this.messagesField.scrollHeight;
+  };
+
+  createDataElement = (sec?: number | string) => {
+    const timeSec = sec ? Number(sec) * 1000 : Date.now();
+    const time = new Date(timeSec);
+    const timeText = `${time.getDate().toString().padStart(2, '0')}.${time.getMonth().toString().padStart(2, '0')}.${time.getFullYear()} ${time
+      .getHours()
+      .toString()
+      .padStart(2, '0')}:${time.getMinutes().toString().padStart(2, '0')}`;
+    return createHtmlElement('p', 'message_time', timeText);
+  };
+
+  createAva = (imgUrl: string) => {
+    const ava = new Image();
+    ava.src = imgUrl ? imgUrl : avatar;
+    ava.onerror = () => {
+      ava.src = avatar;
+    };
+    return ava;
   };
 
   private createModalUserWindow = (e: Event, id: string) => {
@@ -217,6 +258,7 @@ export default class ViewerMessasges extends Page {
     this.buttons.forEach((button) => button.changeLang());
     this.buttonsHeader.forEach((button) => button.changeLang());
     this.buttonSend.changeLang();
+    this.titleInRooms.innerText = LANGTEXT['textInRooms'][this.model.lang];
     this.limitText.innerText = LANGTEXT['inputLimit'][this.model.lang];
     this.sortDESC.innerText = LANGTEXT['sortDesc'][this.model.lang];
     this.sortASC.innerText = LANGTEXT['sortAsc'][this.model.lang];

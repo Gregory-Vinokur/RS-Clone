@@ -8,9 +8,9 @@ export default class ControllerMessages {
   constructor(model: ModelMessages, viewer: ViewerMessasges) {
     this.model = model;
     this.viewer = viewer;
-    this.viewer.on('send', (message) => this.sendMessage(message));
-    this.viewer.on('setLimit', (limit) => this.setLimit(limit));
-    this.viewer.on('setSort', (sort) => this.setSort(sort as Sort));
+    this.viewer.on('send', (message: string) => this.sendMessage(message));
+    this.viewer.on('setLimit', (limit: string) => this.setLimit(limit));
+    this.viewer.on('setSort', (sort: string) => this.setSort(sort as Sort));
     this.viewer.on('deleteMessage', (id: string) => this.deleteMessage(id));
     this.viewer.on('subscripte', (uid: string) => this.model.subscripteUser(uid));
     this.viewer.on('unsubscripte', (uid: string) => this.model.unSubscripteUser(uid));
@@ -24,6 +24,7 @@ export default class ControllerMessages {
       this.model.isRooms = true;
     });
     this.model.getMessage();
+    this.viewer.on('checkDialog', (index: number) => this.model.checkDialog(index));
   }
 
   sendMessage = (message = '') => {
