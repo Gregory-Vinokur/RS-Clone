@@ -9,12 +9,12 @@ export default class ControllerProfule {
     this.view = view;
 
     this.view.on('changeName', (name) => {
-      // this.model.setUserName(name !== undefined ? name : '');
-      this.model.setUserName((name as string) || '');
+      if (typeof name === 'string') {
+        this.model.setUserName(name || '');
+      }
     });
 
     this.view.on('changeStatus', (status) => {
-      //this.model.setUserStatus(status !== undefined ? status : '');
       this.model.setUserStatus((status as string) || '');
     });
 
@@ -28,6 +28,21 @@ export default class ControllerProfule {
 
     this.view.on('uploadPostImg', (img) => {
       this.model.createPostImg(img as File);
+    });
+    this.view.on('unsubscriptionUser', (userId) => {
+      this.model.unsubscriptionUser(userId as string);
+    });
+    this.view.on('subscriptionUser', (userId) => {
+      this.model.subscriptionUser(userId as string);
+    });
+
+    // this.view.on('likePost', (userPost) => {
+    //   this.model.setLikeUserPost(userPost as { [key: string]: string | number });
+    // });
+    this.view.on('openUserPage', (userId) => {
+      if (typeof userId === 'string') {
+        this.model.currentUserId = userId;
+      }
     });
   }
 }

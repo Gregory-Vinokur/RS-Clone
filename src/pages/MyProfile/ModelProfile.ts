@@ -13,13 +13,16 @@ export default class ModelProfile extends Model {
   postImgUrl: string;
   userPage: { [key: string]: string };
   userFriends: { [key: string]: any };
-
+  allUsers: { [key: string]: object };
+  currentUserId: string;
   constructor(lang: Lang, user: TypeUser) {
     super(lang, user);
     this.userPosts = {};
     this.postImgUrl = '';
     this.userPage = {};
     this.userFriends = {};
+    this.allUsers = {};
+    this.currentUserId = `${this.user?.uid}`;
   }
 
   db = getDatabase();
@@ -110,6 +113,7 @@ export default class ModelProfile extends Model {
       text: newsText,
       time: `${timeDate} / ${dayDate}`,
       img: this.postImgUrl,
+      likes: 0,
     };
     updates['/users/' + this.user?.uid + '/userPost/' + newPostKey] = postData;
 
@@ -200,4 +204,40 @@ export default class ModelProfile extends Model {
       });
     return this.userPage;
   }
+
+  unsubscriptionUser(userId: string) {
+    const databaseRef = database.ref(`users/${this.user?.uid}/subscripts/${userId}`);
+    databaseRef.remove();
+  }
+
+  subscriptionUser(userId: string) {
+    update(refDB(this.db, `users/${this.user?.uid}/subscripts`), {
+      [userId]: true,
+    });
+  }
+
+  async getAllUsers() {
+    const dbRef = refDB(this.db);
+    await get(child(dbRef, `users/`))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const users = snapshot.val();
+          this.allUsers = users;
+          return this.allUsers;
+        } else {
+          this.allUsers = {};
+          console.log('No users');
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    return this.allUsers;
+  }
+
+  // async setLikeUserPost(userPost: { [key: string]: string | number }) {
+  //   await update(refDB(this.db, `users/${this.currentUserId}/userPost/${userPost.idPost}`), {
+  //     likes: userPost.likes,
+  //   });
+  // }
 }
