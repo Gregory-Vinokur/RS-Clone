@@ -4,8 +4,20 @@ import ModelProfile from './ModelProfile';
 import 'firebase/compat/storage';
 import defaultCover from '../../../assets/img/default-cover.jpg';
 import defaultAva from '../../../assets/img/default-ava.jpg';
+import ViewRecommendedFriends from './ViewRecommendedFriends';
 
-type EmitsName = 'uploadAvatar' | 'changeLang' | 'changeName' | 'changeStatus' | 'createNews' | 'deletePost' | 'uploadPostImg';
+type EmitsName =
+  | 'uploadAvatar'
+  | 'changeLang'
+  | 'changeName'
+  | 'changeStatus'
+  | 'createNews'
+  | 'deletePost'
+  | 'uploadPostImg'
+  | 'subscriptionUser'
+  | 'unsubscriptionUser'
+  | 'likePost'
+  | 'openUserPage';
 
 export default class ViewProfile extends Page {
   model: ModelProfile;
@@ -22,11 +34,15 @@ export default class ViewProfile extends Page {
   profilePerson: HTMLElement;
   userNewsContainer: HTMLElement;
   profileFriends: HTMLElement;
-  emit(event: EmitsName, data?: string | File) {
+  profileFriendsWrapper: HTMLElement;
+  unsubscriptionBtn: HTMLElement;
+  subscriptionBtn: HTMLElement;
+
+  emit(event: EmitsName, data?: string | File | object) {
     return super.emit(event, data);
   }
 
-  on(event: EmitsName, callback: (data?: string | File) => void) {
+  on(event: EmitsName, callback: (data?: string | File | object) => void) {
     return super.on(event, callback);
   }
 
@@ -41,7 +57,7 @@ export default class ViewProfile extends Page {
     this.profilePerson = createHtmlElement('div', 'profile__preson', '', this.profileInfo);
     this.userNewsContainer = createHtmlElement('div', 'news__container_user');
     this.profileFriends = createHtmlElement('div', 'profile__friends');
-
+    this.profileFriendsWrapper = createHtmlElement('div', 'profile__friends_main');
     this.inputAvatar = createHtmlElement('input', 'profile__input') as HTMLInputElement;
     this.inputAvatar.setAttribute('type', 'file');
     this.inputAvatar.id = 'profile__input';
@@ -57,6 +73,9 @@ export default class ViewProfile extends Page {
     this.inputCreatePostImg = createHtmlElement('input', 'input__news-img') as HTMLInputElement;
 
     this.spinnerLoad = createHtmlElement('div', 'spinner__load');
+
+    this.unsubscriptionBtn = createHtmlElement('button', 'unsubscription__user_btn', 'Вы подписаны', this.profileInfo);
+    this.subscriptionBtn = createHtmlElement('button', 'subscription__user_btn', 'Подписаться', this.profileInfo);
 
     this.renderProfileCover(this.model.user?.uid as string);
     this.renderProfileAvatar(this.model.user?.uid as string);
@@ -174,8 +193,11 @@ export default class ViewProfile extends Page {
   renderProfileContainer() {
     const profileMainContainer = createHtmlElement('div', 'profile__main', '', this.profileWrapper);
     const profileNews = createHtmlElement('div', 'profile__news', '', profileMainContainer);
-    const profileFriends = createHtmlElement('div', 'profile__friends_wrapper', '', profileMainContainer);
+    profileMainContainer.append(this.profileFriendsWrapper);
+    const profileFriends = createHtmlElement('div', 'profile__friends_wrapper', '', this.profileFriendsWrapper);
+    const recommendedFriendsWrapper = createHtmlElement('div', 'recommended__friends_wrapper', '', this.profileFriendsWrapper);
     createHtmlElement('div', 'profile__friends_text', 'Друзья', profileFriends);
+    createHtmlElement('p', 'recommended__text', 'Рекомендованные подписки', recommendedFriendsWrapper);
     profileFriends.append(this.profileFriends);
     const profileCreateNews = createHtmlElement('div', 'create__news', '', profileNews);
     this.inputCreateNews.setAttribute('placeholder', 'Что у вас нового?');
@@ -183,9 +205,11 @@ export default class ViewProfile extends Page {
     this.inputCreatePostImg.type = 'file';
     const labelPostImg = createHtmlElement('label', 'label__news-img', '');
     profileCreateNews.append(this.inputCreateNews, this.inputCreatePostImg, labelPostImg, this.createNewsBtn);
-
     labelPostImg.setAttribute('for', `${this.inputCreatePostImg.id}`);
     profileNews.append(this.userNewsContainer);
+
+    const recommendedFriends = new ViewRecommendedFriends(this.model);
+    recommendedFriendsWrapper.append(recommendedFriends.render());
   }
 
   createNews() {
@@ -217,8 +241,8 @@ export default class ViewProfile extends Page {
 
       const actionPost = createHtmlElement('div', 'post__action_user', '', postContainer);
       const likePostBtn = createHtmlElement('button', 'like__button like__btn_user', '', actionPost);
-      createHtmlElement('div', 'like__img', '', likePostBtn);
-      createHtmlElement('span', 'like__counter', '', likePostBtn);
+      const likeImg = createHtmlElement('div', 'like__img', '', likePostBtn);
+      createHtmlElement('span', 'like__counter', `${userPost[postId].likes || 0}`, likePostBtn);
 
       const repostPostBtn = createHtmlElement('button', 'share__button share__btn_user', '', actionPost);
       createHtmlElement('div', 'share__img', '', repostPostBtn);
@@ -227,6 +251,23 @@ export default class ViewProfile extends Page {
       deleteBtn.addEventListener('click', () => {
         this.emit('deletePost', postContainer.id);
       });
+
+      // likePostBtn.addEventListener('click', () => {
+      //   let countLikes = userPost[postId].likes;
+      //   if (!likePostBtn.classList.contains('liked')) {
+      //     likePostBtn.classList.add('liked');
+      //     likeImg.classList.add('liked__img');
+      //     countLikes += 1;
+      //     console.log(countLikes);
+      //     this.emit('likePost', { idPost: postContainer.id, likes: countLikes });
+      //   } else {
+      //     likePostBtn.classList.remove('liked');
+      //     likeImg.classList.remove('liked__img');
+      //     countLikes -= 1;
+      //     console.log(countLikes);
+      //     this.emit('likePost', { idPost: postContainer.id, likes: countLikes });
+      //   }
+      // });
     });
   }
 
@@ -245,44 +286,65 @@ export default class ViewProfile extends Page {
         userName.textContent = `${onlyName || 'Иван'}`;
         (userAva as HTMLImageElement).src = `${userPage.userAvatar || defaultAva}`;
       });
+    } else {
+      const userInfoWrapper = createHtmlElement('div', 'profile__friends_empty', 'Друзей нет', this.profileFriends);
+      console.log('not a friends');
     }
   }
+
   renderFriendProfile() {
-    this.profileFriends?.addEventListener('click', async (e: Event) => {
+    this.profileFriendsWrapper?.addEventListener('click', async (e: Event) => {
       const { target } = e;
       const userId = (target as HTMLElement).parentElement?.id;
+      this.emit('openUserPage', userId);
+      const userPage = (target as HTMLElement).parentElement;
+      if (userPage?.classList.contains('profile__friends_content') || userPage?.classList.contains('recommended__friends_content')) {
+        this.profileAvatar.innerHTML = '';
+        this.profileCover.innerHTML = '';
+        this.profilePerson.innerHTML = '';
+        this.userNewsContainer.innerHTML = '';
+        this.profileFriends.innerHTML = '';
+        await this.renderProfileAvatar(userId as string);
+        await this.renderProfileName(userId as string);
+        await this.renderProfileCover(userId as string);
+        await this.renderNews(userId as string);
+        await this.renderUserFriends(userId as string);
 
-      this.profileAvatar.innerHTML = '';
-      this.profileCover.innerHTML = '';
-      this.profilePerson.innerHTML = '';
-      this.userNewsContainer.innerHTML = '';
-      this.profileFriends.innerHTML = '';
-      await this.renderProfileAvatar(userId as string);
-      await this.renderProfileName(userId as string);
-      await this.renderProfileCover(userId as string);
-      await this.renderNews(userId as string);
-      await this.renderUserFriends(userId as string);
-
-      //const profileLabelCover: HTMLElement | null = this.profileWrapper.querySelector('.profile__label-cover');
-      const profileAvaBtn: HTMLElement | null = document.querySelector('.profile__label');
-      const createNews: HTMLElement | null = document.querySelector('.create__news');
-      const deleteNewsBtn: HTMLElement | null = this.userNewsContainer.querySelector('.delete__post_user');
-      const changeNameBtn: HTMLElement | null = document.querySelector('.profile__name-btn');
-      const changeStatusBtn: HTMLElement | null = document.querySelector('.profile__status-btn');
-      if (profileAvaBtn) profileAvaBtn.style.visibility = 'hidden';
-      if (createNews) createNews.style.display = 'none';
-      if (deleteNewsBtn) deleteNewsBtn.style.display = 'none';
-      if (changeNameBtn) changeNameBtn.style.display = 'none';
-      if (changeStatusBtn) changeStatusBtn.style.display = 'none';
+        const profileAvaBtn: HTMLElement | null = document.querySelector('.profile__label');
+        const createNews: HTMLElement | null = document.querySelector('.create__news');
+        const deleteNewsBtn: HTMLElement | null = this.userNewsContainer.querySelector('.delete__post_user');
+        const changeNameBtn: HTMLElement | null = document.querySelector('.profile__name-btn');
+        const changeStatusBtn: HTMLElement | null = document.querySelector('.profile__status-btn');
+        if (profileAvaBtn) profileAvaBtn.style.visibility = 'hidden';
+        if (createNews) createNews.style.display = 'none';
+        if (deleteNewsBtn) deleteNewsBtn.style.display = 'none';
+        if (changeNameBtn) changeNameBtn.style.display = 'none';
+        if (changeStatusBtn) changeStatusBtn.style.display = 'none';
+        this.unsubscriptionBtn.style.display = 'block';
+        this.subscriptionBtn.style.display = 'none';
+        this.unsubscribeFriends(userId as string);
+      }
+      if (userPage?.classList.contains('recommended__friends_content')) {
+        this.subscriptionBtn.style.display = 'block';
+        this.unsubscriptionBtn.style.display = 'none';
+        this.subscribeFriends(userId as string);
+      }
     });
   }
-  // renderEmptyPostBlock(element: HTMLElement) {
-  //   const newsContainer = document.querySelector('.profile__news');
-  //   if (element && element.childNodes) {
-  //     if (element.childNodes.length + 1 > 0) newsContainer?.classList.add('empty-user');
-  //     else newsContainer?.classList.remove('empty-user');
-  //   }
-  //   const emptyBlockWrapper = createHtmlElement('div', 'empty__block_user', '', newsContainer as HTMLElement);
-  //   createHtmlElement('p', 'empty__block_text', 'Вы пока не добавили ни одной записи', emptyBlockWrapper);
-  // }
+
+  unsubscribeFriends(userId: string) {
+    this.unsubscriptionBtn.addEventListener('click', () => {
+      this.emit('unsubscriptionUser', userId);
+      this.unsubscriptionBtn.style.display = 'none';
+      this.subscriptionBtn.style.display = 'block';
+    });
+  }
+
+  subscribeFriends(userId: string) {
+    this.subscriptionBtn.addEventListener('click', () => {
+      this.emit('subscriptionUser', userId);
+      this.subscriptionBtn.style.display = 'none';
+      this.unsubscriptionBtn.style.display = 'block';
+    });
+  }
 }
