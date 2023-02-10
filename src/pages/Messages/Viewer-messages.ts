@@ -43,6 +43,8 @@ export default class ViewerMessasges extends Page {
   messagesRoomsMembers: HTMLElement;
   messagesRoomsChat: HTMLElement;
   titleInRooms: HTMLElement;
+  messagesChatContainer: HTMLElement;
+  messagesRoomsChatContainer: HTMLElement;
 
   emit(event: EmitsName, data?: string | number) {
     return super.emit(event, data);
@@ -61,10 +63,12 @@ export default class ViewerMessasges extends Page {
     this.buttonsHeader = [];
 
     this.messagesField = createHtmlElement('div', 'messages__field');
-    this.messagesChat = createHtmlElement('div', 'messages__chat', '', this.messagesField);
+    this.messagesChatContainer = createHtmlElement('div', 'messages__container', '', this.messagesField);
+    this.messagesChat = createHtmlElement('div', 'messages__chat', '', this.messagesChatContainer);
     this.messagesRooms = createHtmlElement('div', 'messages__rooms');
     this.messagesRoomsMembers = createHtmlElement('div', 'messages__members', 'Members', this.messagesRooms);
-    this.messagesRoomsChat = createHtmlElement('div', 'messages__roomsChat', '', this.messagesRooms);
+    this.messagesRoomsChatContainer = createHtmlElement('div', 'messages__container', '', this.messagesRooms);
+    this.messagesRoomsChat = createHtmlElement('div', 'messages__roomsChat', '', this.messagesRoomsChatContainer);
     this.titleInRooms = createHtmlElement('h2', '', LANGTEXT['textInRooms'][this.model.lang], this.messagesRoomsChat);
 
     const buttonsHeaderContainer = this.createButtonsHeader();
@@ -101,14 +105,15 @@ export default class ViewerMessasges extends Page {
   private goToChat = () => {
     this.messagesField.innerHTML = '';
     this.emit('toChat');
-    this.messagesField.append(this.messagesChat);
-    this.messagesField.scrollTop = this.messagesField.scrollHeight;
+    this.messagesField.append(this.messagesChatContainer);
+    this.messagesChatContainer.scrollTop = this.messagesChatContainer.scrollHeight;
   };
 
   private goToRooms = () => {
     this.messagesField.innerHTML = '';
     this.emit('toRooms');
     this.messagesField.append(this.messagesRooms);
+    this.messagesRoomsChatContainer.scrollTop = this.messagesRoomsChatContainer.scrollHeight;
   };
 
   private createButtonsHeader = () => {
@@ -190,6 +195,7 @@ export default class ViewerMessasges extends Page {
       const time = this.createDataElement(element?.time);
       message.append(time);
     });
+    this.messagesRoomsChatContainer.scrollTop = this.messagesRoomsChatContainer.scrollHeight;
   };
 
   private updateDialog = (index = 0) => {
@@ -225,7 +231,7 @@ export default class ViewerMessasges extends Page {
       createHtmlElement('p', 'message_text', `${document.text}`, containerMessage);
       containerMessage.append(this.createDataElement(document.created?.seconds));
     });
-    this.messagesField.scrollTop = this.messagesField.scrollHeight;
+    this.messagesChatContainer.scrollTop = this.messagesChatContainer.scrollHeight;
   };
 
   createDataElement = (sec?: number | string) => {
