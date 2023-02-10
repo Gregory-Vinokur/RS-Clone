@@ -65,7 +65,7 @@ export default class ModelMessages extends Model {
   dialogMembersProp: Promise<DialogMembersProp>[];
   dialogsMessages: DialogMessages[][];
   currentDialog: string;
-  currentDialogIndex: number;
+  // currentDialogIndex: number;
   constructor(lang: Lang, user: TypeUser) {
     super(lang, user);
     this.limit = 10;
@@ -77,7 +77,7 @@ export default class ModelMessages extends Model {
     this.isChat = true;
     this.isRooms = false;
     this.currentDialog = '';
-    this.currentDialogIndex = 0;
+    // this.currentDialogIndex = 0;
     const app = initializeApp(firebaseConfig);
     this.db = getFirestore(app);
     onSnapshot(query(collection(this.db, 'messages'), orderBy('created', this.sort), limit(this.limit)), (querySnapshot) => {
@@ -202,6 +202,8 @@ export default class ModelMessages extends Model {
   writeUser = async (uid: string) => {
     const currentUserUid = this.user?.uid;
     if (currentUserUid) {
+      const index = this.dialogMembers.findIndex((el) => el === uid);
+      this.currentDialog = this.dialogRooms[index];
       const currentUserRef = `users/${currentUserUid}/dialogRooms`;
       const userRef = `users/${uid}/dialogRooms`;
       if (!this.dialogMembers.includes(uid)) {
@@ -216,13 +218,14 @@ export default class ModelMessages extends Model {
       } else {
         console.log('room already exist');
       }
+      this.emit('updateDialog', index);
     }
   };
 
   checkDialog = async (index: number) => {
     const userProp = await Promise.all(this.dialogMembersProp);
     this.currentDialog = this.dialogRooms[index];
-    this.currentDialogIndex = index;
+    // this.currentDialogIndex = index;
     this.isRooms = true;
     this.emit('showDialog');
     console.log(`${userProp[index].userName}: ${this.currentDialog}: ${this.dialogMembers[index]}`);

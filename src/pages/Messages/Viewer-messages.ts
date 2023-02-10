@@ -98,23 +98,31 @@ export default class ViewerMessasges extends Page {
     this.createRooms();
   }
 
+  private goToChat = () => {
+    this.messagesField.innerHTML = '';
+    this.emit('toChat');
+    this.messagesField.append(this.messagesChat);
+    this.messagesField.scrollTop = this.messagesField.scrollHeight;
+  };
+
+  private goToRooms = () => {
+    this.messagesField.innerHTML = '';
+    this.emit('toRooms');
+    this.messagesField.append(this.messagesRooms);
+  };
+
   private createButtonsHeader = () => {
     const buttonsHeaderContainer = createHtmlElement('div', 'buttons-header');
     const buttonChat = new Button('chatButton', this.model, () => {
       this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
       buttonChat.element.classList.add('button_active');
-      this.messagesField.innerHTML = '';
-      this.emit('toChat');
-      this.messagesField.append(this.messagesChat);
-      this.messagesField.scrollTop = this.messagesField.scrollHeight;
+      this.goToChat();
     });
     buttonChat.element.classList.add('button_active');
     const buttonRooms = new Button('roomsButton', this.model, () => {
       this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
       buttonRooms.element.classList.add('button_active');
-      this.messagesField.innerHTML = '';
-      this.emit('toRooms');
-      this.messagesField.append(this.messagesRooms);
+      this.goToRooms();
     });
     this.buttonsHeader.push(buttonChat, buttonRooms);
     buttonsHeaderContainer.append(...this.buttonsHeader.map((button) => button.render()));
@@ -174,7 +182,8 @@ export default class ViewerMessasges extends Page {
 
   private showDialog = () => {
     this.messagesRoomsChat.innerHTML = '';
-    this.model.dialogsMessages[this.model.currentDialogIndex].forEach((element) => {
+    const index = this.model.dialogRooms.findIndex((el) => el === this.model.currentDialog);
+    this.model.dialogsMessages[index].forEach((element) => {
       const className = element.uid === this.model.user?.uid ? 'my_message' : 'other_message';
       const message = createHtmlElement('div', `containerMessage ${className}`, '', this.messagesRoomsChat);
       const text = createHtmlElement('p', '', element?.text, message);
@@ -183,8 +192,8 @@ export default class ViewerMessasges extends Page {
     });
   };
 
-  private updateDialog = (index?: number) => {
-    if (index === this.model.currentDialogIndex) {
+  private updateDialog = (index = 0) => {
+    if (this.model.dialogRooms[index] === this.model.currentDialog) {
       this.showDialog();
     }
   };
@@ -250,7 +259,10 @@ export default class ViewerMessasges extends Page {
       addSubscriptions.addEventListener('click', () => this.emit('subscripte', id));
     }
     const writeUser = createHtmlElement('p', '', LANGTEXT['writeUser'][this.model.lang], wrapper);
-    writeUser.addEventListener('click', () => this.emit('writeUser', id));
+    writeUser.addEventListener('click', () => {
+      this.emit('writeUser', id);
+      this.goToRooms();
+    });
     shadow.addEventListener('click', () => shadow.remove());
   };
 
