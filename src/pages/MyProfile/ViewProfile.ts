@@ -375,6 +375,6 @@ export default class ViewProfile extends Page {
     const emptyBlockText: HTMLElement | null = document.querySelector('.empty__block_text');
     if (userSubscriptionsBtn) userSubscriptionsBtn.innerText = LANGTEXT['userSubscriptions'][this.model.lang];
     if (userRecommendedSubscriptions) userRecommendedSubscriptions.innerText = LANGTEXT['recommendedSubscriptions'][this.model.lang];
-    if (emptyBlockText) emptyBlockText.innerText = '';
+    if (emptyBlockText) emptyBlockText.innerText = LANGTEXT['emptyUserNews'][this.model.lang];
   };
 }
