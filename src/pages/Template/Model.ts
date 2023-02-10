@@ -17,7 +17,10 @@ type EmitsName =
   | 'uploadCover'
   | 'updateDialog'
   | 'showDialog'
-  | 'updateDialog';
+  | 'updateDialog'
+  | 'loadPercentFoto'
+  | 'notEmptyUserNews'
+  | 'emptyUserNews';
 
 export default abstract class Model extends EventEmitter {
   lang: Lang;
