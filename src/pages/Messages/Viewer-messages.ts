@@ -9,6 +9,7 @@ type EmitsName =
   | 'send'
   | 'changeLang'
   | 'deleteMessage'
+  | 'deleteDialogMessage'
   | 'setLimit'
   | 'setSort'
   | 'subscripte'
@@ -36,6 +37,7 @@ export default class ViewerMessasges extends Page {
   sortDESC: HTMLElement;
   sortASC: HTMLElement;
   buttons: Button<ModelMessages>[];
+  buttonsDialog: Button<ModelMessages>[];
   buttonsHeader: Button<ModelMessages>[];
   buttonSend: Button<ModelMessages>;
   messagesChat: HTMLElement;
@@ -60,6 +62,7 @@ export default class ViewerMessasges extends Page {
     this.model = model;
     this.model.on('changeLang', this.changeLang);
     this.buttons = [];
+    this.buttonsDialog = [];
     this.buttonsHeader = [];
 
     this.messagesField = createHtmlElement('div', 'messages__field');
@@ -168,6 +171,10 @@ export default class ViewerMessasges extends Page {
     this.emit('deleteMessage', id);
   };
 
+  private deleteDialogMessage = (id: string) => {
+    this.emit('deleteDialogMessage', id);
+  };
+
   private updateData = () => {
     this.inputLimit.value = this.model.limit.toString();
     this.createMessages();
@@ -187,11 +194,19 @@ export default class ViewerMessasges extends Page {
 
   private showDialog = () => {
     this.messagesRoomsChat.innerHTML = '';
+    this.buttonsDialog = [];
     const index = this.model.dialogRooms.findIndex((el) => el === this.model.currentDialog);
     this.model.dialogsMessages[index].forEach((element) => {
       const className = element.uid === this.model.user?.uid ? 'my_message' : 'other_message';
       const message = createHtmlElement('div', `containerMessage ${className}`, '', this.messagesRoomsChat);
-      const text = createHtmlElement('p', '', element?.text, message);
+      const container = createHtmlElement('div', 'container-text', '', message);
+      const text = createHtmlElement('p', '', element?.text, container);
+      if (element.uid === this.model.user?.uid) {
+        const button = new Button('deleteButton', this.model, () => this.deleteDialogMessage(element.key));
+        this.buttonsDialog.push(button);
+        const containerButton = createHtmlElement('div', 'message__container-button', '', container);
+        containerButton.append(button.render());
+      }
       const time = this.createDataElement(element?.time);
       message.append(time);
     });
@@ -274,6 +289,7 @@ export default class ViewerMessasges extends Page {
 
   private changeLang = () => {
     this.buttons.forEach((button) => button.changeLang());
+    this.buttonsDialog.forEach((button) => button.changeLang());
     this.buttonsHeader.forEach((button) => button.changeLang());
     this.buttonSend.changeLang();
     this.titleInRooms.innerText = LANGTEXT['textInRooms'][this.model.lang];

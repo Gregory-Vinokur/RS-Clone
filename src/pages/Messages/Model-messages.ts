@@ -31,6 +31,7 @@ import {
   push,
   onValue,
   set,
+  remove,
 } from 'firebase/database';
 
 import { Sort, TypeUser } from '../../constans/types';
@@ -65,7 +66,6 @@ export default class ModelMessages extends Model {
   dialogMembersProp: Promise<DialogMembersProp>[];
   dialogsMessages: DialogMessages[][];
   currentDialog: string;
-  // currentDialogIndex: number;
   constructor(lang: Lang, user: TypeUser) {
     super(lang, user);
     this.limit = 10;
@@ -153,6 +153,11 @@ export default class ModelMessages extends Model {
 
   deleteMessage = async (docum: string) => {
     await deleteDoc(doc(this.db, 'messages', docum));
+  };
+
+  deleteDialogMessage = (key: string) => {
+    const dialogRef = ref(this.rtdb, `dialogRooms/${this.currentDialog}/${key}`);
+    remove(dialogRef);
   };
 
   sendMessage = (message: string) => {

@@ -67,6 +67,11 @@
   box-shadow: #6161c8 0 0 8px;
 }
 
+.containerMessage .container-text {
+  display: flex;
+  width: 100%;
+}
+
 .my_message {
   border-color: greenyellow;
   margin-left: auto;
@@ -112,8 +117,13 @@
 
 .containerMessage p {
   color: blue;
+  flex-grow: 1;
   border-bottom: 1px solid #a0a0c0;
   border-radius: 5px;
+  padding: 6px;
+}
+
+.message__container-button {
   padding: 6px;
 }
 

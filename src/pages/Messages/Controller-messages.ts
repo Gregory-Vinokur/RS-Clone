@@ -12,6 +12,7 @@ export default class ControllerMessages {
     this.viewer.on('setLimit', (limit: string) => this.setLimit(limit));
     this.viewer.on('setSort', (sort: string) => this.setSort(sort as Sort));
     this.viewer.on('deleteMessage', (id: string) => this.deleteMessage(id));
+    this.viewer.on('deleteDialogMessage', (id: string) => this.model.deleteDialogMessage(id));
     this.viewer.on('subscripte', (uid: string) => this.model.subscripteUser(uid));
     this.viewer.on('unsubscripte', (uid: string) => this.model.unSubscripteUser(uid));
     this.viewer.on('writeUser', (uid: string) => this.model.writeUser(uid));
