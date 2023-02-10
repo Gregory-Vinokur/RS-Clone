@@ -36,9 +36,6 @@ export default class ControllerProfule {
       this.model.subscriptionUser(userId as string);
     });
 
-    // this.view.on('likePost', (userPost) => {
-    //   this.model.setLikeUserPost(userPost as { [key: string]: string | number });
-    // });
     this.view.on('openUserPage', (userId) => {
       if (typeof userId === 'string') {
         this.model.currentUserId = userId;

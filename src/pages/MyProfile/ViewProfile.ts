@@ -6,6 +6,8 @@ import defaultCover from '../../../assets/img/default-cover.jpg';
 import defaultAva from '../../../assets/img/default-ava.jpg';
 import ViewRecommendedFriends from './ViewRecommendedFriends';
 
+import { LANGTEXT } from '../../constans/constans';
+
 type EmitsName =
   | 'uploadAvatar'
   | 'changeLang'
@@ -37,8 +39,9 @@ export default class ViewProfile extends Page {
   profileFriendsWrapper: HTMLElement;
   unsubscriptionBtn: HTMLElement;
   subscriptionBtn: HTMLElement;
+  emptyBlock: HTMLElement;
 
-  emit(event: EmitsName, data?: string | File | object) {
+  emit(event: EmitsName, data?: string | File) {
     return super.emit(event, data);
   }
 
@@ -53,11 +56,12 @@ export default class ViewProfile extends Page {
     this.profileWrapper = createHtmlElement('div', 'profile__wrapper', '', this.mainWrapper);
     this.profileInfo = createHtmlElement('div', 'profile__info', '', this.profileWrapper);
     this.profileCover = createHtmlElement('div', 'profile__cover', '', this.profileWrapper);
-    this.profileAvatar = createHtmlElement('div', 'profile__ava', '', this.profileInfo);
+    this.profileAvatar = createHtmlElement('div', 'profile__ava_container', '', this.profileInfo);
     this.profilePerson = createHtmlElement('div', 'profile__preson', '', this.profileInfo);
     this.userNewsContainer = createHtmlElement('div', 'news__container_user');
     this.profileFriends = createHtmlElement('div', 'profile__friends');
     this.profileFriendsWrapper = createHtmlElement('div', 'profile__friends_main');
+    this.emptyBlock = createHtmlElement('div', 'empty__block_user');
     this.inputAvatar = createHtmlElement('input', 'profile__input') as HTMLInputElement;
     this.inputAvatar.setAttribute('type', 'file');
     this.inputAvatar.id = 'profile__input';
@@ -68,14 +72,19 @@ export default class ViewProfile extends Page {
     this.inputCreateNews = createHtmlElement('input', 'input__create-news') as HTMLInputElement;
     this.inputCreateNews.setAttribute('type', 'text');
 
-    this.createNewsBtn = createHtmlElement('button', 'create__news-btn', 'Поделиться');
+    this.createNewsBtn = createHtmlElement('button', 'create__news-btn', LANGTEXT['createUserNewsBtn'][this.model.lang]);
 
     this.inputCreatePostImg = createHtmlElement('input', 'input__news-img') as HTMLInputElement;
 
     this.spinnerLoad = createHtmlElement('div', 'spinner__load');
 
-    this.unsubscriptionBtn = createHtmlElement('button', 'unsubscription__user_btn', 'Вы подписаны', this.profileInfo);
-    this.subscriptionBtn = createHtmlElement('button', 'subscription__user_btn', 'Подписаться', this.profileInfo);
+    this.unsubscriptionBtn = createHtmlElement(
+      'button',
+      'unsubscription__user_btn',
+      LANGTEXT['unsubscriptsUserBtn'][this.model.lang],
+      this.profileInfo
+    );
+    this.subscriptionBtn = createHtmlElement('button', 'subscription__user_btn', LANGTEXT['subscriptsUserBtn'][this.model.lang], this.profileInfo);
 
     this.renderProfileCover(this.model.user?.uid as string);
     this.renderProfileAvatar(this.model.user?.uid as string);
@@ -102,14 +111,17 @@ export default class ViewProfile extends Page {
     });
 
     this.model.on('updateData', async () => await this.renderNews(this.model.user?.uid as string));
+
     this.model.on('uploadAvatar', () => {
       this.profileAvatar.innerHTML = '';
       this.renderProfileAvatar(this.model.user?.uid as string);
     });
+
     this.model.on('uploadCover', () => {
       this.profileCover.innerHTML = '';
       this.renderProfileCover(this.model.user?.uid as string);
     });
+
     this.model.on('loadPostImg', () => {
       (this.createNewsBtn as HTMLButtonElement).disabled = true;
       this.createNewsBtn.textContent = '';
@@ -119,14 +131,19 @@ export default class ViewProfile extends Page {
       (this.createNewsBtn as HTMLButtonElement).disabled = false;
       this.createNewsBtn.textContent = 'Поделиться';
     });
+
+    this.model.on('loadPercentFoto', (percent) => this.renderLoadImg(percent as number));
+    this.model.on('emptyUserNews', () => (this.emptyBlock.style.display = 'block'));
+    this.model.on('notEmptyUserNews', () => (this.emptyBlock.style.display = 'none'));
+    this.model.on('changeLang', this.changeLang);
   }
 
   async renderProfileAvatar(userId: string) {
     const user = await this.model.getUserInfo(userId);
-    const profileAvatarImg = createHtmlElement('img', 'profile__ava-img', '', this.profileAvatar);
-    const uploadAvaForm = createHtmlElement('form', 'profile__ava-form', '', this.profileAvatar);
-    const uploadAvaLabel = createHtmlElement('label', 'profile__label', 'Изменить аватар', uploadAvaForm);
-    uploadAvaForm.append(this.inputAvatar);
+    const profileAvatarImgContainer = createHtmlElement('div', 'profile__ava', '', this.profileAvatar);
+    const profileAvatarImg = createHtmlElement('img', 'profile__ava-img', '', profileAvatarImgContainer);
+    const uploadAvaLabel = createHtmlElement('label', 'profile__label', '', this.profileAvatar);
+    this.profileAvatar.append(this.inputAvatar);
     uploadAvaLabel.setAttribute('for', 'profile__input');
     profileAvatarImg.setAttribute('src', `${user.userAvatar || defaultAva}`);
   }
@@ -154,12 +171,15 @@ export default class ViewProfile extends Page {
     profileStatusBtn.addEventListener('click', () => {
       this.editProfileStatus();
     });
+
+    const progressBarWrapper = createHtmlElement('div', 'progress-bar__wrapper', '', this.profilePerson);
+    createHtmlElement('div', 'progress-bar__percent', '', progressBarWrapper);
   }
 
   async renderProfileCover(userId: string) {
     const user = await this.model.getUserInfo(userId);
     const profileCoverImg = createHtmlElement('img', 'profile__cover-img', '', this.profileCover);
-    const uploadCoverLabel = createHtmlElement('label', 'profile__label-cover', '', this.profileWrapper);
+    const uploadCoverLabel = createHtmlElement('label', 'profile__label-cover', '', this.profileAvatar);
     uploadCoverLabel.setAttribute('for', 'profile__input-cover');
     this.profileCover.append(this.inputCover);
     profileCoverImg.setAttribute('src', `${user.userCover || defaultCover}`);
@@ -196,11 +216,11 @@ export default class ViewProfile extends Page {
     profileMainContainer.append(this.profileFriendsWrapper);
     const profileFriends = createHtmlElement('div', 'profile__friends_wrapper', '', this.profileFriendsWrapper);
     const recommendedFriendsWrapper = createHtmlElement('div', 'recommended__friends_wrapper', '', this.profileFriendsWrapper);
-    createHtmlElement('div', 'profile__friends_text', 'Друзья', profileFriends);
-    createHtmlElement('p', 'recommended__text', 'Рекомендованные подписки', recommendedFriendsWrapper);
+    createHtmlElement('div', 'profile__friends_text', LANGTEXT['userSubscriptions'][this.model.lang], profileFriends);
+    createHtmlElement('p', 'recommended__text', LANGTEXT['recommendedSubscriptions'][this.model.lang], recommendedFriendsWrapper);
     profileFriends.append(this.profileFriends);
     const profileCreateNews = createHtmlElement('div', 'create__news', '', profileNews);
-    this.inputCreateNews.setAttribute('placeholder', 'Что у вас нового?');
+    this.inputCreateNews.setAttribute('placeholder', LANGTEXT['inputCreateNews'][this.model.lang]);
     this.inputCreatePostImg.id = 'input__news-img';
     this.inputCreatePostImg.type = 'file';
     const labelPostImg = createHtmlElement('label', 'label__news-img', '');
@@ -208,6 +228,10 @@ export default class ViewProfile extends Page {
     labelPostImg.setAttribute('for', `${this.inputCreatePostImg.id}`);
     profileNews.append(this.userNewsContainer);
 
+    const emptyBlockWrapper = createHtmlElement('div', 'empty__block_wrapper', '', this.emptyBlock);
+    createHtmlElement('p', 'empty__block_text', LANGTEXT['emptyUserNews'][this.model.lang], emptyBlockWrapper);
+    createHtmlElement('div', 'empty__block_img', '', emptyBlockWrapper);
+    profileNews.append(this.emptyBlock);
     const recommendedFriends = new ViewRecommendedFriends(this.model);
     recommendedFriendsWrapper.append(recommendedFriends.render());
   }
@@ -251,23 +275,6 @@ export default class ViewProfile extends Page {
       deleteBtn.addEventListener('click', () => {
         this.emit('deletePost', postContainer.id);
       });
-
-      // likePostBtn.addEventListener('click', () => {
-      //   let countLikes = userPost[postId].likes;
-      //   if (!likePostBtn.classList.contains('liked')) {
-      //     likePostBtn.classList.add('liked');
-      //     likeImg.classList.add('liked__img');
-      //     countLikes += 1;
-      //     console.log(countLikes);
-      //     this.emit('likePost', { idPost: postContainer.id, likes: countLikes });
-      //   } else {
-      //     likePostBtn.classList.remove('liked');
-      //     likeImg.classList.remove('liked__img');
-      //     countLikes -= 1;
-      //     console.log(countLikes);
-      //     this.emit('likePost', { idPost: postContainer.id, likes: countLikes });
-      //   }
-      // });
     });
   }
 
@@ -287,8 +294,7 @@ export default class ViewProfile extends Page {
         (userAva as HTMLImageElement).src = `${userPage.userAvatar || defaultAva}`;
       });
     } else {
-      const userInfoWrapper = createHtmlElement('div', 'profile__friends_empty', 'Друзей нет', this.profileFriends);
-      console.log('not a friends');
+      createHtmlElement('div', 'profile__friends_empty', 'Пользователь ни на кого не подписан', this.profileFriends);
     }
   }
 
@@ -315,11 +321,14 @@ export default class ViewProfile extends Page {
         const deleteNewsBtn: HTMLElement | null = this.userNewsContainer.querySelector('.delete__post_user');
         const changeNameBtn: HTMLElement | null = document.querySelector('.profile__name-btn');
         const changeStatusBtn: HTMLElement | null = document.querySelector('.profile__status-btn');
+        const uploadCoverBtn: HTMLElement | null = document.querySelector('.profile__label-cover');
         if (profileAvaBtn) profileAvaBtn.style.visibility = 'hidden';
         if (createNews) createNews.style.display = 'none';
         if (deleteNewsBtn) deleteNewsBtn.style.display = 'none';
         if (changeNameBtn) changeNameBtn.style.display = 'none';
         if (changeStatusBtn) changeStatusBtn.style.display = 'none';
+        if (uploadCoverBtn) uploadCoverBtn.style.display = 'none';
+        console.log(uploadCoverBtn);
         this.unsubscriptionBtn.style.display = 'block';
         this.subscriptionBtn.style.display = 'none';
         this.unsubscribeFriends(userId as string);
@@ -347,4 +356,25 @@ export default class ViewProfile extends Page {
       this.unsubscriptionBtn.style.display = 'block';
     });
   }
+
+  renderLoadImg(percent: number) {
+    const progressBarPercent: HTMLElement | null = document.querySelector('.progress-bar__percent');
+    if (progressBarPercent) progressBarPercent.style.width = `${percent}%`;
+    setTimeout(() => {
+      if (progressBarPercent) progressBarPercent.style.width = '0%';
+    }, 2000);
+  }
+
+  private changeLang = () => {
+    this.createNewsBtn.innerText = LANGTEXT['createUserNewsBtn'][this.model.lang];
+    this.inputCreateNews.innerText = LANGTEXT['inputCreateNews'][this.model.lang];
+    this.subscriptionBtn.innerText = LANGTEXT['subscriptsUserBtn'][this.model.lang];
+    this.unsubscriptionBtn.innerText = LANGTEXT['unsubscriptsUserBtn'][this.model.lang];
+    const userSubscriptionsBtn: HTMLElement | null = document.querySelector('.profile__friends_text');
+    const userRecommendedSubscriptions: HTMLElement | null = document.querySelector('.recommended__text');
+    const emptyBlockText: HTMLElement | null = document.querySelector('.empty__block_text');
+    if (userSubscriptionsBtn) userSubscriptionsBtn.innerText = LANGTEXT['userSubscriptions'][this.model.lang];
+    if (userRecommendedSubscriptions) userRecommendedSubscriptions.innerText = LANGTEXT['recommendedSubscriptions'][this.model.lang];
+    if (emptyBlockText) emptyBlockText.innerText = '';
+  };
 }
