@@ -187,7 +187,13 @@ export default class ViewerMessasges extends Page {
       const member = createHtmlElement('div', 'messages__member', ``, this.messagesRoomsMembers);
       const ava = this.createAva(`${userProp[index].userAvatar}`);
       const name = createHtmlElement('span', '', `${userProp[index].userName}`);
-      member.append(ava, name);
+      // const containerButtons = createHtmlElement('div', 'messages__member__buttons');
+      const button = createHtmlElement('div', 'messages__member__button');
+      createHtmlElement('span', '', '', button);
+      createHtmlElement('span', '', '', button);
+      createHtmlElement('span', '', '', button);
+      member.append(ava, name, button);
+      button.addEventListener('click', (e) => this.createModalUserWindow(e, userProp[index].userId));
       member.addEventListener('click', () => this.emit('checkDialog', index));
     }
   };

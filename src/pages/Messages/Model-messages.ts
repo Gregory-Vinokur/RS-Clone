@@ -230,10 +230,8 @@ export default class ModelMessages extends Model {
   checkDialog = async (index: number) => {
     const userProp = await Promise.all(this.dialogMembersProp);
     this.currentDialog = this.dialogRooms[index];
-    // this.currentDialogIndex = index;
     this.isRooms = true;
     this.emit('showDialog');
-    console.log(`${userProp[index].userName}: ${this.currentDialog}: ${this.dialogMembers[index]}`);
   };
 
   getMessage = async () => {
