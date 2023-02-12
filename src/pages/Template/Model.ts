@@ -20,7 +20,7 @@ type EmitsName =
   | 'updateDialogs'
   | 'loadPercentFoto'
   | 'notEmptyUserNews'
-  | 'emptyUserNewss';
+  | 'emptyUserNews';
 
 export default abstract class Model extends EventEmitter {
   lang: Lang;

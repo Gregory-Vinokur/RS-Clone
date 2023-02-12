@@ -106,7 +106,7 @@ export default class ViewerMessasges extends Page {
     });
     this.model.on('showDialog', this.showDialog);
     this.model.on('updateDialog', (index?: number) => this.updateDialog(index));
-    // this.createRooms();
+    this.createRooms();
   }
 
   debounceMethod = (callback: <T>(...args: T[]) => void, delay = 250) => {
@@ -197,7 +197,7 @@ export default class ViewerMessasges extends Page {
 
   private createRooms = async () => {
     this.messagesRoomsMembers.innerHTML = '';
-
+    console.log('create rooms');
     this.messagesRoomsMembersElement = [];
 
     const userProp = await Promise.all(this.model.dialogMembersProp);
