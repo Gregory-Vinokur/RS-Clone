@@ -123,6 +123,9 @@ export default class ViewerMessasges extends Page {
   private goToChat = () => {
     this.messagesField.innerHTML = '';
     this.emit('toChat');
+    this.inputLimit.disabled = false;
+    this.sortSelect.disabled = false;
+    this.limitText.classList.remove('disabled');
     this.messagesField.append(this.messagesChatContainer);
     this.messagesChatContainer.scrollTop = this.messagesChatContainer.scrollHeight;
   };
@@ -130,6 +133,9 @@ export default class ViewerMessasges extends Page {
   private goToRooms = () => {
     this.messagesField.innerHTML = '';
     this.emit('toRooms');
+    this.inputLimit.disabled = true;
+    this.sortSelect.disabled = true;
+    this.limitText.classList.add('disabled');
     this.messagesField.append(this.messagesRooms);
     this.messagesRoomsChatContainer.scrollTop = this.messagesRoomsChatContainer.scrollHeight;
   };

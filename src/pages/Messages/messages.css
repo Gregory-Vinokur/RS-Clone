@@ -148,6 +148,12 @@ textarea {
   outline: none;
 }
 
+input:disabled,
+select:disabled {
+  color: #a0a0c0;
+  border: 1px solid #a0a0c0;
+}
+
 option {
   color: blue;
 }
@@ -167,6 +173,10 @@ option {
 
 .input-limit-title {
   color: #8282e6;
+}
+
+.container-limit .disabled {
+  color: #a0a0c0;
 }
 
 .message__containerButtons {
