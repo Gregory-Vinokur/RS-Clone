@@ -43,6 +43,7 @@ export default class ViewerMessasges extends Page {
   messagesChat: HTMLElement;
   messagesRooms: HTMLElement;
   messagesRoomsMembers: HTMLElement;
+  messagesRoomsMembersElement: HTMLElement[];
   messagesRoomsChat: HTMLElement;
   titleInRooms: HTMLElement;
   messagesChatContainer: HTMLElement;
@@ -64,7 +65,7 @@ export default class ViewerMessasges extends Page {
     this.buttons = [];
     this.buttonsDialog = [];
     this.buttonsHeader = [];
-
+    this.messagesRoomsMembersElement = [];
     this.messagesField = createHtmlElement('div', 'messages__field');
     this.messagesChatContainer = createHtmlElement('div', 'messages__container', '', this.messagesField);
     this.messagesChat = createHtmlElement('div', 'messages__chat', '', this.messagesChatContainer);
@@ -99,11 +100,25 @@ export default class ViewerMessasges extends Page {
     this.messagesChat.innerHTML = `<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`;
     this.messagesChat.classList.add('messages__field_load');
     this.model.on('updateData', this.updateData);
-    this.model.on('updateDialog', this.createRooms);
+    const debonseCreateRooms = this.debounceMethod(this.createRooms, 200);
+    this.model.on('updateDialogs', () => {
+      debonseCreateRooms();
+    });
     this.model.on('showDialog', this.showDialog);
     this.model.on('updateDialog', (index?: number) => this.updateDialog(index));
-    this.createRooms();
+    // this.createRooms();
   }
+
+  debounceMethod = (callback: <T>(...args: T[]) => void, delay = 250) => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    return <T>(...args: T[]) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        // timeoutId = null;
+        callback(...args);
+      }, delay);
+    };
+  };
 
   private goToChat = () => {
     this.messagesField.innerHTML = '';
@@ -182,7 +197,11 @@ export default class ViewerMessasges extends Page {
 
   private createRooms = async () => {
     this.messagesRoomsMembers.innerHTML = '';
+
+    this.messagesRoomsMembersElement = [];
+
     const userProp = await Promise.all(this.model.dialogMembersProp);
+
     for (let index = 0; index < userProp.length; index++) {
       const member = createHtmlElement('div', 'messages__member', ``, this.messagesRoomsMembers);
       const ava = this.createAva(`${userProp[index].userAvatar}`);
@@ -193,15 +212,23 @@ export default class ViewerMessasges extends Page {
       createHtmlElement('span', '', '', button);
       createHtmlElement('span', '', '', button);
       member.append(ava, name, button);
+      this.messagesRoomsMembersElement.push(member);
       button.addEventListener('click', (e) => this.createModalUserWindow(e, userProp[index].userId));
-      member.addEventListener('click', () => this.emit('checkDialog', index));
+      member.addEventListener('click', () => {
+        member.classList.remove('new-message');
+        this.emit('checkDialog', index);
+      });
     }
+    // this.updateDialog();
   };
 
   private showDialog = () => {
     this.messagesRoomsChat.innerHTML = '';
     this.buttonsDialog = [];
     const index = this.model.dialogRooms.findIndex((el) => el === this.model.currentDialog);
+    if (!this.model.dialogsMessages[index]) {
+      return;
+    }
     this.model.dialogsMessages[index].forEach((element) => {
       const className = element.uid === this.model.user?.uid ? 'my_message' : 'other_message';
       const message = createHtmlElement('div', `containerMessage ${className}`, '', this.messagesRoomsChat);
@@ -216,12 +243,31 @@ export default class ViewerMessasges extends Page {
       const time = this.createDataElement(element?.time);
       message.append(time);
     });
+
     this.messagesRoomsChatContainer.scrollTop = this.messagesRoomsChatContainer.scrollHeight;
   };
 
-  private updateDialog = (index = 0) => {
+  private updateDialog = async (index = -1) => {
     if (this.model.dialogRooms[index] === this.model.currentDialog) {
       this.showDialog();
+    } else {
+      const lastChangeDialog = '';
+      const lastChangeUserDialog = '';
+      await Promise.all(this.model.dialogMembersProp);
+      if (this.messagesRoomsMembersElement.length) {
+        if (index >= 0) {
+          if (this.model.lastChangeUserDialog[index] < this.model.lastChangeDialog[index]) {
+            this.messagesRoomsMembersElement[index].classList.add('new-message');
+          }
+        }
+        //  else {
+        //   this.messagesRoomsMembersElement.forEach((el, i) => {
+        //     if (this.model.lastChangeUserDialog[i] < this.model.lastChangeDialog[i]) {
+        //       el.classList.add('new-message');
+        //     }
+        //   });
+        // }
+      }
     }
   };
 

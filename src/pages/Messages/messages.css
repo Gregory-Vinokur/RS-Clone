@@ -193,6 +193,7 @@ option {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  overflow-y: auto;
 }
 
 .messages__member {
@@ -218,13 +219,27 @@ option {
 }
 
 .messages__member__button {
-  width: 16px;
+  width: 25px;
   height: 15px;
+  position: relative;
   display: flex;
   flex-direction: column;
   margin-left: auto;
   align-self: start;
   justify-content: space-between;
+}
+
+.new-message .messages__member__button::before {
+  content: 'new';
+  position: absolute;
+  display: inline-block;
+  width: 25px;
+  padding: 1px 3px;
+  border-radius: 4px;
+  bottom: -15px;
+  font-size: 0.5em;
+  text-align: center;
+  background-color: green;
 }
 
 .messages__member__button span {
