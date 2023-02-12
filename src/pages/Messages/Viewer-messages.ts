@@ -9,6 +9,7 @@ type EmitsName =
   | 'send'
   | 'changeLang'
   | 'deleteMessage'
+  | 'deleteDialogMessage'
   | 'setLimit'
   | 'setSort'
   | 'subscripte'
@@ -36,13 +37,17 @@ export default class ViewerMessasges extends Page {
   sortDESC: HTMLElement;
   sortASC: HTMLElement;
   buttons: Button<ModelMessages>[];
+  buttonsDialog: Button<ModelMessages>[];
   buttonsHeader: Button<ModelMessages>[];
   buttonSend: Button<ModelMessages>;
   messagesChat: HTMLElement;
   messagesRooms: HTMLElement;
   messagesRoomsMembers: HTMLElement;
+  messagesRoomsMembersElement: HTMLElement[];
   messagesRoomsChat: HTMLElement;
   titleInRooms: HTMLElement;
+  messagesChatContainer: HTMLElement;
+  messagesRoomsChatContainer: HTMLElement;
 
   emit(event: EmitsName, data?: string | number) {
     return super.emit(event, data);
@@ -58,13 +63,16 @@ export default class ViewerMessasges extends Page {
     this.model = model;
     this.model.on('changeLang', this.changeLang);
     this.buttons = [];
+    this.buttonsDialog = [];
     this.buttonsHeader = [];
-
+    this.messagesRoomsMembersElement = [];
     this.messagesField = createHtmlElement('div', 'messages__field');
-    this.messagesChat = createHtmlElement('div', 'messages__chat', '', this.messagesField);
+    this.messagesChatContainer = createHtmlElement('div', 'messages__container', '', this.messagesField);
+    this.messagesChat = createHtmlElement('div', 'messages__chat', '', this.messagesChatContainer);
     this.messagesRooms = createHtmlElement('div', 'messages__rooms');
     this.messagesRoomsMembers = createHtmlElement('div', 'messages__members', 'Members', this.messagesRooms);
-    this.messagesRoomsChat = createHtmlElement('div', 'messages__roomsChat', '', this.messagesRooms);
+    this.messagesRoomsChatContainer = createHtmlElement('div', 'messages__container', '', this.messagesRooms);
+    this.messagesRoomsChat = createHtmlElement('div', 'messages__roomsChat', '', this.messagesRoomsChatContainer);
     this.titleInRooms = createHtmlElement('h2', '', LANGTEXT['textInRooms'][this.model.lang], this.messagesRoomsChat);
 
     const buttonsHeaderContainer = this.createButtonsHeader();
@@ -92,29 +100,58 @@ export default class ViewerMessasges extends Page {
     this.messagesChat.innerHTML = `<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`;
     this.messagesChat.classList.add('messages__field_load');
     this.model.on('updateData', this.updateData);
-    this.model.on('updateDialog', this.createRooms);
+    const debonseCreateRooms = this.debounceMethod(this.createRooms, 200);
+    this.model.on('updateDialogs', () => {
+      debonseCreateRooms();
+    });
     this.model.on('showDialog', this.showDialog);
     this.model.on('updateDialog', (index?: number) => this.updateDialog(index));
     this.createRooms();
   }
+
+  debounceMethod = (callback: <T>(...args: T[]) => void, delay = 250) => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    return <T>(...args: T[]) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        // timeoutId = null;
+        callback(...args);
+      }, delay);
+    };
+  };
+
+  private goToChat = () => {
+    this.messagesField.innerHTML = '';
+    this.emit('toChat');
+    this.inputLimit.disabled = false;
+    this.sortSelect.disabled = false;
+    this.limitText.classList.remove('disabled');
+    this.messagesField.append(this.messagesChatContainer);
+    this.messagesChatContainer.scrollTop = this.messagesChatContainer.scrollHeight;
+  };
+
+  private goToRooms = () => {
+    this.messagesField.innerHTML = '';
+    this.emit('toRooms');
+    this.inputLimit.disabled = true;
+    this.sortSelect.disabled = true;
+    this.limitText.classList.add('disabled');
+    this.messagesField.append(this.messagesRooms);
+    this.messagesRoomsChatContainer.scrollTop = this.messagesRoomsChatContainer.scrollHeight;
+  };
 
   private createButtonsHeader = () => {
     const buttonsHeaderContainer = createHtmlElement('div', 'buttons-header');
     const buttonChat = new Button('chatButton', this.model, () => {
       this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
       buttonChat.element.classList.add('button_active');
-      this.messagesField.innerHTML = '';
-      this.emit('toChat');
-      this.messagesField.append(this.messagesChat);
-      this.messagesField.scrollTop = this.messagesField.scrollHeight;
+      this.goToChat();
     });
     buttonChat.element.classList.add('button_active');
     const buttonRooms = new Button('roomsButton', this.model, () => {
       this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
       buttonRooms.element.classList.add('button_active');
-      this.messagesField.innerHTML = '';
-      this.emit('toRooms');
-      this.messagesField.append(this.messagesRooms);
+      this.goToRooms();
     });
     this.buttonsHeader.push(buttonChat, buttonRooms);
     buttonsHeaderContainer.append(...this.buttonsHeader.map((button) => button.render()));
@@ -155,6 +192,10 @@ export default class ViewerMessasges extends Page {
     this.emit('deleteMessage', id);
   };
 
+  private deleteDialogMessage = (id: string) => {
+    this.emit('deleteDialogMessage', id);
+  };
+
   private updateData = () => {
     this.inputLimit.value = this.model.limit.toString();
     this.createMessages();
@@ -162,30 +203,77 @@ export default class ViewerMessasges extends Page {
 
   private createRooms = async () => {
     this.messagesRoomsMembers.innerHTML = '';
+    console.log('create rooms');
+    this.messagesRoomsMembersElement = [];
+
     const userProp = await Promise.all(this.model.dialogMembersProp);
+
     for (let index = 0; index < userProp.length; index++) {
       const member = createHtmlElement('div', 'messages__member', ``, this.messagesRoomsMembers);
       const ava = this.createAva(`${userProp[index].userAvatar}`);
       const name = createHtmlElement('span', '', `${userProp[index].userName}`);
-      member.append(ava, name);
-      member.addEventListener('click', () => this.emit('checkDialog', index));
+      // const containerButtons = createHtmlElement('div', 'messages__member__buttons');
+      const button = createHtmlElement('div', 'messages__member__button');
+      createHtmlElement('span', '', '', button);
+      createHtmlElement('span', '', '', button);
+      createHtmlElement('span', '', '', button);
+      member.append(ava, name, button);
+      this.messagesRoomsMembersElement.push(member);
+      button.addEventListener('click', (e) => this.createModalUserWindow(e, userProp[index].userId));
+      member.addEventListener('click', () => {
+        member.classList.remove('new-message');
+        this.emit('checkDialog', index);
+      });
     }
+    // this.updateDialog();
   };
 
   private showDialog = () => {
     this.messagesRoomsChat.innerHTML = '';
-    this.model.dialogsMessages[this.model.currentDialogIndex].forEach((element) => {
+    this.buttonsDialog = [];
+    const index = this.model.dialogRooms.findIndex((el) => el === this.model.currentDialog);
+    if (!this.model.dialogsMessages[index]) {
+      return;
+    }
+    this.model.dialogsMessages[index].forEach((element) => {
       const className = element.uid === this.model.user?.uid ? 'my_message' : 'other_message';
       const message = createHtmlElement('div', `containerMessage ${className}`, '', this.messagesRoomsChat);
-      const text = createHtmlElement('p', '', element?.text, message);
+      const container = createHtmlElement('div', 'container-text', '', message);
+      const text = createHtmlElement('p', '', element?.text, container);
+      if (element.uid === this.model.user?.uid) {
+        const button = new Button('deleteButton', this.model, () => this.deleteDialogMessage(element.key));
+        this.buttonsDialog.push(button);
+        const containerButton = createHtmlElement('div', 'message__container-button', '', container);
+        containerButton.append(button.render());
+      }
       const time = this.createDataElement(element?.time);
       message.append(time);
     });
+
+    this.messagesRoomsChatContainer.scrollTop = this.messagesRoomsChatContainer.scrollHeight;
   };
 
-  private updateDialog = (index?: number) => {
-    if (index === this.model.currentDialogIndex) {
+  private updateDialog = async (index = -1) => {
+    if (this.model.dialogRooms[index] === this.model.currentDialog) {
       this.showDialog();
+    } else {
+      const lastChangeDialog = '';
+      const lastChangeUserDialog = '';
+      await Promise.all(this.model.dialogMembersProp);
+      if (this.messagesRoomsMembersElement.length) {
+        if (index >= 0) {
+          if (this.model.lastChangeUserDialog[index] < this.model.lastChangeDialog[index]) {
+            this.messagesRoomsMembersElement[index].classList.add('new-message');
+          }
+        }
+        //  else {
+        //   this.messagesRoomsMembersElement.forEach((el, i) => {
+        //     if (this.model.lastChangeUserDialog[i] < this.model.lastChangeDialog[i]) {
+        //       el.classList.add('new-message');
+        //     }
+        //   });
+        // }
+      }
     }
   };
 
@@ -216,7 +304,7 @@ export default class ViewerMessasges extends Page {
       createHtmlElement('p', 'message_text', `${document.text}`, containerMessage);
       containerMessage.append(this.createDataElement(document.created?.seconds));
     });
-    this.messagesField.scrollTop = this.messagesField.scrollHeight;
+    this.messagesChatContainer.scrollTop = this.messagesChatContainer.scrollHeight;
   };
 
   createDataElement = (sec?: number | string) => {
@@ -250,12 +338,16 @@ export default class ViewerMessasges extends Page {
       addSubscriptions.addEventListener('click', () => this.emit('subscripte', id));
     }
     const writeUser = createHtmlElement('p', '', LANGTEXT['writeUser'][this.model.lang], wrapper);
-    writeUser.addEventListener('click', () => this.emit('writeUser', id));
+    writeUser.addEventListener('click', () => {
+      this.emit('writeUser', id);
+      this.goToRooms();
+    });
     shadow.addEventListener('click', () => shadow.remove());
   };
 
   private changeLang = () => {
     this.buttons.forEach((button) => button.changeLang());
+    this.buttonsDialog.forEach((button) => button.changeLang());
     this.buttonsHeader.forEach((button) => button.changeLang());
     this.buttonSend.changeLang();
     this.titleInRooms.innerText = LANGTEXT['textInRooms'][this.model.lang];

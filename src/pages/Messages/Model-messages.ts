@@ -31,6 +31,7 @@ import {
   push,
   onValue,
   set,
+  remove,
 } from 'firebase/database';
 
 import { Sort, TypeUser } from '../../constans/types';
@@ -65,7 +66,8 @@ export default class ModelMessages extends Model {
   dialogMembersProp: Promise<DialogMembersProp>[];
   dialogsMessages: DialogMessages[][];
   currentDialog: string;
-  currentDialogIndex: number;
+  lastChangeUserDialog: number[];
+  lastChangeDialog: number[];
   constructor(lang: Lang, user: TypeUser) {
     super(lang, user);
     this.limit = 10;
@@ -74,30 +76,28 @@ export default class ModelMessages extends Model {
     this.dialogMembers = [];
     this.dialogMembersProp = [];
     this.dialogsMessages = [];
+    this.lastChangeUserDialog = [];
+    this.lastChangeDialog = [];
     this.isChat = true;
     this.isRooms = false;
     this.currentDialog = '';
-    this.currentDialogIndex = 0;
     const app = initializeApp(firebaseConfig);
     this.db = getFirestore(app);
     onSnapshot(query(collection(this.db, 'messages'), orderBy('created', this.sort), limit(this.limit)), (querySnapshot) => {
       this.messages = querySnapshot;
       this.emit('updateData');
     });
+    const debonceGetDialogs = this.debounceMethod(this.getDialogs, 200);
     const dialogRef = ref(this.rtdb, `users/${this.user?.uid}/dialogRooms`);
-    onValue(dialogRef, (snapshot) => {
-      this.dialogMembers = [];
-      this.dialogRooms = [];
-      this.dialogMembersProp = [];
-      snapshot.forEach((data) => {
-        if (data && data.key) {
-          this.dialogMembers.push(data.key);
-          this.dialogRooms.push(data.val());
-          this.dialogMembersProp.push(this.getUserInfo(data.key));
-        }
-      });
-      this.emit('updateDialog');
-      this.getDialogs();
+    onChildAdded(dialogRef, (data) => {
+      if (data && data.val() !== 'lastChange' && data.key) {
+        this.dialogMembers.push(data.key); //users
+        this.dialogRooms.push(data.val().uid); //chats
+        this.dialogMembersProp.push(this.getUserInfo(data.key));
+      }
+
+      debonceGetDialogs();
+      this.emit('updateDialogs');
     });
   }
 
@@ -105,17 +105,23 @@ export default class ModelMessages extends Model {
     this.dialogsMessages = [];
     this.dialogRooms.forEach((room, index) => {
       const messages: DialogMessages[] = [];
+
       this.dialogsMessages.push(messages);
       const dialogRef = ref(this.rtdb, `dialogRooms/${room}`);
-      onValue(dialogRef, (snapshot) => {
+      onValue(dialogRef, async (snapshot) => {
+        this.lastChangeUserDialog[index] = (
+          await get(ref(this.rtdb, `users/${this.user?.uid}/dialogRooms/${this.dialogMembers[index]}/lastChange`))
+        ).val();
+        this.lastChangeDialog[index] = snapshot.val()?.lastChange;
         this.dialogsMessages[index] = [];
         snapshot.forEach((data) => {
-          const message: DialogMessages = data.val();
-          message.key = data.key || '';
-          this.dialogsMessages[index].push(message);
+          if (data.key !== 'lastChange') {
+            const message: DialogMessages = data.val();
+            message.key = data.key || '';
+            this.dialogsMessages[index].push(message);
+          }
         });
         this.emit('updateDialog', index);
-        console.log(`Download: ${room}`);
       });
     });
   };
@@ -155,6 +161,11 @@ export default class ModelMessages extends Model {
     await deleteDoc(doc(this.db, 'messages', docum));
   };
 
+  deleteDialogMessage = (key: string) => {
+    const dialogRef = ref(this.rtdb, `dialogRooms/${this.currentDialog}/${key}`);
+    remove(dialogRef);
+  };
+
   sendMessage = (message: string) => {
     if (this.isChat) {
       this.sendMessageToChat(message);
@@ -173,7 +184,6 @@ export default class ModelMessages extends Model {
         text: message,
         created: serverTimestamp(),
       });
-      console.log('Document written with ID: ', docRef.id);
     } catch (e) {
       console.error('Error adding document: ', e);
     }
@@ -183,17 +193,24 @@ export default class ModelMessages extends Model {
     try {
       const dialogRef = ref(this.rtdb, `dialogRooms/${this.currentDialog}`);
       const newPostKey = push(dialogRef).key;
+
       if (newPostKey) {
-        set(child(dialogRef, newPostKey), {
+        const newPostData = {
           uid: this.user?.uid,
           name: this.user?.displayName ? this.user.displayName : 'unknown',
           text: message,
-          time: timeStamp(),
-        });
+          time: Date.now(),
+        };
+        const dialog = this.dialogMembers[this.dialogRooms.findIndex((el) => el === this.currentDialog)];
+        const time = Date.now();
+        const updates: { [index: string]: string | number | object } = {};
+        updates[`dialogRooms/${this.currentDialog}/${newPostKey}`] = newPostData;
+        updates[`dialogRooms/${this.currentDialog}/lastChange`] = time;
+        updates[`users/${this.user?.uid}/dialogRooms/${dialog}/lastChange`] = time;
+        update(ref(this.rtdb), updates);
       } else {
         throw new Error("Don't get key post");
       }
-      console.log(message);
     } catch (e) {
       console.error('Error adding document: ', e);
     }
@@ -208,24 +225,32 @@ export default class ModelMessages extends Model {
         const newDialog = push(child(ref(this.rtdb), 'dialogRooms')).key;
         const updates: { [index: string]: string } = {};
         if (newDialog) {
-          updates[`${currentUserRef}/${uid}`] = newDialog;
-          updates[`${userRef}/${currentUserUid}`] = newDialog;
+          updates[`${currentUserRef}/${uid}/uid`] = newDialog;
+          updates[`${userRef}/${currentUserUid}/uid`] = newDialog;
           update(ref(this.rtdb), updates);
         }
-        console.log('createRoom');
-      } else {
-        console.log('room already exist');
       }
+
+      const index = this.dialogMembers.findIndex((el) => el === uid);
+      this.currentDialog = this.dialogRooms[index];
+      this.emit('updateDialog', index);
     }
   };
 
   checkDialog = async (index: number) => {
     const userProp = await Promise.all(this.dialogMembersProp);
+    const currentDialog = this.dialogMembers[this.dialogRooms.findIndex((el) => el === this.currentDialog)];
+    const nextDialog = this.dialogMembers[index];
+    const time = Date.now();
+    const updates: { [index: string]: string | number } = {};
+    if (currentDialog) {
+      updates[`users/${this.user?.uid}/dialogRooms/${currentDialog}/lastChange`] = time;
+    }
+    updates[`users/${this.user?.uid}/dialogRooms/${nextDialog}/lastChange`] = time;
+    update(ref(this.rtdb), updates);
     this.currentDialog = this.dialogRooms[index];
-    this.currentDialogIndex = index;
     this.isRooms = true;
     this.emit('showDialog');
-    console.log(`${userProp[index].userName}: ${this.currentDialog}: ${this.dialogMembers[index]}`);
   };
 
   getMessage = async () => {

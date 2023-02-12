@@ -41,6 +41,11 @@
   padding: 5px 10px;
   border-radius: 5px;
   background-color: aliceblue;
+}
+
+.messages__container {
+  flex-grow: 1;
+  height: 100%;
   overflow-y: auto;
 }
 
@@ -56,10 +61,15 @@
   margin: 10px 0;
   display: flex;
   flex-direction: column;
-  border: 1px solid blue;
   border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.1);
   overflow: hidden;
   box-shadow: #6161c8 0 0 8px;
+}
+
+.containerMessage .container-text {
+  display: flex;
+  width: 100%;
 }
 
 .my_message {
@@ -107,8 +117,13 @@
 
 .containerMessage p {
   color: blue;
+  flex-grow: 1;
   border-bottom: 1px solid #a0a0c0;
   border-radius: 5px;
+  padding: 6px;
+}
+
+.message__container-button {
   padding: 6px;
 }
 
@@ -133,6 +148,12 @@ textarea {
   outline: none;
 }
 
+input:disabled,
+select:disabled {
+  color: #a0a0c0;
+  border: 1px solid #a0a0c0;
+}
+
 option {
   color: blue;
 }
@@ -154,6 +175,10 @@ option {
   color: #8282e6;
 }
 
+.container-limit .disabled {
+  color: #a0a0c0;
+}
+
 .message__containerButtons {
   padding: 5px 0;
   width: 100%;
@@ -170,7 +195,7 @@ option {
 .messages__rooms {
   display: flex;
   width: 100%;
-  min-height: 100%;
+  height: 100%;
 }
 
 .messages__members {
@@ -178,11 +203,13 @@ option {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  overflow-y: auto;
 }
 
 .messages__member {
   color: blue;
   display: flex;
+  gap: 5px;
   align-items: end;
   padding: 5px 10px;
   border-radius: 4px;
@@ -201,17 +228,66 @@ option {
   padding-left: 10px;
 }
 
+.messages__member__button {
+  width: 25px;
+  height: 15px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-left: auto;
+  align-self: start;
+  justify-content: space-between;
+}
+
+.new-message .messages__member__button::before {
+  content: 'new';
+  position: absolute;
+  display: inline-block;
+  width: 25px;
+  padding: 1px 3px;
+  border-radius: 4px;
+  bottom: -15px;
+  font-size: 0.5em;
+  text-align: center;
+  background-color: green;
+}
+
+.messages__member__button span {
+  display: inline-block;
+  width: 100%;
+  height: 3px;
+  border-radius: 1px;
+  background-color: #a7a7a7;
+  transition: all 0.3s;
+}
+
+.messages__member__button:hover span {
+  background-color: gray;
+  transform: scale(1.1);
+  transition: all 0.3s;
+}
+
 .messages__member:hover {
   background-color: #bbdcf6;
   transition: all 0.6s;
 }
 
 .messages__roomsChat {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
   padding: 10px;
-  flex-grow: 1;
   min-height: 100%;
   border-left: 1px solid #d3d3f0;
   color: blue;
+}
+
+.messages__roomsChat h2 {
+  color: blue;
+  margin: auto 0;
+  align-self: center;
+  text-align: center;
+  font-size: 1.3em;
 }
 
 .rooms__message {
