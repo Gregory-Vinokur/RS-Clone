@@ -66,7 +66,7 @@ export default class ModelProfile extends Model {
       (snapshot) => {
         // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log('Upload is ' + progress + '% done');
+        this.emit('loadPercentFoto', progress);
       },
       (error) => {
         console.log('Oops, Error', error.code);
@@ -129,7 +129,9 @@ export default class ModelProfile extends Model {
         if (snapshot.exists()) {
           const userNews = snapshot.val();
           this.userPosts = userNews;
+          this.emit('notEmptyUserNews');
         } else {
+          this.emit('emptyUserNews');
           this.userPosts = {};
         }
       })

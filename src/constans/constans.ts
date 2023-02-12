@@ -76,6 +76,34 @@ const LANGTEXT = {
     rus: 'Выберите кому хотите написать.',
     eng: 'Select who you want to write.',
   },
+  createUserNewsBtn: {
+    rus: 'Поделиться',
+    eng: 'Share',
+  },
+  inputCreateNews: {
+    rus: 'Что у вас нового?',
+    eng: 'Anything new?',
+  },
+  subscriptsUserBtn: {
+    rus: 'Подписаться',
+    eng: 'Subscribe',
+  },
+  unsubscriptsUserBtn: {
+    rus: 'Вы подписаны',
+    eng: 'Unsubscribe',
+  },
+  userSubscriptions: {
+    rus: 'Подписки',
+    eng: 'Subscriptions',
+  },
+  recommendedSubscriptions: {
+    rus: 'Рекомендованные подписки',
+    eng: 'Recommended subscriptions',
+  },
+  emptyUserNews: {
+    rus: 'Пользователь не добавил ни одной новости',
+    eng: 'The user has not added any news',
+  },
 };
 
 type LangNameElement = keyof typeof LANGTEXT;
