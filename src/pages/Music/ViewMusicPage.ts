@@ -35,7 +35,7 @@ export default class ViewerMessasges extends Page {
     this.timeMainPlayer = createHtmlElement('div', 'main-player__time', '10:00');
     this.volumeInput = createHtmlElement('input', 'volume__slider') as HTMLInputElement;
     this.advertisingBanner = createHtmlElement('div', 'advertising__banner');
-    this.recommendedMusicBtn = createHtmlElement('div', 'recommended__page', 'Мировый чарты');
+    this.recommendedMusicBtn = createHtmlElement('div', 'recommended__page music__page-active', 'Мировые чарты');
     this.myMusicBtn = createHtmlElement('div', 'my__music-page', 'Моя музыка');
     this.searchMusicInput = createHtmlElement('input', 'search__music-input');
     this.searchMusicBtn = createHtmlElement('button', 'search__music-btn', 'Найти');
