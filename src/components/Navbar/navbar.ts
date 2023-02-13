@@ -14,6 +14,7 @@ export default class Navbar extends EventEmitter {
   news: HTMLElement;
   messenger: HTMLElement;
   Logout: HTMLElement;
+  music: HTMLElement;
   constructor(model: ModelApp) {
     super();
     this.model = model;
@@ -24,7 +25,9 @@ export default class Navbar extends EventEmitter {
     this.myProfile = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
     this.news = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
     this.messenger = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
+    this.music = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
     this.Logout = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
+
     this.changeLang();
 
     this.myProfile.addEventListener('click', () => {
@@ -43,6 +46,9 @@ export default class Navbar extends EventEmitter {
     this.Logout.addEventListener('click', () => {
       handleLogout();
     });
+    this.music.addEventListener('click', () => {
+      this.emit('navigate', PATH.musicPage);
+    });
   }
 
   changeLang = () => {
@@ -50,6 +56,7 @@ export default class Navbar extends EventEmitter {
     this.news.innerText = LANGTEXT['news'][this.model.lang];
     this.messenger.innerText = LANGTEXT['messenger'][this.model.lang];
     this.Logout.innerText = LANGTEXT['Logout'][this.model.lang];
+    this.music.innerText = LANGTEXT['musicPage'][this.model.lang];
   };
   render(): HTMLElement {
     return this.element;
