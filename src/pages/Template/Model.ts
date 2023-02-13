@@ -3,7 +3,7 @@ import { Lang } from '../../constans/constans';
 import { TypeUser } from '../../constans/types';
 import { firebaseConfig } from '../../server/firebase.config';
 import { initializeApp } from 'firebase/app';
-import { Database, getDatabase, ref, update, onChildAdded, onChildRemoved, child, push } from 'firebase/database';
+import { Database, getDatabase, ref, update, onChildAdded, onChildRemoved } from 'firebase/database';
 
 type EmitsName =
   | 'authorized'

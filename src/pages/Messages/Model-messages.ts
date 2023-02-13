@@ -20,21 +20,7 @@ import {
   Firestore,
 } from 'firebase/firestore';
 
-import {
-  Database,
-  get,
-  getDatabase,
-  serverTimestamp as timeStamp,
-  ref,
-  update,
-  onChildAdded,
-  onChildRemoved,
-  child,
-  push,
-  onValue,
-  set,
-  remove,
-} from 'firebase/database';
+import { get, serverTimestamp as timeStamp, ref, update, onChildAdded, child, push, onValue, remove } from 'firebase/database';
 
 import { Sort, TypeUser } from '../../constans/types';
 import { Lang } from '../../constans/constans';
@@ -196,7 +182,7 @@ export default class ModelMessages extends Model {
 
   private sendMessageToChat = async (message: string) => {
     try {
-      const docRef = await addDoc(collection(this.db, 'messages'), {
+      await addDoc(collection(this.db, 'messages'), {
         uid: this.user?.uid,
         name: this.user?.displayName ? this.user.displayName : 'unknown',
         photo: this.user?.photoURL,
@@ -257,7 +243,7 @@ export default class ModelMessages extends Model {
   };
 
   checkDialog = async (index: number) => {
-    const userProp = await Promise.all(this.dialogMembersProp);
+    await Promise.all(this.dialogMembersProp);
     const currentDialog = this.dialogMembers[this.dialogRooms.findIndex((el) => el === this.currentDialog)];
     const nextDialog = this.dialogMembers[index];
     const time = Date.now();

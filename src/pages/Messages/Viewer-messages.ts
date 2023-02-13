@@ -249,7 +249,7 @@ export default class ViewerMessasges extends Page {
       const className = element.uid === this.model.user?.uid ? 'my_message' : 'other_message';
       const message = createHtmlElement('div', `containerMessage ${className}`, '', this.messagesRoomsChat);
       const container = createHtmlElement('div', 'container-text', '', message);
-      const text = createHtmlElement('p', '', element?.text, container);
+      createHtmlElement('p', '', element?.text, container);
       if (element.uid === this.model.user?.uid) {
         const button = new Button('deleteButton', this.model, () => this.deleteDialogMessage(element.key));
         this.buttonsDialog.push(button);

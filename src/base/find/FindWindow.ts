@@ -5,7 +5,6 @@ import './findWindow.css';
 import ViewerMessasges from '../../pages/Messages/Viewer-messages';
 import ModelMessages from '../../pages/Messages/Model-messages';
 import { UserProp } from '../../constans/types';
-import { async } from '@firebase/util';
 import { LANGTEXT } from '../../constans/constans';
 
 export default class FindWindow {
