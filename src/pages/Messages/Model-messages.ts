@@ -1,6 +1,8 @@
 import Model from '../Template/Model';
+import debounce from '../../utils/debounce';
 import { firebaseConfig } from '../../server/firebase.config';
 import { initializeApp } from 'firebase/app';
+import { UserProp } from '../../constans/types';
 import {
   getFirestore,
   serverTimestamp,
@@ -18,33 +20,10 @@ import {
   Firestore,
 } from 'firebase/firestore';
 
-import {
-  Database,
-  get,
-  getDatabase,
-  serverTimestamp as timeStamp,
-  ref,
-  update,
-  onChildAdded,
-  onChildRemoved,
-  child,
-  push,
-  onValue,
-  set,
-  remove,
-} from 'firebase/database';
+import { get, serverTimestamp as timeStamp, ref, update, onChildAdded, child, push, onValue, remove } from 'firebase/database';
 
 import { Sort, TypeUser } from '../../constans/types';
 import { Lang } from '../../constans/constans';
-
-type DialogMembersProp = {
-  userName: string;
-  userStatus: string;
-  userAvatar: string;
-  userCover: string;
-  userSubscripts: string;
-  userId: string;
-};
 
 type DialogMessages = {
   uid: string;
@@ -63,7 +42,7 @@ export default class ModelMessages extends Model {
   isRooms: boolean;
   dialogRooms: string[];
   dialogMembers: string[];
-  dialogMembersProp: Promise<DialogMembersProp>[];
+  dialogMembersProp: Promise<UserProp>[];
   dialogsMessages: DialogMessages[][];
   currentDialog: string;
   lastChangeUserDialog: number[];
@@ -87,7 +66,7 @@ export default class ModelMessages extends Model {
       this.messages = querySnapshot;
       this.emit('updateData');
     });
-    const debonceGetDialogs = this.debounceMethod(this.getDialogs, 200);
+    const debonceGetDialogs = debounce(this.getDialogs, 200);
     const dialogRef = ref(this.rtdb, `users/${this.user?.uid}/dialogRooms`);
     onChildAdded(dialogRef, (data) => {
       if (data && data.val() !== 'lastChange' && data.key) {
@@ -126,9 +105,35 @@ export default class ModelMessages extends Model {
     });
   };
 
+  getAllUser = async () => {
+    const allUserProp: UserProp[] = [];
+    try {
+      const users = await get(ref(this.rtdb, 'users'));
+      if (users.exists()) {
+        users.forEach((user) => {
+          const { userName, userStatus, userAvatar, userCover, subscripts, userId } = user.val();
+          const userProp: UserProp = {
+            userName: userName || 'Кот Петр',
+            userStatus: userStatus || 'Обновите ваш статус :)',
+            userAvatar: userAvatar,
+            userCover: userCover,
+            userSubscripts: subscripts,
+            userId: userId,
+          };
+          allUserProp.push(userProp);
+        });
+      } else {
+        console.log('No data available');
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    return allUserProp;
+  };
+
   async getUserInfo(userId: string) {
     const dbRef = ref(this.rtdb);
-    let userProp: DialogMembersProp = {
+    let userProp: UserProp = {
       userName: '',
       userStatus: '',
       userAvatar: '',
@@ -177,7 +182,7 @@ export default class ModelMessages extends Model {
 
   private sendMessageToChat = async (message: string) => {
     try {
-      const docRef = await addDoc(collection(this.db, 'messages'), {
+      await addDoc(collection(this.db, 'messages'), {
         uid: this.user?.uid,
         name: this.user?.displayName ? this.user.displayName : 'unknown',
         photo: this.user?.photoURL,
@@ -238,7 +243,7 @@ export default class ModelMessages extends Model {
   };
 
   checkDialog = async (index: number) => {
-    const userProp = await Promise.all(this.dialogMembersProp);
+    await Promise.all(this.dialogMembersProp);
     const currentDialog = this.dialogMembers[this.dialogRooms.findIndex((el) => el === this.currentDialog)];
     const nextDialog = this.dialogMembers[index];
     const time = Date.now();

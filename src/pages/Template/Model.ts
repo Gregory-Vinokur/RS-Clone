@@ -3,7 +3,7 @@ import { Lang } from '../../constans/constans';
 import { TypeUser } from '../../constans/types';
 import { firebaseConfig } from '../../server/firebase.config';
 import { initializeApp } from 'firebase/app';
-import { Database, getDatabase, ref, update, onChildAdded, onChildRemoved, child, push } from 'firebase/database';
+import { Database, getDatabase, ref, update, onChildAdded, onChildRemoved } from 'firebase/database';
 
 type EmitsName =
   | 'authorized'
@@ -54,17 +54,6 @@ export default abstract class Model extends EventEmitter {
       this.subscripts = this.subscripts.filter((user) => user !== data.key);
     });
   }
-
-  debounceMethod = (callback: <T>(...args: T[]) => void, delay = 250) => {
-    let timeoutId: ReturnType<typeof setTimeout>;
-    return <T>(...args: T[]) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        // timeoutId = null;
-        callback(...args);
-      }, delay);
-    };
-  };
 
   subscripteUser = async (userId: string) => {
     const Ref = ref(this.rtdb, `users/${this.user?.uid}/subscripts`);
