@@ -3,6 +3,7 @@ import Page from '../Template/page';
 import ModelMessages from './Model-messages';
 import Button from '../../base/button/Button';
 import avatar from '../../../assets/img/ava.jpg';
+import FindWindow from '../../base/find/FindWindow';
 import { LANGTEXT } from '../../constans/constans';
 
 type EmitsName =
@@ -48,6 +49,11 @@ export default class ViewerMessasges extends Page {
   titleInRooms: HTMLElement;
   messagesChatContainer: HTMLElement;
   messagesRoomsChatContainer: HTMLElement;
+  isFind: boolean;
+  findWindow: FindWindow | null;
+  buttonChat!: Button<ModelMessages>;
+  buttonRooms!: Button<ModelMessages>;
+  buttonFind!: Button<ModelMessages>;
 
   emit(event: EmitsName, data?: string | number) {
     return super.emit(event, data);
@@ -65,6 +71,8 @@ export default class ViewerMessasges extends Page {
     this.buttons = [];
     this.buttonsDialog = [];
     this.buttonsHeader = [];
+    this.isFind = false;
+    this.findWindow = null;
     this.messagesRoomsMembersElement = [];
     this.messagesField = createHtmlElement('div', 'messages__field');
     this.messagesChatContainer = createHtmlElement('div', 'messages__container', '', this.messagesField);
@@ -122,9 +130,13 @@ export default class ViewerMessasges extends Page {
 
   private goToChat = () => {
     this.messagesField.innerHTML = '';
+    this.isFind = false;
+    this.findWindow = null;
     this.emit('toChat');
     this.inputLimit.disabled = false;
     this.sortSelect.disabled = false;
+    this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
+    this.buttonChat.element.classList.add('button_active');
     this.limitText.classList.remove('disabled');
     this.messagesField.append(this.messagesChatContainer);
     this.messagesChatContainer.scrollTop = this.messagesChatContainer.scrollHeight;
@@ -132,9 +144,13 @@ export default class ViewerMessasges extends Page {
 
   private goToRooms = () => {
     this.messagesField.innerHTML = '';
+    this.isFind = false;
+    this.findWindow = null;
     this.emit('toRooms');
     this.inputLimit.disabled = true;
     this.sortSelect.disabled = true;
+    this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
+    this.buttonRooms.element.classList.add('button_active');
     this.limitText.classList.add('disabled');
     this.messagesField.append(this.messagesRooms);
     this.messagesRoomsChatContainer.scrollTop = this.messagesRoomsChatContainer.scrollHeight;
@@ -142,23 +158,27 @@ export default class ViewerMessasges extends Page {
 
   private createButtonsHeader = () => {
     const buttonsHeaderContainer = createHtmlElement('div', 'buttons-header');
-    const buttonChat = new Button('chatButton', this.model, () => {
-      this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
-      buttonChat.element.classList.add('button_active');
+    this.buttonChat = new Button('chatButton', this.model, () => {
       this.goToChat();
     });
-    buttonChat.element.classList.add('button_active');
-    const buttonRooms = new Button('roomsButton', this.model, () => {
-      this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
-      buttonRooms.element.classList.add('button_active');
+    this.buttonChat.element.classList.add('button_active');
+    this.buttonRooms = new Button('roomsButton', this.model, () => {
       this.goToRooms();
     });
-    this.buttonsHeader.push(buttonChat, buttonRooms);
+    this.buttonFind = new Button('buttonFind', this.model, () => {
+      if (!this.isFind) {
+        this.isFind = true;
+        this.buttonFind.element.classList.add('button_active');
+        this.findWindow = new FindWindow(this, this.model);
+        this.messagesField.append(this.findWindow.render());
+      }
+    });
+    this.buttonsHeader.push(this.buttonChat, this.buttonRooms, this.buttonFind);
     buttonsHeaderContainer.append(...this.buttonsHeader.map((button) => button.render()));
     return buttonsHeaderContainer;
   };
 
-  private createInputMessage = () => {
+  createInputMessage = () => {
     const input = createHtmlElement('textarea', 'input__message') as HTMLInputElement;
     input.setAttribute('rows', '1');
     input.addEventListener('input', this.setTextAreaHeight);
@@ -257,8 +277,6 @@ export default class ViewerMessasges extends Page {
     if (this.model.dialogRooms[index] === this.model.currentDialog) {
       this.showDialog();
     } else {
-      const lastChangeDialog = '';
-      const lastChangeUserDialog = '';
       await Promise.all(this.model.dialogMembersProp);
       if (this.messagesRoomsMembersElement.length) {
         if (index >= 0) {
@@ -266,13 +284,6 @@ export default class ViewerMessasges extends Page {
             this.messagesRoomsMembersElement[index].classList.add('new-message');
           }
         }
-        //  else {
-        //   this.messagesRoomsMembersElement.forEach((el, i) => {
-        //     if (this.model.lastChangeUserDialog[i] < this.model.lastChangeDialog[i]) {
-        //       el.classList.add('new-message');
-        //     }
-        //   });
-        // }
       }
     }
   };
@@ -326,7 +337,7 @@ export default class ViewerMessasges extends Page {
     return ava;
   };
 
-  private createModalUserWindow = (e: Event, id: string) => {
+  createModalUserWindow = (e: Event, id: string) => {
     e.stopPropagation();
     const shadow = createHtmlElement('div', 'modal', '', this.mainWrapper);
     const wrapper = createHtmlElement('div', 'modal-user-window', '', shadow);
@@ -350,6 +361,9 @@ export default class ViewerMessasges extends Page {
     this.buttonsDialog.forEach((button) => button.changeLang());
     this.buttonsHeader.forEach((button) => button.changeLang());
     this.buttonSend.changeLang();
+    if (this.findWindow) {
+      this.findWindow.changeLang();
+    }
     this.titleInRooms.innerText = LANGTEXT['textInRooms'][this.model.lang];
     this.limitText.innerText = LANGTEXT['inputLimit'][this.model.lang];
     this.sortDESC.innerText = LANGTEXT['sortDesc'][this.model.lang];

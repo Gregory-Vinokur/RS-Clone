@@ -1,6 +1,7 @@
 import Model from '../Template/Model';
 import { firebaseConfig } from '../../server/firebase.config';
 import { initializeApp } from 'firebase/app';
+import { UserProp } from '../../constans/types';
 import {
   getFirestore,
   serverTimestamp,
@@ -37,15 +38,6 @@ import {
 import { Sort, TypeUser } from '../../constans/types';
 import { Lang } from '../../constans/constans';
 
-type DialogMembersProp = {
-  userName: string;
-  userStatus: string;
-  userAvatar: string;
-  userCover: string;
-  userSubscripts: string;
-  userId: string;
-};
-
 type DialogMessages = {
   uid: string;
   key: string;
@@ -63,7 +55,7 @@ export default class ModelMessages extends Model {
   isRooms: boolean;
   dialogRooms: string[];
   dialogMembers: string[];
-  dialogMembersProp: Promise<DialogMembersProp>[];
+  dialogMembersProp: Promise<UserProp>[];
   dialogsMessages: DialogMessages[][];
   currentDialog: string;
   lastChangeUserDialog: number[];
@@ -126,9 +118,35 @@ export default class ModelMessages extends Model {
     });
   };
 
+  getAllUser = async () => {
+    const allUserProp: UserProp[] = [];
+    try {
+      const users = await get(ref(this.rtdb, 'users'));
+      if (users.exists()) {
+        users.forEach((user) => {
+          const { userName, userStatus, userAvatar, userCover, subscripts, userId } = user.val();
+          const userProp: UserProp = {
+            userName: userName || 'Кот Петр',
+            userStatus: userStatus || 'Обновите ваш статус :)',
+            userAvatar: userAvatar,
+            userCover: userCover,
+            userSubscripts: subscripts,
+            userId: userId,
+          };
+          allUserProp.push(userProp);
+        });
+      } else {
+        console.log('No data available');
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    return allUserProp;
+  };
+
   async getUserInfo(userId: string) {
     const dbRef = ref(this.rtdb);
-    let userProp: DialogMembersProp = {
+    let userProp: UserProp = {
       userName: '',
       userStatus: '',
       userAvatar: '',

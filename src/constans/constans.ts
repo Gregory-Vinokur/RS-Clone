@@ -104,6 +104,14 @@ const LANGTEXT = {
     rus: 'Пользователь не добавил ни одной новости',
     eng: 'The user has not added any news',
   },
+  buttonFind: {
+    rus: 'Найти',
+    eng: 'Find user',
+  },
+  status: {
+    rus: 'Статус',
+    eng: 'Status',
+  },
 };
 
 type LangNameElement = keyof typeof LANGTEXT;
