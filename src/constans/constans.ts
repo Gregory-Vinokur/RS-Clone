@@ -104,6 +104,10 @@ const LANGTEXT = {
     rus: 'Пользователь не добавил ни одной новости',
     eng: 'The user has not added any news',
   },
+  musicPage: {
+    rus: 'Музыка',
+    eng: 'Music',
+  },
 };
 
 type LangNameElement = keyof typeof LANGTEXT;
