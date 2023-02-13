@@ -1,3 +1,5 @@
+import { IComment } from './IComment';
+
 export interface IPost {
     author: string,
     date: number,
@@ -6,5 +8,6 @@ export interface IPost {
     likes: number,
     shares: number,
     logo: string,
-    comments: Array<string>
+    comments: Array<IComment>,
+    liked: string
 }

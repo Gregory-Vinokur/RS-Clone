@@ -128,7 +128,7 @@ class App {
 
   private newsPage = () => {
     this.container.innerHTML = '';
-    const page = new NewsPage(PATH.newsPage);
+    const page = new NewsPage(PATH.newsPage, this.lang, this.user);
     this.page = page;
     this.container.append(page.render());
   };

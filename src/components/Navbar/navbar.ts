@@ -6,6 +6,7 @@ import { handleLogout } from '../../server/firebaseAuth';
 import ModelApp from '../../app/Model-app';
 import { LANGTEXT } from '../../constans/constans';
 import { loadCatsPosts } from './../../data/news_api/cats_api';
+import { loadMemePosts } from './../../data/news_api/memes_api';
 
 export default class Navbar extends EventEmitter {
   element: HTMLElement;
@@ -40,7 +41,8 @@ export default class Navbar extends EventEmitter {
 
     this.news.addEventListener('click', () => {
       this.emit('navigate', PATH.newsPage);
-      loadCatsPosts();
+      // loadCatsPosts();
+      // loadMemePosts();
     });
 
     this.Logout.addEventListener('click', () => {

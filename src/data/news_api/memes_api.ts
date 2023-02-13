@@ -1,24 +1,25 @@
 import { database } from './../../server/firebaseAuth';
-import cat_logo from '../../../assets/img/cat_logo.jpg'
+import meme_logo from '../../../assets/img/meme_logo.jpg';
 
-async function loadCats() {
-    const response = await fetch('https://api.thecatapi.com/v1/images/search?limit=5');
+async function loadMemes() {
+    const apiKey = 'ded0a8c7f5104062933a142cbdc9ef5c';
+    const response = await fetch(`https://api.humorapi.com/memes/random?api-key=${apiKey}&keywords=programming&min-rating=10`);
     const data = await response.json();
-    return data[0].url;
+    return data.url;
 }
 
-export const loadCatsPosts = () => {
+export const loadMemePosts = () => {
     setInterval(() => {
-        loadCats()
+        loadMemes()
             .then((image) => {
                 const data = {
-                    author: "Cats images",
+                    author: "Memes",
                     date: Date.now(),
-                    text: "We love cats!",
+                    text: "Laugh with memes!",
                     image,
                     likes: 0,
                     shares: 0,
-                    logo: cat_logo,
+                    logo: meme_logo,
                     comments: [],
                     liked: ''
                 };
@@ -32,4 +33,4 @@ export const loadCatsPosts = () => {
                 console.error("Error saving post: ", error);
             });
     }, 1000);
-}
+};
