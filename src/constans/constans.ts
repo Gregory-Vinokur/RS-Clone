@@ -104,6 +104,14 @@ const LANGTEXT = {
     rus: 'Пользователь не добавил ни одной новости',
     eng: 'The user has not added any news',
   },
+  buttonFind: {
+    rus: 'Найти',
+    eng: 'Find user',
+  },
+  status: {
+    rus: 'Статус',
+    eng: 'Status',
+  },
   musicPage: {
     rus: 'Музыка',
     eng: 'Music',
