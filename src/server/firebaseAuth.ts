@@ -12,7 +12,7 @@ firebase.initializeApp(firebaseConfig);
 export const database = firebase.database();
 
 // Login function
-export async function signIn(
+export function signIn(
     usernameInput: HTMLInputElement,
     passwordInput: HTMLInputElement,
     ErrorMessageUser: HTMLElement,
@@ -64,7 +64,7 @@ export function handleLogout() {
 }
 
 // Check authentication status
-export async function checkAuthStatus(loginForm: HTMLElement, buttonsWrap: HTMLElement) {
+export function checkAuthStatus(loginForm: HTMLElement, buttonsWrap: HTMLElement) {
     firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
             loginForm.innerHTML = '';
@@ -78,7 +78,7 @@ export async function checkAuthStatus(loginForm: HTMLElement, buttonsWrap: HTMLE
 }
 
 // Function to sign up a new user
-export async function signUp(email: string, password: string, passwordInput: HTMLInputElement, ErrorMessagePassword: HTMLElement) {
+export function signUp(email: string, password: string, passwordInput: HTMLInputElement, ErrorMessagePassword: HTMLElement) {
     firebase
         .auth()
         .createUserWithEmailAndPassword(email, password)

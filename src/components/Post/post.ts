@@ -2,10 +2,15 @@ import './post.css';
 import { createHtmlElement } from '../../utils/createElement';
 import { IPost } from './../../interfaces/IPost';
 import { database } from '../../server/firebaseAuth';
+import { loadComments } from './../../data/news_api/load_comments_to_posts';
+import ModelProfile from './../../pages/MyProfile/ModelProfile';
+import { Lang } from '../../constans/constans';
+import { TypeUser } from '../../constans/types';
 
-export default class Post {
+export default class Post extends ModelProfile {
     element: HTMLElement;
-    constructor(postData: IPost) {
+    constructor(postData: IPost, lang: Lang, user: TypeUser) {
+        super(lang, user);
         this.element = createHtmlElement("div", "post__container", "");
         const postHeader = createHtmlElement("div", "post__header", "", this.element);
         const postLogo = createHtmlElement("img", "post__logo", '', postHeader) as HTMLImageElement;
@@ -19,6 +24,10 @@ export default class Post {
         const likeButton = createHtmlElement("button", "like__button", '', postActions);
         const likeImg = createHtmlElement("div", "like__img", '', likeButton);
         const likeCounter = createHtmlElement("span", "like__counter", '', likeButton);
+        if (postData.liked === `${user?.uid}-true`) {
+            likeButton.classList.add('liked');
+            likeImg.classList.add('liked__img');
+        }
         const commentButton = createHtmlElement("button", "comment__button", '', postActions);
         const commentImg = createHtmlElement("div", "comment__img", '', commentButton);
         const commentCounter = createHtmlElement("span", "comment__counter", '', commentButton);
@@ -30,7 +39,7 @@ export default class Post {
         const commentsContainer = createHtmlElement("div", "comments__container", '', replyWrapper);
         const replyContainer = createHtmlElement('div', 'reply__container', '', replyWrapper);
         const userAvatarReply = createHtmlElement("img", "user__avatar-reply", '', replyContainer) as HTMLImageElement;
-        userAvatarReply.src = 'https://openclipart.org/image/800px/177394';
+        userAvatarReply.src = this.user?.photoURL as string;
         const form = createHtmlElement('form', 'reply__form', '', replyContainer);
         const textarea = createHtmlElement('textarea', 'reply__textarea', '', form) as HTMLTextAreaElement;
         textarea.placeholder = 'Leave a comment...'
@@ -39,20 +48,24 @@ export default class Post {
 
         likeButton.addEventListener('click', () => {
             const postId = this.element.id;
-            database.ref(`posts/${postId}/likes`).once("value", (snapshot) => {
-                let likes = snapshot.val() || 0;
+            database.ref(`posts/${postId}`).once("value", (snapshot) => {
+                let likes = snapshot.val().likes || 0;
+                let liked = snapshot.val().liked;
                 if (!likeButton.classList.contains('liked')) {
                     likeButton.classList.add('liked');
                     likeImg.classList.add('liked__img');
                     likes++;
+                    liked = `${user?.uid}-true`;
                 } else {
                     likeButton.classList.remove('liked');
                     likeImg.classList.remove('liked__img');
                     likes--;
+                    liked = `${user?.uid}-false`;
                 }
                 likeCounter.textContent = (likes === 0) ? "" : likes.toString();
                 database.ref(`posts/${postId}`).update({
-                    likes
+                    likes,
+                    liked
                 });
             });
         });
@@ -81,35 +94,30 @@ export default class Post {
         })
 
         commentButton.addEventListener('click', () => {
-            replyContainer.classList.toggle('reply__container-active')
+            replyContainer.classList.toggle('reply__container-active');
+            if (Number(commentCounter.textContent) > 0) {
+                commentsContainer.classList.toggle('comments__container-active');
+            }
+            loadComments(this.element.id, commentsContainer, commentCounter, this.user);
         })
 
         replySubmitButton.addEventListener('click', (e: Event) => {
             e.preventDefault();
             const postId = this.element.id;
             database.ref(`posts/${postId}/comments`).once("value", (snapshot) => {
-                let comments = snapshot.val() || 0;
+                let comments = snapshot.val() || [];
                 if (textarea.value !== '') {
                     commentsContainer.classList.add('comments__container-active');
-                    const commentItem = createHtmlElement("div", "comment__item");
-                    const commentAvatar = createHtmlElement("img", "comment__avatar", "", commentItem) as HTMLImageElement;;
-                    const commentContent = createHtmlElement("div", "comment__content", "", commentItem);
-                    const commentHeader = createHtmlElement("div", "comment__header", "", commentContent);
-                    const commentUsername = createHtmlElement("span", "comment__username", "Username", commentHeader);
-                    const commentText = createHtmlElement("p", "comment__text", "", commentContent);
-                    const commentDate = createHtmlElement("span", "comment__date", "10 minutes ago", commentContent);
-                    const crossButton = createHtmlElement('button', 'cross__btn', '', commentItem);
-                    commentItem.addEventListener('mouseover', () => {
-                        crossButton.classList.add('cross__btn-active')
-                    })
-                    commentItem.addEventListener('mouseout', () => {
-                        crossButton.classList.remove('cross__btn-active')
-                    })
-                    commentAvatar.src = userAvatarReply.src;
-                    commentText.textContent = textarea.value;
-                    commentsContainer.append(commentItem);
+                    const newComment = {
+                        text: textarea.value,
+                        author: this.user?.displayName,
+                        date: Date.now(),
+                        logo: this.user?.photoURL,
+                        likes: 0,
+                        liked: `${this.user?.uid}-false`
+                    };
+                    comments.push(newComment);
                     textarea.value = '';
-                    comments = textarea.value;
                 }
                 commentCounter.textContent = (comments.length === 0) ? "" : comments.length.toString();
                 database.ref(`posts/${postId}`).update({
@@ -117,18 +125,6 @@ export default class Post {
                 });
             });
         })
-
-        commentsContainer.addEventListener("click", function (event) {
-            const target = event.target as HTMLButtonElement;
-            if (target && target.classList.contains('cross__btn-active')) {
-                console.log('clicked')
-                const commentItem = target.closest(".comment__item");
-                if (commentItem) {
-                    commentItem.remove();
-                }
-            }
-        });
-
 
     }
 }
