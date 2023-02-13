@@ -1,4 +1,5 @@
 import Model from '../Template/Model';
+import debounce from '../../utils/debounce';
 import { firebaseConfig } from '../../server/firebase.config';
 import { initializeApp } from 'firebase/app';
 import { UserProp } from '../../constans/types';
@@ -79,7 +80,7 @@ export default class ModelMessages extends Model {
       this.messages = querySnapshot;
       this.emit('updateData');
     });
-    const debonceGetDialogs = this.debounceMethod(this.getDialogs, 200);
+    const debonceGetDialogs = debounce(this.getDialogs, 200);
     const dialogRef = ref(this.rtdb, `users/${this.user?.uid}/dialogRooms`);
     onChildAdded(dialogRef, (data) => {
       if (data && data.val() !== 'lastChange' && data.key) {

@@ -1,4 +1,5 @@
 import { createHtmlElement } from '../../utils/createElement';
+import debounce from '../../utils/debounce';
 import Page from '../Template/page';
 import ModelMessages from './Model-messages';
 import Button from '../../base/button/Button';
@@ -108,7 +109,7 @@ export default class ViewerMessasges extends Page {
     this.messagesChat.innerHTML = `<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`;
     this.messagesChat.classList.add('messages__field_load');
     this.model.on('updateData', this.updateData);
-    const debonseCreateRooms = this.debounceMethod(this.createRooms, 200);
+    const debonseCreateRooms = debounce(this.createRooms, 200);
     this.model.on('updateDialogs', () => {
       debonseCreateRooms();
     });
@@ -116,17 +117,6 @@ export default class ViewerMessasges extends Page {
     this.model.on('updateDialog', (index?: number) => this.updateDialog(index));
     this.createRooms();
   }
-
-  debounceMethod = (callback: <T>(...args: T[]) => void, delay = 250) => {
-    let timeoutId: ReturnType<typeof setTimeout>;
-    return <T>(...args: T[]) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        // timeoutId = null;
-        callback(...args);
-      }, delay);
-    };
-  };
 
   private goToChat = () => {
     this.messagesField.innerHTML = '';

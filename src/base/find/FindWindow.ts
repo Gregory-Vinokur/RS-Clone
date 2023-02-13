@@ -1,4 +1,6 @@
 import { createHtmlElement } from '../../utils/createElement';
+import debounce from '../../utils/debounce';
+
 import './findWindow.css';
 import ViewerMessasges from '../../pages/Messages/Viewer-messages';
 import ModelMessages from '../../pages/Messages/Model-messages';
@@ -24,7 +26,7 @@ export default class FindWindow {
 
     this.inputFind = createHtmlElement('input', 'input__find', '', this.container) as HTMLInputElement;
     this.inputFind.setAttribute('type', 'text');
-    const debonsedFind = this.parrent.debounceMethod(this.findUser, 450);
+    const debonsedFind = debounce(this.findUser, 450);
     this.inputFind.addEventListener('input', debonsedFind);
     const userFildContainer = createHtmlElement('div', 'find-user-fild-container', '', this.container);
     this.userFild = createHtmlElement('div', 'find-user-fild', '', userFildContainer);
