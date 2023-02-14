@@ -20,7 +20,7 @@ import {
   Firestore,
 } from 'firebase/firestore';
 
-import { get, serverTimestamp as timeStamp, ref, update, onChildAdded, child, push, onValue, remove } from 'firebase/database';
+import { get, ref, update, onChildAdded, child, push, onValue, remove } from 'firebase/database';
 
 import { Sort, TypeUser } from '../../constans/types';
 import { Lang } from '../../constans/constans';

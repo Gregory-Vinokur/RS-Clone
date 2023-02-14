@@ -229,7 +229,7 @@ export default class ViewerMessasges extends Page {
       createHtmlElement('span', '', '', button);
       member.append(ava, name, button);
       this.messagesRoomsMembersElement.push(member);
-      button.addEventListener('click', (e) => this.createModalUserWindow(e, userProp[index].userId));
+      button.addEventListener('click', (e) => this.createModalUserWindow(e, userProp[index].userId, userProp[index].userAvatar));
       member.addEventListener('click', () => {
         member.classList.remove('new-message');
         this.emit('checkDialog', index);
@@ -293,7 +293,7 @@ export default class ViewerMessasges extends Page {
       title.append(ava);
 
       if (document.uid !== this.model.user?.uid) {
-        ava.addEventListener('click', (e) => this.createModalUserWindow(e, document.uid));
+        ava.addEventListener('click', (e) => this.createModalUserWindow(e, document.uid, document.photo));
       }
 
       createHtmlElement('span', '', `${document.name}`, title);
@@ -327,11 +327,14 @@ export default class ViewerMessasges extends Page {
     return ava;
   };
 
-  createModalUserWindow = (e: Event, id: string) => {
+  createModalUserWindow = (e: Event, id: string, imgUrl: string) => {
     e.stopPropagation();
     const shadow = createHtmlElement('div', 'modal', '', this.mainWrapper);
     const wrapper = createHtmlElement('div', 'modal-user-window', '', shadow);
+    const ava = this.createAva(imgUrl);
+    wrapper.append(ava);
     const addSubscriptions = createHtmlElement('p', '', LANGTEXT['addSubscriptions'][this.model.lang], wrapper);
+
     if (this.model.subscripts.includes(id)) {
       addSubscriptions.innerText = LANGTEXT['delSubscriptions'][this.model.lang];
       addSubscriptions.addEventListener('click', () => this.emit('unsubscripte', id));

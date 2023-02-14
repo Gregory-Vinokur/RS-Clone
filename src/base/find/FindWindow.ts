@@ -65,7 +65,7 @@ export default class FindWindow {
 
     statusContainer.append(statusText, status);
     container.append(nameContainer, statusContainer);
-    container.addEventListener('click', (e) => this.parrent.createModalUserWindow(e, user.userId));
+    container.addEventListener('click', (e) => this.parrent.createModalUserWindow(e, user.userId, user.userAvatar));
     return container;
   };
 

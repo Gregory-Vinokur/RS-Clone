@@ -74,7 +74,9 @@
 
 .finded-user-container img {
   width: 50px;
-  border-radius: 20px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
   box-shadow: #6161c8 0 0 5px;
 }
 
