@@ -191,7 +191,7 @@ export default class ViewerMessasges extends Page {
   };
 
   private sendMessage = () => {
-    if (this.model.isChat || this.model.isRooms) {
+    if (this.model.isChat || (this.model.isRooms && this.model.currentDialog)) {
       this.emit('send', this.input.value);
       this.input.value = '';
       this.setTextAreaHeight();
