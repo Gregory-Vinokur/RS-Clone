@@ -33,6 +33,13 @@ type DialogMessages = {
   time: string;
 };
 
+enum PATCH_TO_DB {
+  DIALOGS_ROOMS = 'dialogRooms',
+  GROUP_ROOMS = 'groupRooms',
+  USERS = 'users',
+  LAST_CHANGE = 'lastChange',
+}
+
 export default class ModelMessages extends Model {
   db: Firestore;
   messages: QuerySnapshot<DocumentData> | undefined;
@@ -40,6 +47,7 @@ export default class ModelMessages extends Model {
   sort: Sort;
   isChat: boolean;
   isRooms: boolean;
+  isGroupRooms: boolean;
   dialogRooms: string[];
   dialogMembers: string[];
   dialogMembersProp: Promise<UserProp>[];
@@ -59,6 +67,7 @@ export default class ModelMessages extends Model {
     this.lastChangeDialog = [];
     this.isChat = true;
     this.isRooms = false;
+    this.isGroupRooms = false;
     this.currentDialog = '';
     const app = initializeApp(firebaseConfig);
     this.db = getFirestore(app);
@@ -67,7 +76,7 @@ export default class ModelMessages extends Model {
       this.emit('updateData');
     });
     const debonceGetDialogs = debounce(this.getDialogs, 200);
-    const dialogRef = ref(this.rtdb, `users/${this.user?.uid}/dialogRooms`);
+    const dialogRef = ref(this.rtdb, `${PATCH_TO_DB.USERS}/${this.user?.uid}/${PATCH_TO_DB.DIALOGS_ROOMS}`);
     onChildAdded(dialogRef, (data) => {
       if (data && data.val() !== 'lastChange' && data.key) {
         this.dialogMembers.push(data.key); //users
@@ -86,15 +95,20 @@ export default class ModelMessages extends Model {
       const messages: DialogMessages[] = [];
 
       this.dialogsMessages.push(messages);
-      const dialogRef = ref(this.rtdb, `dialogRooms/${room}`);
+      const dialogRef = ref(this.rtdb, `${PATCH_TO_DB.DIALOGS_ROOMS}/${room}`);
       onValue(dialogRef, async (snapshot) => {
         this.lastChangeUserDialog[index] = (
-          await get(ref(this.rtdb, `users/${this.user?.uid}/dialogRooms/${this.dialogMembers[index]}/lastChange`))
+          await get(
+            ref(
+              this.rtdb,
+              `${PATCH_TO_DB.USERS}/${this.user?.uid}/${PATCH_TO_DB.DIALOGS_ROOMS}/${this.dialogMembers[index]}/${PATCH_TO_DB.LAST_CHANGE}`
+            )
+          )
         ).val();
         this.lastChangeDialog[index] = snapshot.val()?.lastChange;
         this.dialogsMessages[index] = [];
         snapshot.forEach((data) => {
-          if (data.key !== 'lastChange') {
+          if (data.key !== PATCH_TO_DB.LAST_CHANGE) {
             const message: DialogMessages = data.val();
             message.key = data.key || '';
             this.dialogsMessages[index].push(message);
@@ -108,7 +122,7 @@ export default class ModelMessages extends Model {
   getAllUser = async () => {
     const allUserProp: UserProp[] = [];
     try {
-      const users = await get(ref(this.rtdb, 'users'));
+      const users = await get(ref(this.rtdb, PATCH_TO_DB.USERS));
       if (users.exists()) {
         users.forEach((user) => {
           const { userName, userStatus, userAvatar, userCover, subscripts, userId } = user.val();
@@ -142,7 +156,7 @@ export default class ModelMessages extends Model {
       userId: userId,
     };
     try {
-      const snapshot = await get(child(dbRef, `users/${userId}`));
+      const snapshot = await get(child(dbRef, `${PATCH_TO_DB.USERS}/${userId}`));
       if (snapshot.exists()) {
         const { userName, userStatus, userAvatar, userCover, subscripts, userId } = snapshot.val();
         userProp = {
@@ -167,7 +181,7 @@ export default class ModelMessages extends Model {
   };
 
   deleteDialogMessage = (key: string) => {
-    const dialogRef = ref(this.rtdb, `dialogRooms/${this.currentDialog}/${key}`);
+    const dialogRef = ref(this.rtdb, `${PATCH_TO_DB.DIALOGS_ROOMS}/${this.currentDialog}/${key}`);
     remove(dialogRef);
   };
 
@@ -196,7 +210,7 @@ export default class ModelMessages extends Model {
 
   private sendMessageToRooms = (message: string) => {
     try {
-      const dialogRef = ref(this.rtdb, `dialogRooms/${this.currentDialog}`);
+      const dialogRef = ref(this.rtdb, `${PATCH_TO_DB.DIALOGS_ROOMS}/${this.currentDialog}`);
       const newPostKey = push(dialogRef).key;
 
       if (newPostKey) {
@@ -209,9 +223,9 @@ export default class ModelMessages extends Model {
         const dialog = this.dialogMembers[this.dialogRooms.findIndex((el) => el === this.currentDialog)];
         const time = Date.now();
         const updates: { [index: string]: string | number | object } = {};
-        updates[`dialogRooms/${this.currentDialog}/${newPostKey}`] = newPostData;
-        updates[`dialogRooms/${this.currentDialog}/lastChange`] = time;
-        updates[`users/${this.user?.uid}/dialogRooms/${dialog}/lastChange`] = time;
+        updates[`${PATCH_TO_DB.DIALOGS_ROOMS}/${this.currentDialog}/${newPostKey}`] = newPostData;
+        updates[`${PATCH_TO_DB.DIALOGS_ROOMS}/${this.currentDialog}/${PATCH_TO_DB.LAST_CHANGE}`] = time;
+        updates[`${PATCH_TO_DB.USERS}/${this.user?.uid}/${PATCH_TO_DB.DIALOGS_ROOMS}/${dialog}/${PATCH_TO_DB.LAST_CHANGE}`] = time;
         update(ref(this.rtdb), updates);
       } else {
         throw new Error("Don't get key post");
@@ -224,10 +238,10 @@ export default class ModelMessages extends Model {
   writeUser = async (uid: string) => {
     const currentUserUid = this.user?.uid;
     if (currentUserUid) {
-      const currentUserRef = `users/${currentUserUid}/dialogRooms`;
-      const userRef = `users/${uid}/dialogRooms`;
+      const currentUserRef = `${PATCH_TO_DB.USERS}/${currentUserUid}/${PATCH_TO_DB.DIALOGS_ROOMS}`;
+      const userRef = `${PATCH_TO_DB.USERS}/${uid}/${PATCH_TO_DB.DIALOGS_ROOMS}`;
       if (!this.dialogMembers.includes(uid)) {
-        const newDialog = push(child(ref(this.rtdb), 'dialogRooms')).key;
+        const newDialog = push(child(ref(this.rtdb), PATCH_TO_DB.DIALOGS_ROOMS)).key;
         const updates: { [index: string]: string } = {};
         if (newDialog) {
           updates[`${currentUserRef}/${uid}/uid`] = newDialog;
@@ -235,10 +249,33 @@ export default class ModelMessages extends Model {
           update(ref(this.rtdb), updates);
         }
       }
-
       const index = this.dialogMembers.findIndex((el) => el === uid);
       this.currentDialog = this.dialogRooms[index];
       this.emit('updateDialog', index);
+    }
+  };
+
+  createNewGroup = async (nameGroup: string) => {
+    const currentUserUid = this.user?.uid;
+    if (currentUserUid) {
+      const currentUserRef = `${PATCH_TO_DB.USERS}/${currentUserUid}/${PATCH_TO_DB.GROUP_ROOMS}`;
+      const newGroup = push(child(ref(this.rtdb), PATCH_TO_DB.GROUP_ROOMS)).key;
+      const time = Date.now();
+      const updates: { [index: string]: string | number | object } = {};
+      if (newGroup) {
+        const dataGroup = {
+          nameGroup: nameGroup,
+          uid: newGroup,
+          [PATCH_TO_DB.LAST_CHANGE]: time,
+          members: {
+            [currentUserUid]: true,
+          },
+        };
+        updates[`${currentUserRef}/${newGroup}/${PATCH_TO_DB.LAST_CHANGE}`] = time;
+        updates[`${PATCH_TO_DB.GROUP_ROOMS}/${newGroup}`] = dataGroup;
+        update(ref(this.rtdb), updates);
+      }
+      console.log('New group');
     }
   };
 
@@ -249,9 +286,9 @@ export default class ModelMessages extends Model {
     const time = Date.now();
     const updates: { [index: string]: string | number } = {};
     if (currentDialog) {
-      updates[`users/${this.user?.uid}/dialogRooms/${currentDialog}/lastChange`] = time;
+      updates[`${PATCH_TO_DB.USERS}/${this.user?.uid}/${PATCH_TO_DB.DIALOGS_ROOMS}/${currentDialog}/${PATCH_TO_DB.LAST_CHANGE}`] = time;
     }
-    updates[`users/${this.user?.uid}/dialogRooms/${nextDialog}/lastChange`] = time;
+    updates[`${PATCH_TO_DB.USERS}/${this.user?.uid}/${PATCH_TO_DB.DIALOGS_ROOMS}/${nextDialog}/${PATCH_TO_DB.LAST_CHANGE}`] = time;
     update(ref(this.rtdb), updates);
     this.currentDialog = this.dialogRooms[index];
     this.isRooms = true;

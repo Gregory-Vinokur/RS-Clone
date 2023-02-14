@@ -19,10 +19,17 @@ export default class ControllerMessages {
     this.viewer.on('toChat', () => {
       this.model.isChat = true;
       this.model.isRooms = false;
+      this.model.isGroupRooms = false;
     });
     this.viewer.on('toRooms', () => {
       this.model.isChat = false;
       this.model.isRooms = true;
+      this.model.isGroupRooms = false;
+    });
+    this.viewer.on('toGroupRooms', () => {
+      this.model.isChat = false;
+      this.model.isRooms = false;
+      this.model.isGroupRooms = true;
     });
     this.model.getMessage();
     this.viewer.on('checkDialog', (index: number) => this.model.checkDialog(index));

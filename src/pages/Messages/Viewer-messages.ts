@@ -19,6 +19,7 @@ type EmitsName =
   | 'writeUser'
   | 'toChat'
   | 'toRooms'
+  | 'toGroupRooms'
   | 'checkDialog';
 
 enum SORTBY {
@@ -55,6 +56,14 @@ export default class ViewerMessasges extends Page {
   buttonChat!: Button<ModelMessages>;
   buttonRooms!: Button<ModelMessages>;
   buttonFind!: Button<ModelMessages>;
+  buttonGroupRooms!: Button<ModelMessages>;
+  messagesGroupRooms: HTMLElement;
+  messagesGroupRoomsChatContainer: HTMLElement;
+  titleInGroupRooms: HTMLElement;
+  messagesGroupRoomsChat: HTMLElement;
+  messagesGroupRoomsNames: HTMLElement;
+  buttonNewGroup!: Button<ModelMessages>;
+  buttonFindGroup!: Button<ModelMessages>;
 
   emit(event: EmitsName, data?: string | number) {
     return super.emit(event, data);
@@ -78,11 +87,21 @@ export default class ViewerMessasges extends Page {
     this.messagesField = createHtmlElement('div', 'messages__field');
     this.messagesChatContainer = createHtmlElement('div', 'messages__container', '', this.messagesField);
     this.messagesChat = createHtmlElement('div', 'messages__chat', '', this.messagesChatContainer);
+
     this.messagesRooms = createHtmlElement('div', 'messages__rooms');
-    this.messagesRoomsMembers = createHtmlElement('div', 'messages__members', 'Members', this.messagesRooms);
+    this.messagesRoomsMembers = createHtmlElement('div', 'messages__members', '', this.messagesRooms);
     this.messagesRoomsChatContainer = createHtmlElement('div', 'messages__container', '', this.messagesRooms);
     this.messagesRoomsChat = createHtmlElement('div', 'messages__roomsChat', '', this.messagesRoomsChatContainer);
     this.titleInRooms = createHtmlElement('h2', '', LANGTEXT['textInRooms'][this.model.lang], this.messagesRoomsChat);
+
+    this.messagesGroupRooms = createHtmlElement('div', 'messages__rooms', '');
+    const messagesGroupRoomsNamesContainer = createHtmlElement('div', 'messages__group-rooms-container', '', this.messagesGroupRooms);
+    const buttonsGroupRooms = this.createBattonGroupRooms();
+    messagesGroupRoomsNamesContainer.appendChild(buttonsGroupRooms);
+    this.messagesGroupRoomsNames = createHtmlElement('div', 'messages__members', 'Members', messagesGroupRoomsNamesContainer);
+    this.messagesGroupRoomsChatContainer = createHtmlElement('div', 'messages__container', '', this.messagesGroupRooms);
+    this.messagesGroupRoomsChat = createHtmlElement('div', 'messages__roomsChat', '', this.messagesGroupRoomsChatContainer);
+    this.titleInGroupRooms = createHtmlElement('h2', '', LANGTEXT['textInRooms'][this.model.lang], this.messagesGroupRoomsChat);
 
     const buttonsHeaderContainer = this.createButtonsHeader();
     this.input = this.createInputMessage();
@@ -146,6 +165,20 @@ export default class ViewerMessasges extends Page {
     this.messagesRoomsChatContainer.scrollTop = this.messagesRoomsChatContainer.scrollHeight;
   };
 
+  private goToGroupRooms = () => {
+    this.messagesField.innerHTML = '';
+    this.isFind = false;
+    this.findWindow = null;
+    this.emit('toGroupRooms'); /////////////////////////////////////////
+    this.inputLimit.disabled = true;
+    this.sortSelect.disabled = true;
+    this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
+    this.buttonGroupRooms.element.classList.add('button_active');
+    this.limitText.classList.add('disabled');
+    this.messagesField.append(this.messagesGroupRooms);
+    this.messagesRoomsChatContainer.scrollTop = this.messagesRoomsChatContainer.scrollHeight;
+  };
+
   private createButtonsHeader = () => {
     const buttonsHeaderContainer = createHtmlElement('div', 'buttons-header');
     this.buttonChat = new Button('chatButton', this.model, () => {
@@ -155,6 +188,9 @@ export default class ViewerMessasges extends Page {
     this.buttonRooms = new Button('roomsButton', this.model, () => {
       this.goToRooms();
     });
+    this.buttonGroupRooms = new Button('groupRoomsButton', this.model, () => {
+      this.goToGroupRooms();
+    });
     this.buttonFind = new Button('buttonFind', this.model, () => {
       if (!this.isFind) {
         this.isFind = true;
@@ -163,9 +199,22 @@ export default class ViewerMessasges extends Page {
         this.messagesField.append(this.findWindow.render());
       }
     });
-    this.buttonsHeader.push(this.buttonChat, this.buttonRooms, this.buttonFind);
+    this.buttonsHeader.push(this.buttonChat, this.buttonRooms, this.buttonGroupRooms, this.buttonFind);
     buttonsHeaderContainer.append(...this.buttonsHeader.map((button) => button.render()));
     return buttonsHeaderContainer;
+  };
+  //////////////////////////////////////////////////////////////////////////////////////////////////////
+  private createBattonGroupRooms = () => {
+    const container = createHtmlElement('div', 'buttons-group-rooms');
+    this.buttonNewGroup = new Button('createGroupButton', this.model, () => {
+      // this.model.createNewGroup('Моя новая группа.');
+    });
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+    this.buttonFindGroup = new Button('findGroupButton', this.model, () => {
+      console.log('find group');
+    });
+    container.append(this.buttonNewGroup.render(), this.buttonFindGroup.render());
+    return container;
   };
 
   createInputMessage = () => {
@@ -353,11 +402,14 @@ export default class ViewerMessasges extends Page {
     this.buttons.forEach((button) => button.changeLang());
     this.buttonsDialog.forEach((button) => button.changeLang());
     this.buttonsHeader.forEach((button) => button.changeLang());
+    this.buttonFindGroup.changeLang();
+    this, this.buttonNewGroup.changeLang();
     this.buttonSend.changeLang();
     if (this.findWindow) {
       this.findWindow.changeLang();
     }
     this.titleInRooms.innerText = LANGTEXT['textInRooms'][this.model.lang];
+    this.titleInGroupRooms.innerText = LANGTEXT['textInRooms'][this.model.lang];
     this.limitText.innerText = LANGTEXT['inputLimit'][this.model.lang];
     this.sortDESC.innerText = LANGTEXT['sortDesc'][this.model.lang];
     this.sortASC.innerText = LANGTEXT['sortAsc'][this.model.lang];

@@ -28,9 +28,21 @@ const LANGTEXT = {
     rus: 'Чат',
     eng: 'Chat',
   },
-  roomsButton: {
+  groupRoomsButton: {
     rus: 'Группы',
-    eng: 'Rooms',
+    eng: 'Groups',
+  },
+  roomsButton: {
+    rus: 'Диалог',
+    eng: 'Dialog',
+  },
+  createGroupButton: {
+    rus: 'Создать',
+    eng: 'Create',
+  },
+  findGroupButton: {
+    rus: 'Найти',
+    eng: 'Find',
   },
   inputLimit: {
     rus: 'Лимит сообщений: ',
