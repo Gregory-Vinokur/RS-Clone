@@ -19,7 +19,24 @@ export default class ModelMusicPage extends Model {
         },
       });
       const data = await response.json();
-      return data;
+      this.emit('getMusic', data.tracks);
+      return data.tracks;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async searchTracks(trackName: string) {
+    try {
+      const response = await fetch(`${this.apiUrl}/v2.2/search?query=${trackName}&per_type_limit=5`, {
+        headers: {
+          apiKey: this.apiKey,
+        },
+      });
+      const data = await response.json();
+      const tracks = data.search.data.tracks;
+      this.emit('findSearchTracks', tracks);
+      return tracks;
     } catch (error) {
       console.error(error);
     }

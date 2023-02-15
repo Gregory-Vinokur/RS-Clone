@@ -3,8 +3,8 @@ import ModelMusicPage from './ModelMusicPage';
 import { createHtmlElement } from '../../utils/createElement';
 import formatTime from '../../utils/formatTime';
 
-type EmitsName = 'load';
-type Track = { [key: string]: any };
+type EmitsName = 'searchTrack';
+type Track = { [key: string]: string | number };
 export default class ViewerMessasges extends Page {
   model: ModelMusicPage;
   mainPlayerWrapper: HTMLElement;
@@ -16,20 +16,22 @@ export default class ViewerMessasges extends Page {
   advertisingBanner: HTMLElement;
   recommendedMusicBtn: HTMLElement;
   myMusicBtn: HTMLElement;
-  searchMusicInput: HTMLElement;
+  searchMusicInput: HTMLInputElement;
   searchMusicBtn: HTMLElement;
   trackListContainer: HTMLElement;
   trackTitleMain: HTMLElement;
   trackAuthorMain: HTMLElement;
   currentTrack: HTMLAudioElement;
   currentMusicIndex: number;
+  currentTrackId: string;
 
-  emit(event: EmitsName, data?: string | number) {
+  emit(event: EmitsName, data?: string) {
     return super.emit(event, data);
   }
   on(event: EmitsName, callback: (data?: string) => void) {
     return super.on(event, callback);
   }
+
   constructor(id: string, model: ModelMusicPage) {
     super(id);
     this.model = model;
@@ -41,27 +43,40 @@ export default class ViewerMessasges extends Page {
     this.timeMainPlayer = createHtmlElement('div', 'main-player__time');
     this.volumeInput = createHtmlElement('input', 'volume__slider') as HTMLInputElement;
     this.advertisingBanner = createHtmlElement('div', 'advertising__banner');
-    this.recommendedMusicBtn = createHtmlElement('div', 'recommended__page music__page-active', 'Мировые чарты');
+    this.recommendedMusicBtn = createHtmlElement('div', 'recommended__page music__page-active', 'Плейлист дня');
     this.myMusicBtn = createHtmlElement('div', 'my__music-page', 'Моя музыка');
-    this.searchMusicInput = createHtmlElement('input', 'search__music-input');
+    this.searchMusicInput = createHtmlElement('input', 'search__music-input') as HTMLInputElement;
     this.searchMusicBtn = createHtmlElement('button', 'search__music-btn', 'Найти');
     this.trackListContainer = createHtmlElement('ul', 'track__list-container');
     this.trackTitleMain = createHtmlElement('div', 'main-player__name', 'Наслаждайтесь музыкой');
     this.trackAuthorMain = createHtmlElement('div', 'main-player__author');
     this.currentTrack = createHtmlElement('audio', 'track__item-current-play') as HTMLAudioElement;
     this.currentMusicIndex = 0;
+    this.currentTrackId = '';
     this.mainPlayerWrapper.append(this.currentTrack);
     this.renderMainPlayer();
     this.mainWrapper.append(this.advertisingBanner);
     this.renderMusicList();
-    this.renderMusicItem();
-    this.playNextTrack();
-    this.playPrevTrack();
-
+    this.renderMusicChart();
+    this.playMainPlayer();
     this.currentTrack.addEventListener('timeupdate', this.updateProgressContainer);
     this.currentTrack.addEventListener('ended', this.resetProgressContainer);
-    this.volumeInput.addEventListener('click', () => {
+    this.volumeInput.addEventListener('input', () => {
       this.setVolume(this.currentTrack);
+    });
+    this.searchMusicBtn.addEventListener('click', () => {
+      this.searchTrack();
+    });
+
+    this.model.on('findSearchTracks', (tracks: any) => {
+      if (typeof tracks !== 'undefined') this.renderMusicItem(tracks);
+      this.playNextTrack(tracks);
+      this.playPrevTrack(tracks);
+    });
+
+    this.model.on('getMusic', (tracks: any) => {
+      this.playNextTrack(tracks);
+      this.playPrevTrack(tracks);
     });
   }
 
@@ -102,93 +117,47 @@ export default class ViewerMessasges extends Page {
     trackListWrapper.append(this.trackListContainer);
   }
 
-  async renderMusicItem() {
-    const { tracks } = await this.model.getTopTracks();
-    console.log(tracks);
-    this.trackListContainer.innerHTML = '';
-    tracks.forEach((track: Track) => {
-      const trackItem = createHtmlElement('li', 'track__item');
-      trackItem.id = `${track.id}`;
-      // const currentTrackList = createHtmlElement('audio', 'track__item-src', '', trackItem) as HTMLAudioElement;
-      // currentTrackList.src = `${track.previewURL}`;
-      this.currentTrack.src = `${tracks[this.currentMusicIndex].previewURL}`;
-      const trackInfo = createHtmlElement('div', 'track__info-container', '', trackItem);
-      const trackAva = createHtmlElement('div', 'track__item-ava', '', trackInfo);
-      const playBtnTrackItem = createHtmlElement('button', 'track__item-play', '', trackAva);
-      const trackTitleContainer = createHtmlElement('div', 'track__title-container', '', trackInfo);
-      createHtmlElement('p', 'track__item-title', `${track.name}`, trackTitleContainer);
-      createHtmlElement('p', 'track__item-author', `${track.artistName}`, trackTitleContainer);
-      const trackControls = createHtmlElement('div', 'track__item-controls', '', trackItem);
-      createHtmlElement('button', 'track__item-favorite', '', trackControls);
-      createHtmlElement('p', 'track__item-duration', `${formatTime(track.playbackSeconds)}`, trackControls);
-      this.trackListContainer.append(trackItem);
-
-      playBtnTrackItem.addEventListener('click', () => {
-        this.currentTrack.src = `${track.previewURL}`;
-        this.playMusicItem(trackItem, playBtnTrackItem, track);
-      });
-
-      this.playBtnMainPlayer.addEventListener('click', () => {
-        this.playMusicItem(trackItem, playBtnTrackItem, track);
-      });
-      this.playMusicMainPlayer(playBtnTrackItem, trackItem);
-    });
-  }
-
-  stopMusicPlay() {
-    const trackItem = document.querySelectorAll('.track__item');
-    trackItem.forEach((track) => {
-      const currentAudio: HTMLAudioElement | null = track.querySelector('.track__item-src');
-      const audioBtn: HTMLElement | null = track.querySelector('.track__item-play');
-      track.classList.remove('play');
-      if (currentAudio) currentAudio.pause();
-      if (audioBtn) audioBtn.classList.remove('track__item-pause');
-    });
-  }
-
-  playMusicMainPlayer(playBtn: HTMLElement, trackItem: HTMLElement) {
-    this.playBtnMainPlayer.addEventListener('click', () => {
-      if (this.mainPlayerWrapper.classList.contains('play')) {
-        //this.stopMusicPlay();
-        this.mainPlayerWrapper.classList.remove('play');
-        // currentTrackList.pause();
-        trackItem.classList.remove('play');
-        playBtn.classList.remove('track__item-pause');
-        this.playBtnMainPlayer.classList.remove('main__player-pause');
-        this.currentTrack.pause();
-      } else if (!this.mainPlayerWrapper.classList.contains('play')) {
-        this.stopMusicPlay();
-        playBtn.classList.add('track__item-pause');
-        this.mainPlayerWrapper.classList.add('play');
-        this.playBtnMainPlayer.classList.add('main__player-pause');
-        trackItem.classList.add('play');
-        this.currentTrack.play();
+  removePlayIcon() {
+    const trackItemsPlayBtn = document.querySelectorAll('.track__item-play');
+    trackItemsPlayBtn.forEach((btn) => {
+      if (btn.classList.contains('track__item-pause')) {
+        btn.classList.remove('track__item-pause');
       }
     });
   }
 
-  playMusicItem(trackItem: HTMLElement, playBtnTrackItem: HTMLElement, track: Track) {
-    const mainPlayer: HTMLElement | null = document.querySelector('.main-player__wrapper');
-    if (!trackItem.classList.contains('play')) {
-      this.stopMusicPlay();
-      //currentTrackList.play();
-      trackItem.classList.add('play');
-      playBtnTrackItem.classList.add('track__item-pause');
-      this.trackTitleMain.textContent = `${track.name}`;
-      this.trackAuthorMain.textContent = `${track.artistName}`;
-      this.playBtnMainPlayer.classList.add('main__player-pause');
-      this.timeMainPlayer.textContent = `${formatTime(track.playbackSeconds)}`;
-      mainPlayer?.classList.add('play');
-      //this.currentTrack.src = `${track.previewURL}`;
-      this.currentTrack.play();
-    } else {
-      trackItem.classList.remove('play');
-      //currentTrackList.pause();
-      playBtnTrackItem.classList.remove('track__item-pause');
-      this.playBtnMainPlayer.classList.remove('main__player-pause');
-      mainPlayer?.classList.remove('play');
-      this.currentTrack.pause();
+  addPlayIcon() {
+    const trackItem = document.getElementById(this.currentTrackId);
+    if (trackItem) {
+      const trackItemPlayBtn: HTMLElement | null = trackItem.querySelector('.track__item-play');
+      trackItemPlayBtn?.classList.add('track__item-pause');
     }
+  }
+
+  playMusicItem() {
+    this.mainPlayerWrapper?.classList.add('play');
+    this.playBtnMainPlayer.classList.add('main__player-pause');
+    this.currentTrack.play();
+  }
+
+  playMainPlayer() {
+    this.playBtnMainPlayer.addEventListener('click', () => {
+      this.removePlayIcon();
+      const isPlaying = this.mainPlayerWrapper.classList.contains('play');
+      if (isPlaying) {
+        this.pauseMusicItem();
+      } else {
+        this.playMusicItem();
+        this.addPlayIcon();
+      }
+    });
+  }
+
+  pauseMusicItem() {
+    this.removePlayIcon();
+    this.mainPlayerWrapper?.classList.remove('play');
+    this.playBtnMainPlayer.classList.remove('main__player-pause');
+    this.currentTrack.pause();
   }
 
   updateProgressContainer(e: Event) {
@@ -207,35 +176,100 @@ export default class ViewerMessasges extends Page {
     audio.volume = Number(this.volumeInput.value) / 100;
   }
 
-  async playNextTrack() {
-    const { tracks } = await this.model.getTopTracks();
+  playNextTrack(tracks: Track[]) {
     this.nextBtnMainPlayer.addEventListener('click', () => {
+      this.removePlayIcon();
       if (this.currentMusicIndex < tracks.length - 1) {
         this.currentMusicIndex += 1;
-        this.currentTrack.pause();
         this.currentTrack.src = `${tracks[this.currentMusicIndex].previewURL}`;
-        this.currentTrack.play();
+        this.currentTrackId = `${tracks[this.currentMusicIndex].id}`;
+        this.addPlayIcon();
+        setTimeout(() => {
+          this.playMusicItem();
+        }, 1000);
       } else {
         this.currentMusicIndex = 0;
         this.currentTrack.src = `${tracks[this.currentMusicIndex].previewURL}`;
-        this.currentTrack.play();
+        this.currentTrackId = `${tracks[this.currentMusicIndex].id}`;
+        this.addPlayIcon();
+        setTimeout(() => {
+          this.playMusicItem();
+        }, 1000);
       }
+      this.trackTitleMain.textContent = `${tracks[this.currentMusicIndex].name}`;
+      this.trackAuthorMain.textContent = `${tracks[this.currentMusicIndex].artistName}`;
+      this.timeMainPlayer.textContent = `${formatTime(tracks[this.currentMusicIndex].playbackSeconds)}`;
     });
   }
 
-  async playPrevTrack() {
-    const { tracks } = await this.model.getTopTracks();
+  playPrevTrack(tracks: Track[]) {
     this.prevBtnMainPlayer.addEventListener('click', () => {
+      this.removePlayIcon();
       if (!(this.currentMusicIndex === 0)) {
         this.currentMusicIndex -= 1;
-        this.currentTrack.pause();
         this.currentTrack.src = `${tracks[this.currentMusicIndex].previewURL}`;
-        this.currentTrack.play();
+        this.currentTrackId = `${tracks[this.currentMusicIndex].id}`;
+        this.addPlayIcon();
+        setTimeout(() => {
+          this.playMusicItem();
+        }, 1000);
       } else {
         this.currentMusicIndex = tracks.length - 1;
         this.currentTrack.src = `${tracks[this.currentMusicIndex].previewURL}`;
-        this.currentTrack.play();
+        this.currentTrackId = `${tracks[this.currentMusicIndex].id}`;
+        this.addPlayIcon();
+        setTimeout(() => {
+          this.playMusicItem();
+        }, 1000);
       }
+      this.trackTitleMain.textContent = `${tracks[this.currentMusicIndex].name}`;
+      this.trackAuthorMain.textContent = `${tracks[this.currentMusicIndex].artistName}`;
+      this.timeMainPlayer.textContent = `${formatTime(tracks[this.currentMusicIndex].playbackSeconds)}`;
     });
+  }
+
+  searchTrack() {
+    this.emit('searchTrack', this.searchMusicInput.value);
+    this.searchMusicInput.value = '';
+  }
+
+  async renderMusicItem(tracks: Track[]) {
+    this.trackListContainer.innerHTML = '';
+    tracks.forEach((track: Track) => {
+      const trackItem = createHtmlElement('li', 'track__item');
+      trackItem.id = `${track.id}`;
+      this.currentTrack.src = `${tracks[this.currentMusicIndex].previewURL}`;
+      const trackInfo = createHtmlElement('div', 'track__info-container', '', trackItem);
+      const trackAva = createHtmlElement('div', 'track__item-ava', '', trackInfo);
+      const playBtnTrackItem = createHtmlElement('button', 'track__item-play', '', trackAva);
+      const trackTitleContainer = createHtmlElement('div', 'track__title-container', '', trackInfo);
+      createHtmlElement('p', 'track__item-title', `${track.name}`, trackTitleContainer);
+      createHtmlElement('p', 'track__item-author', `${track.artistName}`, trackTitleContainer);
+      const trackControls = createHtmlElement('div', 'track__item-controls', '', trackItem);
+      createHtmlElement('button', 'track__item-favorite', '', trackControls);
+      createHtmlElement('p', 'track__item-duration', `${formatTime(track.playbackSeconds)}`, trackControls);
+      this.trackListContainer.append(trackItem);
+
+      playBtnTrackItem.addEventListener('click', () => {
+        this.currentTrack.src = `${track.previewURL}`;
+        this.currentTrackId = `${track.id}`;
+        this.trackTitleMain.textContent = `${track.name}`;
+        this.trackAuthorMain.textContent = `${track.artistName}`;
+        this.timeMainPlayer.textContent = `${formatTime(track.playbackSeconds)}`;
+        const isPlaying = this.mainPlayerWrapper.classList.contains('play');
+        if (isPlaying) {
+          playBtnTrackItem.classList.remove('track__item-pause');
+          this.pauseMusicItem();
+        } else {
+          playBtnTrackItem.classList.add('track__item-pause');
+          this.playMusicItem();
+        }
+      });
+    });
+  }
+
+  async renderMusicChart() {
+    const tracks = await this.model.getTopTracks();
+    await this.renderMusicItem(tracks);
   }
 }
