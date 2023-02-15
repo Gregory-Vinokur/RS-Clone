@@ -2,7 +2,8 @@ import Model from '../Template/Model';
 import debounce from '../../utils/debounce';
 import { firebaseConfig } from '../../server/firebase.config';
 import { initializeApp } from 'firebase/app';
-import { UserProp } from '../../constans/types';
+import { UserProp, GroupProps } from '../../constans/types';
+import { PATCH_TO_DB } from '../../constans/constans';
 import {
   getFirestore,
   serverTimestamp,
@@ -33,13 +34,6 @@ type DialogMessages = {
   time: string;
 };
 
-enum PATCH_TO_DB {
-  DIALOGS_ROOMS = 'dialogRooms',
-  GROUP_ROOMS = 'groupRooms',
-  USERS = 'users',
-  LAST_CHANGE = 'lastChange',
-}
-
 export default class ModelMessages extends Model {
   db: Firestore;
   messages: QuerySnapshot<DocumentData> | undefined;
@@ -55,6 +49,8 @@ export default class ModelMessages extends Model {
   currentDialog: string;
   lastChangeUserDialog: number[];
   lastChangeDialog: number[];
+  groupRooms: string[];
+  groupsProp: GroupProps[];
   constructor(lang: Lang, user: TypeUser) {
     super(lang, user);
     this.limit = 10;
@@ -68,6 +64,8 @@ export default class ModelMessages extends Model {
     this.isChat = true;
     this.isRooms = false;
     this.isGroupRooms = false;
+    this.groupRooms = [];
+    this.groupsProp = [];
     this.currentDialog = '';
     const app = initializeApp(firebaseConfig);
     this.db = getFirestore(app);
@@ -77,15 +75,23 @@ export default class ModelMessages extends Model {
     });
     const debonceGetDialogs = debounce(this.getDialogs, 200);
     const dialogRef = ref(this.rtdb, `${PATCH_TO_DB.USERS}/${this.user?.uid}/${PATCH_TO_DB.DIALOGS_ROOMS}`);
+    const groupRef = ref(this.rtdb, `${PATCH_TO_DB.USERS}/${this.user?.uid}/${PATCH_TO_DB.GROUP_ROOMS}`);
     onChildAdded(dialogRef, (data) => {
       if (data && data.val() !== 'lastChange' && data.key) {
         this.dialogMembers.push(data.key); //users
         this.dialogRooms.push(data.val().uid); //chats
         this.dialogMembersProp.push(this.getUserInfo(data.key));
       }
-
       debonceGetDialogs();
       this.emit('updateDialogs');
+    });
+    onChildAdded(groupRef, (data) => {
+      if (data && data.val() !== 'lastChange' && data.key) {
+        this.groupRooms.push(data.key); //groups
+        this.getGroupsInfo();
+      }
+      // debonceGetDialogs();
+      // this.emit('updateDialogs');
     });
   }
 
@@ -174,6 +180,32 @@ export default class ModelMessages extends Model {
       console.error(error);
     }
     return userProp;
+  }
+
+  async getGroupsInfo() {
+    const dbRef = ref(this.rtdb);
+    this.groupsProp = [];
+    this.groupRooms.forEach((group, index) => {
+      try {
+        onValue(child(dbRef, `${PATCH_TO_DB.GROUP_ROOMS}/${group}`), (snapshot) => {
+          if (snapshot.exists()) {
+            const { nameGroup, uid, lastChange, members } = snapshot.val();
+            const groupProp: GroupProps = {
+              nameGroup: nameGroup,
+              uid: uid,
+              [PATCH_TO_DB.LAST_CHANGE]: lastChange,
+              members: members,
+            };
+            this.groupsProp[index] = groupProp;
+            this.emit('updateGroups');
+          } else {
+            console.log('No data available');
+          }
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    });
   }
 
   deleteMessage = async (docum: string) => {
@@ -275,7 +307,6 @@ export default class ModelMessages extends Model {
         updates[`${PATCH_TO_DB.GROUP_ROOMS}/${newGroup}`] = dataGroup;
         update(ref(this.rtdb), updates);
       }
-      console.log('New group');
     }
   };
 

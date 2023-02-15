@@ -5,6 +5,7 @@ import ModelMessages from './Model-messages';
 import Button from '../../base/button/Button';
 import avatar from '../../../assets/img/ava.jpg';
 import FindWindow from '../../base/find/FindWindow';
+import CreateGroupWindow from '../../base/createGroup/CreateGroup';
 import { LANGTEXT } from '../../constans/constans';
 
 type EmitsName =
@@ -20,7 +21,9 @@ type EmitsName =
   | 'toChat'
   | 'toRooms'
   | 'toGroupRooms'
-  | 'checkDialog';
+  | 'checkDialog'
+  | 'checkGroup'
+  | 'createGroup';
 
 enum SORTBY {
   DESC = 'desc',
@@ -62,8 +65,11 @@ export default class ViewerMessasges extends Page {
   titleInGroupRooms: HTMLElement;
   messagesGroupRoomsChat: HTMLElement;
   messagesGroupRoomsNames: HTMLElement;
+  groupRoomsElement: HTMLElement[];
   buttonNewGroup!: Button<ModelMessages>;
   buttonFindGroup!: Button<ModelMessages>;
+  createGroupWindow: CreateGroupWindow | null;
+  isCreateWindow: boolean;
 
   emit(event: EmitsName, data?: string | number) {
     return super.emit(event, data);
@@ -82,8 +88,11 @@ export default class ViewerMessasges extends Page {
     this.buttonsDialog = [];
     this.buttonsHeader = [];
     this.isFind = false;
+    this.isCreateWindow = false;
     this.findWindow = null;
+    this.createGroupWindow = null;
     this.messagesRoomsMembersElement = [];
+    this.groupRoomsElement = [];
     this.messagesField = createHtmlElement('div', 'messages__field');
     this.messagesChatContainer = createHtmlElement('div', 'messages__container', '', this.messagesField);
     this.messagesChat = createHtmlElement('div', 'messages__chat', '', this.messagesChatContainer);
@@ -132,19 +141,30 @@ export default class ViewerMessasges extends Page {
     this.model.on('updateDialogs', () => {
       debonseCreateRooms();
     });
+    const debonceCreateGroups = debounce(this.createGroups, 200);
+    this.model.on('updateGroups', () => {
+      debonceCreateGroups();
+    });
     this.model.on('showDialog', this.showDialog);
     this.model.on('updateDialog', (index?: number) => this.updateDialog(index));
     this.createRooms();
   }
 
-  private goToChat = () => {
+  private goTo = () => {
     this.messagesField.innerHTML = '';
     this.isFind = false;
+    this.isCreateWindow = false;
     this.findWindow = null;
+    this.createGroupWindow = null;
+    this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
+    this.buttonNewGroup.element.classList.remove('button_active');
+  };
+
+  private goToChat = () => {
+    this.goTo();
     this.emit('toChat');
     this.inputLimit.disabled = false;
     this.sortSelect.disabled = false;
-    this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
     this.buttonChat.element.classList.add('button_active');
     this.limitText.classList.remove('disabled');
     this.messagesField.append(this.messagesChatContainer);
@@ -152,13 +172,10 @@ export default class ViewerMessasges extends Page {
   };
 
   private goToRooms = () => {
-    this.messagesField.innerHTML = '';
-    this.isFind = false;
-    this.findWindow = null;
+    this.goTo();
     this.emit('toRooms');
     this.inputLimit.disabled = true;
     this.sortSelect.disabled = true;
-    this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
     this.buttonRooms.element.classList.add('button_active');
     this.limitText.classList.add('disabled');
     this.messagesField.append(this.messagesRooms);
@@ -166,13 +183,10 @@ export default class ViewerMessasges extends Page {
   };
 
   private goToGroupRooms = () => {
-    this.messagesField.innerHTML = '';
-    this.isFind = false;
-    this.findWindow = null;
+    this.goTo();
     this.emit('toGroupRooms'); /////////////////////////////////////////
     this.inputLimit.disabled = true;
     this.sortSelect.disabled = true;
-    this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
     this.buttonGroupRooms.element.classList.add('button_active');
     this.limitText.classList.add('disabled');
     this.messagesField.append(this.messagesGroupRooms);
@@ -207,7 +221,12 @@ export default class ViewerMessasges extends Page {
   private createBattonGroupRooms = () => {
     const container = createHtmlElement('div', 'buttons-group-rooms');
     this.buttonNewGroup = new Button('createGroupButton', this.model, () => {
-      // this.model.createNewGroup('Моя новая группа.');
+      if (!this.isCreateWindow) {
+        this.isCreateWindow = true;
+        this.buttonNewGroup.element.classList.add('button_active');
+        this.createGroupWindow = new CreateGroupWindow(this, this.model);
+        this.messagesField.append(this.createGroupWindow.render());
+      }
     });
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////
     this.buttonFindGroup = new Button('findGroupButton', this.model, () => {
@@ -262,7 +281,6 @@ export default class ViewerMessasges extends Page {
 
   private createRooms = async () => {
     this.messagesRoomsMembers.innerHTML = '';
-    console.log('create rooms');
     this.messagesRoomsMembersElement = [];
 
     const userProp = await Promise.all(this.model.dialogMembersProp);
@@ -281,10 +299,38 @@ export default class ViewerMessasges extends Page {
       button.addEventListener('click', (e) => this.createModalUserWindow(e, userProp[index].userId, userProp[index].userAvatar));
       member.addEventListener('click', () => {
         member.classList.remove('new-message');
+        this.messagesRoomsMembersElement.forEach((el) => el.classList.remove('active'));
+        member.classList.add('active');
         this.emit('checkDialog', index);
       });
     }
     // this.updateDialog();
+  };
+
+  private createGroups = async () => {
+    this.messagesGroupRoomsNames.innerHTML = '';
+    this.groupRoomsElement = [];
+    const groupsProp = await Promise.all(this.model.groupsProp);
+    groupsProp.forEach((group, index) => {
+      const groupElement = createHtmlElement('div', 'messages__member', ``, this.messagesGroupRoomsNames);
+      const name = createHtmlElement('p', 'messages__group-name', `${group.nameGroup}`);
+      const button = createHtmlElement('div', 'messages__member__button');
+      createHtmlElement('span', '', '', button);
+      createHtmlElement('span', '', '', button);
+      createHtmlElement('span', '', '', button);
+      groupElement.append(name, button);
+      this.groupRoomsElement.push(groupElement);
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        console.log(groupsProp);
+      });
+      groupElement.addEventListener('click', () => {
+        groupElement.classList.remove('new-message');
+        this.groupRoomsElement.forEach((el) => el.classList.remove('active'));
+        groupElement.classList.add('active');
+        console.log('checkGroup');
+      });
+    });
   };
 
   private showDialog = () => {
@@ -407,6 +453,9 @@ export default class ViewerMessasges extends Page {
     this.buttonSend.changeLang();
     if (this.findWindow) {
       this.findWindow.changeLang();
+    }
+    if (this.createGroupWindow) {
+      this.createGroupWindow.changeLang();
     }
     this.titleInRooms.innerText = LANGTEXT['textInRooms'][this.model.lang];
     this.titleInGroupRooms.innerText = LANGTEXT['textInRooms'][this.model.lang];

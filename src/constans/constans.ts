@@ -5,6 +5,13 @@ type LangFild = {
   rus: string;
   eng: string;
 };
+
+enum PATCH_TO_DB {
+  DIALOGS_ROOMS = 'dialogRooms',
+  GROUP_ROOMS = 'groupRooms',
+  USERS = 'users',
+  LAST_CHANGE = 'lastChange',
+}
 // type LangText = {
 //   [prop: string]: LangFild;
 // };
@@ -132,4 +139,4 @@ const LANGTEXT = {
 
 type LangNameElement = keyof typeof LANGTEXT;
 
-export { LANGTEXT, Lang, LangNameElement, CLASSTHEME, THEME };
+export { LANGTEXT, Lang, LangNameElement, CLASSTHEME, THEME, PATCH_TO_DB };

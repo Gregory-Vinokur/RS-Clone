@@ -16,8 +16,10 @@ type EmitsName =
   | 'uploadAvatar'
   | 'uploadCover'
   | 'updateDialog'
+  | 'updateGroup'
   | 'showDialog'
   | 'updateDialogs'
+  | 'updateGroups'
   | 'loadPercentFoto'
   | 'notEmptyUserNews'
   | 'emptyUserNews';

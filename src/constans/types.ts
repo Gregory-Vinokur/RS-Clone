@@ -1,4 +1,5 @@
 import { User } from 'firebase/auth';
+import { PATCH_TO_DB } from './constans';
 
 type Sort = 'desc' | 'asc';
 
@@ -13,4 +14,13 @@ type UserProp = {
   userId: string;
 };
 
-export { Sort, TypeUser, UserProp };
+type GroupProps = {
+  nameGroup: string;
+  uid: string;
+  [PATCH_TO_DB.LAST_CHANGE]: number;
+  members: {
+    [x: string]: boolean;
+  };
+};
+
+export { Sort, TypeUser, UserProp, GroupProps };
