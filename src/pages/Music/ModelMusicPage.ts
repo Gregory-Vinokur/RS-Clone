@@ -13,7 +13,7 @@ export default class ModelMusicPage extends Model {
 
   async getTopTracks() {
     try {
-      const response = await fetch('https://api.napster.com/v2.2/tracks/top?limit=5', {
+      const response = await fetch('https://api.napster.com/v2.2/tracks/top?limit=20', {
         headers: {
           apiKey: this.apiKey,
         },
@@ -28,7 +28,7 @@ export default class ModelMusicPage extends Model {
 
   async searchTracks(trackName: string) {
     try {
-      const response = await fetch(`${this.apiUrl}/v2.2/search?query=${trackName}&per_type_limit=5`, {
+      const response = await fetch(`${this.apiUrl}/v2.2/search?query=${trackName}&per_type_limit=20`, {
         headers: {
           apiKey: this.apiKey,
         },

@@ -24,7 +24,7 @@ export default class ViewerMessasges extends Page {
   currentTrack: HTMLAudioElement;
   currentMusicIndex: number;
   currentTrackId: string;
-
+  notFoundMusic: HTMLElement;
   emit(event: EmitsName, data?: string) {
     return super.emit(event, data);
   }
@@ -51,6 +51,11 @@ export default class ViewerMessasges extends Page {
     this.trackTitleMain = createHtmlElement('div', 'main-player__name', 'Наслаждайтесь музыкой');
     this.trackAuthorMain = createHtmlElement('div', 'main-player__author');
     this.currentTrack = createHtmlElement('audio', 'track__item-current-play') as HTMLAudioElement;
+    this.notFoundMusic = createHtmlElement(
+      'p',
+      'music__not-found',
+      'Треков не найдено, попробуйте изменить запрос. Наша база содержит более 30 миллионов треков.'
+    );
     this.currentMusicIndex = 0;
     this.currentTrackId = '';
     this.mainPlayerWrapper.append(this.currentTrack);
@@ -69,7 +74,13 @@ export default class ViewerMessasges extends Page {
     });
 
     this.model.on('findSearchTracks', (tracks: any) => {
-      if (typeof tracks !== 'undefined') this.renderMusicItem(tracks);
+      if (tracks.length > 0) {
+        this.notFoundMusic.style.display = 'none';
+        this.renderMusicItem(tracks);
+      } else {
+        this.trackListContainer.innerHTML = '';
+        this.notFoundMusic.style.display = 'block';
+      }
       this.playNextTrack(tracks);
       this.playPrevTrack(tracks);
     });
@@ -113,8 +124,9 @@ export default class ViewerMessasges extends Page {
     searchMusicWrapper.append(this.searchMusicInput, this.searchMusicBtn);
 
     const trackListWrapper = createHtmlElement('div', 'track__list-wrapper', '', musicList);
-    createHtmlElement('h2', 'track__list-title', 'Треки', trackListWrapper);
+    createHtmlElement('h2', 'track__list-title', 'Собрано для вас', trackListWrapper);
     trackListWrapper.append(this.trackListContainer);
+    trackListWrapper.append(this.notFoundMusic);
   }
 
   removePlayIcon() {
