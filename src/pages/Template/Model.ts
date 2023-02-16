@@ -23,7 +23,9 @@ type EmitsName =
   | 'loadPercentFoto'
   | 'notEmptyUserNews'
   | 'emptyUserNews'
-  | 'showGroup';
+  | 'showGroup'
+  | 'findSearchTracks'
+  | 'getMusic';
 
 export default abstract class Model extends EventEmitter {
   lang: Lang;
