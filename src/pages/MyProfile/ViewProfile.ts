@@ -5,7 +5,6 @@ import 'firebase/compat/storage';
 import defaultCover from '../../../assets/img/default-cover.jpg';
 import defaultAva from '../../../assets/img/default-ava.jpg';
 import ViewRecommendedFriends from './ViewRecommendedFriends';
-
 import { LANGTEXT } from '../../constans/constans';
 
 type EmitsName =
@@ -367,7 +366,7 @@ export default class ViewProfile extends Page {
 
   private changeLang = () => {
     this.createNewsBtn.innerText = LANGTEXT['createUserNewsBtn'][this.model.lang];
-    this.inputCreateNews.innerText = LANGTEXT['inputCreateNews'][this.model.lang];
+    this.inputCreateNews.placeholder = LANGTEXT['inputCreateNews'][this.model.lang];
     this.subscriptionBtn.innerText = LANGTEXT['subscriptsUserBtn'][this.model.lang];
     this.unsubscriptionBtn.innerText = LANGTEXT['unsubscriptsUserBtn'][this.model.lang];
     const userSubscriptionsBtn: HTMLElement | null = document.querySelector('.profile__friends_text');

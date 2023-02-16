@@ -116,6 +116,30 @@ const LANGTEXT = {
     rus: 'Музыка',
     eng: 'Music',
   },
+  playlistOfDayBtn: {
+    rus: 'Плейлист дня',
+    eng: 'Playlist of the day',
+  },
+  myMusicBtn: {
+    rus: 'Моя музыка',
+    eng: 'My music',
+  },
+  searchMusicInput: {
+    rus: 'Название трека или исполнителя',
+    eng: 'Enter the name of the track or artist',
+  },
+  searchMusicBtn: {
+    rus: 'Найти',
+    eng: 'Search',
+  },
+  musicContainerTitle: {
+    rus: 'Собрано для Вас',
+    eng: 'Collected for you',
+  },
+  musicNotFound: {
+    rus: 'Треков не найдено, попробуйте изменить запрос. Наша база содержит более 30 миллионов треков.',
+    eng: 'No tracks found, try editing your query. Our database contains over 30 million tracks.',
+  },
 };
 
 type LangNameElement = keyof typeof LANGTEXT;
