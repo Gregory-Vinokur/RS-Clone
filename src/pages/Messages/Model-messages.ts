@@ -93,9 +93,9 @@ export default class ModelMessages extends Model {
         if (data && data.val() !== 'lastChange' && data.key) {
           this.groupRooms.push(data.key); //groups
           this.groupRoomsLastChange.push(data.val().lastChange);
-          this.getGroupsInfo();
         }
       });
+      this.getGroupsInfo();
     });
   }
 
@@ -153,6 +153,32 @@ export default class ModelMessages extends Model {
       console.error(error);
     }
     return allUserProp;
+  };
+
+  getAllGroups = async () => {
+    const allGroups: GroupProps[] = [];
+    try {
+      const users = await get(ref(this.rtdb, PATCH_TO_DB.GROUP_ROOMS));
+      if (users.exists()) {
+        users.forEach((user) => {
+          const { nameGroup, groupAvatar, uid, members, lastChange } = user.val();
+          const groupProp: GroupProps = {
+            nameGroup: nameGroup || 'Моя группа',
+            groupAvatar: groupAvatar,
+            uid: uid,
+            messages: {},
+            members: members,
+            lastChange: lastChange,
+          };
+          allGroups.push(groupProp);
+        });
+      } else {
+        console.log('No data available');
+      }
+    } catch (error) {
+      console.error(error);
+    }
+    return allGroups;
   };
 
   async getUserInfo(userId: string) {
@@ -299,7 +325,6 @@ export default class ModelMessages extends Model {
     } catch (e) {
       console.error('Error adding document: ', e);
     }
-    console.log(message);
   };
 
   writeUser = async (uid: string) => {
@@ -330,8 +355,10 @@ export default class ModelMessages extends Model {
       const time = Date.now();
       const updates: { [index: string]: string | number | object } = {};
       if (newGroup) {
-        const dataGroup = {
+        const dataGroup: GroupProps = {
           nameGroup: nameGroup,
+          messages: {},
+          groupAvatar: this.user ? this.user.photoURL : avatar,
           uid: newGroup,
           [PATCH_TO_DB.LAST_CHANGE]: time,
           members: {
@@ -373,13 +400,33 @@ export default class ModelMessages extends Model {
     update(ref(this.rtdb), updates);
     this.currentGroup = nextGroup;
     this.emit('showGroup');
-
-    console.log(index);
   };
 
   getMessage = async () => {
     this.messages = await getDocs(query(collection(this.db, 'messages'), orderBy('created', this.sort), limit(this.limit)));
     this.emit('updateData');
+  };
+
+  comeInGroup = async (id: string) => {
+    const userGropRef = `${PATCH_TO_DB.USERS}/${this.user?.uid}/${PATCH_TO_DB.GROUP_ROOMS}/${id}/${PATCH_TO_DB.LAST_CHANGE}`;
+    const groupRef = `${PATCH_TO_DB.GROUP_ROOMS}/${id}/members/${this.user?.uid}`;
+    const time = Date.now();
+    const updates: { [index: string]: boolean | number } = {};
+    updates[userGropRef] = time;
+    updates[groupRef] = true;
+    update(ref(this.rtdb), updates).then(() => {
+      this.currentGroup = id;
+      this.emit('showGroup');
+    });
+  };
+
+  goOutGroup = async (id: string) => {
+    const userGropRef = `${PATCH_TO_DB.USERS}/${this.user?.uid}/${PATCH_TO_DB.GROUP_ROOMS}/${id}/${PATCH_TO_DB.LAST_CHANGE}`;
+    const groupRef = `${PATCH_TO_DB.GROUP_ROOMS}/${id}/members/${this.user?.uid}`;
+    const updates: { [index: string]: null } = {};
+    updates[userGropRef] = null;
+    updates[groupRef] = null;
+    update(ref(this.rtdb), updates);
   };
 
   setLimit = (limit = '') => {

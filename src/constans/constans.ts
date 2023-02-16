@@ -136,6 +136,14 @@ const LANGTEXT = {
     rus: 'Музыка',
     eng: 'Music',
   },
+  comeInGroup: {
+    rus: 'Присоеденится',
+    eng: 'Join the group',
+  },
+  goOutGroup: {
+    rus: 'Покинуть',
+    eng: 'Go out',
+  },
 };
 
 type LangNameElement = keyof typeof LANGTEXT;

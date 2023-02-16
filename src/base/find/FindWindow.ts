@@ -65,13 +65,12 @@ export default class FindWindow {
 
     statusContainer.append(statusText, status);
     container.append(nameContainer, statusContainer);
-    container.addEventListener('click', (e) => this.parrent.createModalUserWindow(e, user.userId, user.userAvatar));
+    container.addEventListener('click', (e) => this.parrent.createModalUserWindow(e, user.userName, user.userId, user.userAvatar));
     return container;
   };
 
   changeLang = () => {
     this.status.forEach((el) => (el.innerText = LANGTEXT['status'][this.model.lang]));
-    console.log('lang');
   };
 
   render = () => {

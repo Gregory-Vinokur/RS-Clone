@@ -17,6 +17,9 @@ export default class ControllerMessages {
     this.viewer.on('unsubscripte', (uid: string) => this.model.unSubscripteUser(uid));
     this.viewer.on('writeUser', (uid: string) => this.model.writeUser(uid));
     this.viewer.on('createGroup', (name: string) => this.model.createNewGroup(name));
+    this.viewer.on('comeInGroup', (id: string) => this.model.comeInGroup(id));
+    this.viewer.on('goOutGroup', (id: string) => this.model.goOutGroup(id));
+
     this.viewer.on('toChat', () => {
       this.model.isChat = true;
       this.model.isRooms = false;
