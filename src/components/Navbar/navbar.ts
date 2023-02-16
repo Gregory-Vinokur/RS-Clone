@@ -7,7 +7,6 @@ import ModelApp from '../../app/Model-app';
 import { LANGTEXT } from '../../constans/constans';
 import { loadCatsPosts } from './../../data/news_api/cats_api';
 import { loadMemePosts } from './../../data/news_api/memes_api';
-
 export default class Navbar extends EventEmitter {
   element: HTMLElement;
   model: ModelApp;
@@ -28,7 +27,6 @@ export default class Navbar extends EventEmitter {
     this.messenger = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
     this.music = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
     this.Logout = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
-
     this.changeLang();
 
     this.myProfile.addEventListener('click', () => {

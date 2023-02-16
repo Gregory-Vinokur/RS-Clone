@@ -1,5 +1,6 @@
 .music__wrapper {
   padding: 10px 20px;
+  position: relative;
 }
 
 /* Main Player */
@@ -11,6 +12,11 @@
   background: #fff;
   border-radius: 15px;
   padding: 10px 15px;
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  box-shadow: 0 4px 8px rgb(0 0 0 / 4%), 0 0 4px rgb(0 0 0 / 6%);
 }
 
 .main-player__controls {
@@ -151,13 +157,12 @@
   gap: 10px;
 }
 
-.recommended__page,
-.my__music-page {
+.playlist__page-btn {
   color: #aeb7c2;
   cursor: pointer;
 }
 
-.music__page-active {
+.playlist__page-active {
   color: #346297;
   padding: 2px 5px;
   border: 1px solid #dce1e6;
@@ -281,14 +286,21 @@
   font-size: 14px;
 }
 
-.track__item-favorite {
-  background-image: url(../../../assets/img/favorite-music.svg);
+.track__item-favorite,
+.track__item-favorite-active {
   width: 20px;
   height: 20px;
   border: none;
   background-color: inherit;
   cursor: pointer;
   background-size: cover;
+}
+.track__item-favorite {
+  background-image: url(../../../assets/img/favorite-music.svg);
+}
+
+.track__item-favorite-active {
+  background-image: url(../../../assets/img/favorite-music-fill.svg);
 }
 
 .music__not-found {

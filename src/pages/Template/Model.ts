@@ -22,7 +22,9 @@ type EmitsName =
   | 'notEmptyUserNews'
   | 'emptyUserNews'
   | 'findSearchTracks'
-  | 'getMusic';
+  | 'getMusic'
+  | 'deleteFavoriteTrack'
+  | 'getFavoriteMusic';
 
 export default abstract class Model extends EventEmitter {
   lang: Lang;
