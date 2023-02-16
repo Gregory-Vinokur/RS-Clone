@@ -45,7 +45,6 @@ export default class ModelMessages extends Model {
   groupRooms: string[];
   groupsProp: GroupProps[];
   currentGroup: string;
-  groupsMessages: DialogMessages[][];
   groupRoomsLastChange: number[];
   constructor(lang: Lang, user: TypeUser) {
     super(lang, user);
@@ -63,7 +62,6 @@ export default class ModelMessages extends Model {
     this.isGroupRooms = false;
     this.groupRooms = [];
     this.groupsProp = [];
-    this.groupsMessages = [];
     this.groupRoomsLastChange = [];
     this.currentGroup = '';
     const app = initializeApp(firebaseConfig);
@@ -248,6 +246,10 @@ export default class ModelMessages extends Model {
     const dialogRef = ref(this.rtdb, `${PATCH_TO_DB.DIALOGS_ROOMS}/${this.currentDialog}/${key}`);
     remove(dialogRef);
   };
+  deleteGroupMessage = (key: string) => {
+    const dialogRef = ref(this.rtdb, `${PATCH_TO_DB.GROUP_ROOMS}/${this.currentGroup}/${PATCH_TO_DB.MESSAGES}/${key}`);
+    remove(dialogRef);
+  };
 
   sendMessage = (message: string) => {
     if (this.isChat) {
@@ -279,23 +281,26 @@ export default class ModelMessages extends Model {
     try {
       const dialogRef = ref(this.rtdb, `${PATCH_TO_DB.DIALOGS_ROOMS}/${this.currentDialog}`);
       const newPostKey = push(dialogRef).key;
-
-      if (newPostKey) {
-        const newPostData = {
-          uid: this.user?.uid,
-          name: this.user?.displayName ? this.user.displayName : 'unknown',
-          text: message,
-          time: Date.now(),
-        };
-        const dialog = this.dialogMembers[this.dialogRooms.findIndex((el) => el === this.currentDialog)];
-        const time = Date.now();
-        const updates: { [index: string]: string | number | object } = {};
-        updates[`${PATCH_TO_DB.DIALOGS_ROOMS}/${this.currentDialog}/${newPostKey}`] = newPostData;
-        updates[`${PATCH_TO_DB.DIALOGS_ROOMS}/${this.currentDialog}/${PATCH_TO_DB.LAST_CHANGE}`] = time;
-        updates[`${PATCH_TO_DB.USERS}/${this.user?.uid}/${PATCH_TO_DB.DIALOGS_ROOMS}/${dialog}/${PATCH_TO_DB.LAST_CHANGE}`] = time;
-        update(ref(this.rtdb), updates);
-      } else {
-        throw new Error("Don't get key post");
+      if (this.user) {
+        if (newPostKey) {
+          const newPostData: DialogMessages = {
+            uid: this.user.uid,
+            name: this.user.displayName ? this.user.displayName : 'unknown',
+            avatar: this.user.photoURL ? this.user.photoURL : avatar,
+            text: message,
+            key: '',
+            time: Date.now(),
+          };
+          const dialog = this.dialogMembers[this.dialogRooms.findIndex((el) => el === this.currentDialog)];
+          const time = Date.now();
+          const updates: { [index: string]: string | number | object } = {};
+          updates[`${PATCH_TO_DB.DIALOGS_ROOMS}/${this.currentDialog}/${newPostKey}`] = newPostData;
+          updates[`${PATCH_TO_DB.DIALOGS_ROOMS}/${this.currentDialog}/${PATCH_TO_DB.LAST_CHANGE}`] = time;
+          updates[`${PATCH_TO_DB.USERS}/${this.user?.uid}/${PATCH_TO_DB.DIALOGS_ROOMS}/${dialog}/${PATCH_TO_DB.LAST_CHANGE}`] = time;
+          update(ref(this.rtdb), updates);
+        } else {
+          throw new Error("Don't get key post");
+        }
       }
     } catch (e) {
       console.error('Error adding document: ', e);
@@ -311,6 +316,7 @@ export default class ModelMessages extends Model {
         const newPostData = {
           uid: this.user?.uid,
           name: this.user?.displayName ? this.user.displayName : 'unknown',
+          avatar: this.user?.photoURL ? this.user.photoURL : avatar,
           text: message,
           time: time,
         };
@@ -387,7 +393,7 @@ export default class ModelMessages extends Model {
     this.isRooms = true;
     this.emit('showDialog');
   };
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
   checkGroup = async (index: number) => {
     const currentGroup = this.currentGroup;
     const nextGroup = this.groupRooms[index];

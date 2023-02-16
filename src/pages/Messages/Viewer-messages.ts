@@ -26,7 +26,8 @@ type EmitsName =
   | 'checkGroup'
   | 'createGroup'
   | 'comeInGroup'
-  | 'goOutGroup';
+  | 'goOutGroup'
+  | 'deleteGroupMessage';
 
 enum SORTBY {
   DESC = 'desc',
@@ -149,10 +150,8 @@ export default class ViewerMessasges extends Page {
       debonseCreateRooms();
     });
     const debonceCreateGroups = debounce(this.createGroups, 200);
-    // const debonceShowGroup = debounce(this.showGroup, 200);
     this.model.on('updateGroups', () => {
       debonceCreateGroups();
-      // debonceShowGroup();
     });
     this.model.on('showDialog', this.showDialog);
     this.model.on('showGroup', this.showGroup);
@@ -289,10 +288,6 @@ export default class ViewerMessasges extends Page {
     this.emit('deleteMessage', id);
   };
 
-  private deleteDialogMessage = (id: string) => {
-    this.emit('deleteDialogMessage', id);
-  };
-
   private updateData = () => {
     this.inputLimit.value = this.model.limit.toString();
     this.createMessages();
@@ -311,7 +306,6 @@ export default class ViewerMessasges extends Page {
       }
       const ava = this.createAva(`${userProp[index].userAvatar}`);
       const name = createHtmlElement('span', '', `${userProp[index].userName}`);
-      // const containerButtons = createHtmlElement('div', 'messages__member__buttons');
       const button = createHtmlElement('div', 'messages__member__button');
       createHtmlElement('span', '', '', button);
       createHtmlElement('span', '', '', button);
@@ -328,7 +322,6 @@ export default class ViewerMessasges extends Page {
         this.emit('checkDialog', index);
       });
     }
-    // this.updateDialog();
   };
 
   private createGroups = async () => {
@@ -337,6 +330,9 @@ export default class ViewerMessasges extends Page {
     const groupsProp = await Promise.all(this.model.groupsProp);
     groupsProp.forEach((group, index) => {
       const groupElement = createHtmlElement('div', 'messages__member', ``, this.messagesGroupRoomsNames);
+      if (group.lastChange > this.model.groupRoomsLastChange[index] && group.uid !== this.model.currentGroup) {
+        groupElement.classList.add('new-message');
+      }
       if (group.uid === this.model.currentGroup) {
         groupElement.classList.add('active');
       }
@@ -372,10 +368,14 @@ export default class ViewerMessasges extends Page {
     this.model.dialogsMessages[index].forEach((element) => {
       const className = element.uid === this.model.user?.uid ? 'my_message' : 'other_message';
       const message = createHtmlElement('div', `containerMessage ${className}`, '', this.messagesRoomsChat);
+      const title = createHtmlElement('div', 'messageTitle', '', message);
+      const ava = this.createAva(element.avatar);
+      title.append(ava);
+      createHtmlElement('span', '', `${element.name}`, title);
       const container = createHtmlElement('div', 'container-text', '', message);
       createHtmlElement('p', '', element?.text, container);
       if (element.uid === this.model.user?.uid) {
-        const button = new Button('deleteButton', this.model, () => this.deleteDialogMessage(element.key));
+        const button = new Button('deleteButton', this.model, () => this.emit('deleteDialogMessage', element.key));
         this.buttonsDialog.push(button);
         const containerButton = createHtmlElement('div', 'message__container-button', '', container);
         containerButton.append(button.render());
@@ -403,10 +403,16 @@ export default class ViewerMessasges extends Page {
       messagesKeys.forEach((key) => {
         const className = messages[key].uid === this.model.user?.uid ? 'my_message' : 'other_message';
         const message = createHtmlElement('div', `containerMessage ${className}`, '', this.messagesGroupRoomsChat);
+
+        const title = createHtmlElement('div', 'messageTitle', '', message);
+        const ava = this.createAva(messages[key].avatar);
+        title.append(ava);
+        createHtmlElement('span', '', `${messages[key].name}`, title);
+
         const container = createHtmlElement('div', 'container-text', '', message);
         createHtmlElement('p', '', messages[key]?.text, container);
         if (messages[key].uid === this.model.user?.uid) {
-          const button = new Button('deleteButton', this.model, () => this.deleteDialogMessage(messages[key].key));
+          const button = new Button('deleteButton', this.model, () => this.emit('deleteGroupMessage', key));
           this.buttonsDialog.push(button);
           const containerButton = createHtmlElement('div', 'message__container-button', '', container);
           containerButton.append(button.render());
@@ -415,6 +421,7 @@ export default class ViewerMessasges extends Page {
         message.append(time);
       });
     }
+    this.messagesGroupRoomsChatContainer.scrollTop = this.messagesGroupRoomsChatContainer.scrollHeight;
   };
 
   private updateDialog = async (index = -1) => {
@@ -458,13 +465,13 @@ export default class ViewerMessasges extends Page {
         title.append(buttonDelete.render());
       }
       createHtmlElement('p', 'message_text', `${document.text}`, containerMessage);
-      containerMessage.append(this.createDataElement(document.created?.seconds));
+      containerMessage.append(this.createDataElement(document.created?.seconds * 1000));
     });
     this.messagesChatContainer.scrollTop = this.messagesChatContainer.scrollHeight;
   };
 
   createDataElement = (sec?: number | string) => {
-    const timeSec = sec ? Number(sec) * 1000 : Date.now();
+    const timeSec = sec ? Number(sec) : Date.now();
     const time = new Date(timeSec);
     const timeText = `${time.getDate().toString().padStart(2, '0')}.${time.getMonth().toString().padStart(2, '0')}.${time.getFullYear()} ${time
       .getHours()

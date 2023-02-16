@@ -13,9 +13,6 @@ enum PATCH_TO_DB {
   LAST_CHANGE = 'lastChange',
   MESSAGES = 'messages',
 }
-// type LangText = {
-//   [prop: string]: LangFild;
-// };
 
 type Lang = keyof LangFild;
 

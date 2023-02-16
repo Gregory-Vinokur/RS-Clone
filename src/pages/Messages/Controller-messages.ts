@@ -13,6 +13,7 @@ export default class ControllerMessages {
     this.viewer.on('setSort', (sort: string) => this.setSort(sort as Sort));
     this.viewer.on('deleteMessage', (id: string) => this.deleteMessage(id));
     this.viewer.on('deleteDialogMessage', (id: string) => this.model.deleteDialogMessage(id));
+    this.viewer.on('deleteGroupMessage', (id: string) => this.model.deleteGroupMessage(id));
     this.viewer.on('subscripte', (uid: string) => this.model.subscripteUser(uid));
     this.viewer.on('unsubscripte', (uid: string) => this.model.unSubscripteUser(uid));
     this.viewer.on('writeUser', (uid: string) => this.model.writeUser(uid));
@@ -35,7 +36,6 @@ export default class ControllerMessages {
       this.model.isRooms = false;
       this.model.isGroupRooms = true;
     });
-    // this.model.getMessage();
     this.viewer.on('checkDialog', (index: number) => this.model.checkDialog(index));
     this.viewer.on('checkGroup', (index: number) => this.model.checkGroup(index));
   }

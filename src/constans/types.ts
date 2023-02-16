@@ -18,8 +18,9 @@ type DialogMessages = {
   uid: string;
   key: string;
   name: string;
+  avatar: string;
   text: string;
-  time: string;
+  time: number;
 };
 
 type GroupProps = {
