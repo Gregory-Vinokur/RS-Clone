@@ -39,7 +39,6 @@ export default class ViewProfile extends Page {
   unsubscriptionBtn: HTMLElement;
   subscriptionBtn: HTMLElement;
   emptyBlock: HTMLElement;
-
   emit(event: EmitsName, data?: string | File) {
     return super.emit(event, data);
   }
@@ -92,7 +91,7 @@ export default class ViewProfile extends Page {
     this.renderNews(this.model.user?.uid as string);
     this.renderUserFriends(this.model.user?.uid as string);
     this.renderFriendProfile();
-
+    this.renderUserMusic();
     this.inputAvatar.addEventListener('change', (e: Event) => {
       this.model.uploadUserAvatar(e);
     });
@@ -362,6 +361,12 @@ export default class ViewProfile extends Page {
     setTimeout(() => {
       if (progressBarPercent) progressBarPercent.style.width = '0%';
     }, 2000);
+  }
+
+  renderUserMusic() {
+    const userMusicWrapper = createHtmlElement('div', 'user__music-wrapper', '', this.profileFriendsWrapper);
+    createHtmlElement('p', 'user__music-title', 'Музыка', userMusicWrapper);
+    const musicContainer = createHtmlElement('div', 'user__music-container', '', userMusicWrapper);
   }
 
   private changeLang = () => {

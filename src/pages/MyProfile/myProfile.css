@@ -154,7 +154,6 @@
 .recommended__friends_wrapper {
   background: #fff;
   padding: 10px 10px 20px 10px;
-  /* height: 100%; */
   width: 100%;
   border-radius: 15px;
 }
@@ -196,6 +195,9 @@
   cursor: pointer;
 }
 
+.news__container_user {
+  padding: 10px 0;
+}
 .create__news-btn:disabled {
   background: gray;
 }
@@ -204,7 +206,6 @@
   background-color: #fff;
   border-radius: 15px;
   padding: 10px 20px;
-  margin-top: 10px;
 }
 .post__header_user {
   display: flex;
@@ -327,7 +328,6 @@
   background: #fff;
   border-radius: 15px;
   padding: 10px 20px;
-  margin-top: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -401,6 +401,18 @@
   background: rgb(2, 0, 36);
   background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(104, 104, 121, 1) 35%, rgba(0, 212, 255, 1) 100%);
   border-radius: 5px;
+}
+
+/* User music */
+.user__music-wrapper {
+  background: #fff;
+  padding: 10px 10px 20px 10px;
+  width: 100%;
+  border-radius: 15px;
+  margin-top: 10px;
+}
+.user__music-title {
+  color: #000000;
 }
 @keyframes changeContent {
   10% {
