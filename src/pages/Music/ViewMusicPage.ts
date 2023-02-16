@@ -2,10 +2,13 @@ import Page from '../Template/page';
 import ModelMusicPage from './ModelMusicPage';
 import { createHtmlElement } from '../../utils/createElement';
 import formatTime from '../../utils/formatTime';
+import FavoriteTrack from '../../interfaces/FavoriteTrack';
+import { LANGTEXT } from '../../constans/constans';
 
-type EmitsName = 'searchTrack';
+type EmitsName = 'searchTrack' | 'addFavoriteTrack' | 'removeFavoriteTrack';
 type Track = { [key: string]: string | number };
-export default class ViewerMessasges extends Page {
+
+export default class ViewMusicPage extends Page {
   model: ModelMusicPage;
   mainPlayerWrapper: HTMLElement;
   playBtnMainPlayer: HTMLElement;
@@ -25,7 +28,8 @@ export default class ViewerMessasges extends Page {
   currentMusicIndex: number;
   currentTrackId: string;
   notFoundMusic: HTMLElement;
-  emit(event: EmitsName, data?: string) {
+
+  emit(event: EmitsName, data?: string | FavoriteTrack) {
     return super.emit(event, data);
   }
   on(event: EmitsName, callback: (data?: string) => void) {
@@ -43,29 +47,29 @@ export default class ViewerMessasges extends Page {
     this.timeMainPlayer = createHtmlElement('div', 'main-player__time');
     this.volumeInput = createHtmlElement('input', 'volume__slider') as HTMLInputElement;
     this.advertisingBanner = createHtmlElement('div', 'advertising__banner');
-    this.recommendedMusicBtn = createHtmlElement('div', 'recommended__page music__page-active', 'Плейлист дня');
-    this.myMusicBtn = createHtmlElement('div', 'my__music-page', 'Моя музыка');
+    this.recommendedMusicBtn = createHtmlElement('div', 'playlist__page-btn  playlist__page-active', LANGTEXT['playlistOfDayBtn'][this.model.lang]);
+    this.myMusicBtn = createHtmlElement('div', 'playlist__page-btn', LANGTEXT['myMusicBtn'][this.model.lang]);
     this.searchMusicInput = createHtmlElement('input', 'search__music-input') as HTMLInputElement;
-    this.searchMusicBtn = createHtmlElement('button', 'search__music-btn', 'Найти');
+    this.searchMusicBtn = createHtmlElement('button', 'search__music-btn', LANGTEXT['searchMusicBtn'][this.model.lang]);
     this.trackListContainer = createHtmlElement('ul', 'track__list-container');
     this.trackTitleMain = createHtmlElement('div', 'main-player__name', 'Наслаждайтесь музыкой');
     this.trackAuthorMain = createHtmlElement('div', 'main-player__author');
     this.currentTrack = createHtmlElement('audio', 'track__item-current-play') as HTMLAudioElement;
-    this.notFoundMusic = createHtmlElement(
-      'p',
-      'music__not-found',
-      'Треков не найдено, попробуйте изменить запрос. Наша база содержит более 30 миллионов треков.'
-    );
+    this.notFoundMusic = createHtmlElement('p', 'music__not-found', LANGTEXT['musicNotFound'][this.model.lang]);
     this.currentMusicIndex = 0;
     this.currentTrackId = '';
     this.mainPlayerWrapper.append(this.currentTrack);
     this.renderMainPlayer();
+    this.playMainPlayer();
     this.mainWrapper.append(this.advertisingBanner);
     this.renderMusicList();
     this.renderMusicChart();
-    this.playMainPlayer();
+    this.changeMusicList(this.model.user?.uid as string);
     this.currentTrack.addEventListener('timeupdate', this.updateProgressContainer);
-    this.currentTrack.addEventListener('ended', this.resetProgressContainer);
+    this.currentTrack.addEventListener('ended', () => {
+      this.resetProgressContainer();
+      this.pauseMusicItem();
+    });
     this.volumeInput.addEventListener('input', () => {
       this.setVolume(this.currentTrack);
     });
@@ -81,14 +85,8 @@ export default class ViewerMessasges extends Page {
         this.trackListContainer.innerHTML = '';
         this.notFoundMusic.style.display = 'block';
       }
-      this.playNextTrack(tracks);
-      this.playPrevTrack(tracks);
     });
-
-    this.model.on('getMusic', (tracks: any) => {
-      this.playNextTrack(tracks);
-      this.playPrevTrack(tracks);
-    });
+    this.model.on('changeLang', this.changeLang);
   }
 
   renderMainPlayer() {
@@ -118,13 +116,12 @@ export default class ViewerMessasges extends Page {
     const musicListPages = createHtmlElement('div', 'list__header-buttons', '', musicList);
     musicListPages.append(this.recommendedMusicBtn, this.myMusicBtn);
     const searchMusicWrapper = createHtmlElement('div', 'search__music-wrapper', '', musicList);
-
     this.searchMusicInput.setAttribute('type', 'text');
-    this.searchMusicInput.setAttribute('placeholder', 'Название трека или исполнителя');
+    this.searchMusicInput.placeholder = LANGTEXT['searchMusicInput'][this.model.lang];
     searchMusicWrapper.append(this.searchMusicInput, this.searchMusicBtn);
 
     const trackListWrapper = createHtmlElement('div', 'track__list-wrapper', '', musicList);
-    createHtmlElement('h2', 'track__list-title', 'Собрано для вас', trackListWrapper);
+    createHtmlElement('h2', 'track__list-title', LANGTEXT['musicContainerTitle'][this.model.lang], trackListWrapper);
     trackListWrapper.append(this.trackListContainer);
     trackListWrapper.append(this.notFoundMusic);
   }
@@ -175,7 +172,7 @@ export default class ViewerMessasges extends Page {
   updateProgressContainer(e: Event) {
     const progressPercent: HTMLElement | null = document.querySelector('.main-player__progress-percent');
     const { duration, currentTime } = e.target as HTMLAudioElement;
-    const percentProgress = (currentTime / duration) * 100; //Текущий процент для отображения прогресса;
+    const percentProgress = (currentTime / duration) * 100;
     if (progressPercent) progressPercent.style.width = `${percentProgress}%`;
   }
 
@@ -190,11 +187,17 @@ export default class ViewerMessasges extends Page {
 
   playNextTrack(tracks: Track[]) {
     this.nextBtnMainPlayer.addEventListener('click', () => {
+      console.log(tracks);
       this.removePlayIcon();
-      if (this.currentMusicIndex < tracks.length - 1) {
+      if (this.currentMusicIndex < tracks.length) {
         this.currentMusicIndex += 1;
+        const trackId =
+          typeof tracks[this.currentMusicIndex].id === 'string'
+            ? this.clipTrackId(String(tracks[this.currentMusicIndex].id))
+            : tracks[this.currentMusicIndex].id;
         this.currentTrack.src = `${tracks[this.currentMusicIndex].previewURL}`;
-        this.currentTrackId = `${tracks[this.currentMusicIndex].id}`;
+        this.currentTrackId = `${trackId}`;
+        console.log(this.currentMusicIndex);
         this.addPlayIcon();
         setTimeout(() => {
           this.playMusicItem();
@@ -219,13 +222,18 @@ export default class ViewerMessasges extends Page {
       this.removePlayIcon();
       if (!(this.currentMusicIndex === 0)) {
         this.currentMusicIndex -= 1;
+        const trackId =
+          typeof tracks[this.currentMusicIndex].id === 'string'
+            ? this.clipTrackId(String(tracks[this.currentMusicIndex].id))
+            : tracks[this.currentMusicIndex].id;
         this.currentTrack.src = `${tracks[this.currentMusicIndex].previewURL}`;
-        this.currentTrackId = `${tracks[this.currentMusicIndex].id}`;
+        this.currentTrackId = `${trackId}`;
+        console.log(this.currentMusicIndex);
         this.addPlayIcon();
         setTimeout(() => {
           this.playMusicItem();
         }, 1000);
-      } else {
+      } else if (this.currentMusicIndex === 0) {
         this.currentMusicIndex = tracks.length - 1;
         this.currentTrack.src = `${tracks[this.currentMusicIndex].previewURL}`;
         this.currentTrackId = `${tracks[this.currentMusicIndex].id}`;
@@ -247,27 +255,36 @@ export default class ViewerMessasges extends Page {
 
   async renderMusicItem(tracks: Track[]) {
     this.trackListContainer.innerHTML = '';
-    tracks.forEach((track: Track) => {
+    tracks.forEach((track: Track, indexTrack: number) => {
       const trackItem = createHtmlElement('li', 'track__item');
-      trackItem.id = `${track.id}`;
-      this.currentTrack.src = `${tracks[this.currentMusicIndex].previewURL}`;
+      const trackId = typeof track.id === 'string' ? this.clipTrackId(track.id) : track.id;
+      const trackName = typeof track.name === 'string' ? track.name.substring(0, 39) : track.name;
+      trackItem.id = `${trackId}`;
+      const trackItemSrc = createHtmlElement('audio', 'track__item-src', '', trackItem) as HTMLAudioElement;
+      trackItemSrc.src = `${track.previewURL}`;
       const trackInfo = createHtmlElement('div', 'track__info-container', '', trackItem);
       const trackAva = createHtmlElement('div', 'track__item-ava', '', trackInfo);
       const playBtnTrackItem = createHtmlElement('button', 'track__item-play', '', trackAva);
       const trackTitleContainer = createHtmlElement('div', 'track__title-container', '', trackInfo);
-      createHtmlElement('p', 'track__item-title', `${track.name}`, trackTitleContainer);
+      createHtmlElement('p', 'track__item-title', `${trackName}`, trackTitleContainer);
       createHtmlElement('p', 'track__item-author', `${track.artistName}`, trackTitleContainer);
       const trackControls = createHtmlElement('div', 'track__item-controls', '', trackItem);
-      createHtmlElement('button', 'track__item-favorite', '', trackControls);
+      const addFavoriteBtn = createHtmlElement('button', 'track__item-favorite', '', trackControls);
       createHtmlElement('p', 'track__item-duration', `${formatTime(track.playbackSeconds)}`, trackControls);
       this.trackListContainer.append(trackItem);
-
+      this.currentTrackId = `${trackId}`;
+      this.trackTitleMain.textContent = `${tracks[0].name}`;
+      this.trackAuthorMain.textContent = `${tracks[0].artistName}`;
+      this.timeMainPlayer.textContent = `${formatTime(tracks[0].playbackSeconds)}`;
+      this.currentTrack.src = `${tracks[0].previewURL}`;
+      this.currentMusicIndex = 0;
       playBtnTrackItem.addEventListener('click', () => {
         this.currentTrack.src = `${track.previewURL}`;
-        this.currentTrackId = `${track.id}`;
+        this.currentTrackId = `${trackId}`;
         this.trackTitleMain.textContent = `${track.name}`;
         this.trackAuthorMain.textContent = `${track.artistName}`;
         this.timeMainPlayer.textContent = `${formatTime(track.playbackSeconds)}`;
+        this.currentMusicIndex = indexTrack;
         const isPlaying = this.mainPlayerWrapper.classList.contains('play');
         if (isPlaying) {
           playBtnTrackItem.classList.remove('track__item-pause');
@@ -277,11 +294,88 @@ export default class ViewerMessasges extends Page {
           this.playMusicItem();
         }
       });
+
+      addFavoriteBtn.addEventListener('click', () => {
+        const favoriteTrack: FavoriteTrack = {
+          id: `${trackId}`,
+          title: `${track.name}`,
+          author: `${track.artistName}`,
+          src: trackItemSrc.src,
+          duration: Number(track.playbackSeconds),
+        };
+
+        if (!addFavoriteBtn.classList.contains('track__item-favorite-active')) {
+          addFavoriteBtn.classList.add('track__item-favorite-active');
+          this.emit('addFavoriteTrack', favoriteTrack);
+        } else if (addFavoriteBtn.classList.contains('track__item-favorite-active')) {
+          addFavoriteBtn.classList.remove('track__item-favorite-active');
+          this.emit('removeFavoriteTrack', favoriteTrack);
+        }
+      });
     });
+    this.playNextTrack(tracks);
+    this.playPrevTrack(tracks);
+    console.log(this.currentMusicIndex);
+    await this.highlightFavoriteMusic(this.model.user?.uid as string);
   }
 
   async renderMusicChart() {
     const tracks = await this.model.getTopTracks();
     await this.renderMusicItem(tracks);
   }
+
+  async highlightFavoriteMusic(userId: string) {
+    const userMusic = await this.model.getUserFavoriteMusic(userId);
+    const trackItems = document.querySelectorAll('.track__item');
+    Object.keys(userMusic).forEach((id) => {
+      trackItems.forEach((track) => {
+        if (track.id === id) {
+          const favoriteBtn: HTMLElement | null = track.querySelector('.track__item-favorite');
+          favoriteBtn?.classList.add('track__item-favorite-active');
+        }
+      });
+    });
+  }
+
+  changeMusicList(userId: string) {
+    this.myMusicBtn.addEventListener('click', async () => {
+      this.recommendedMusicBtn.classList.remove('playlist__page-active');
+      this.myMusicBtn.classList.add('playlist__page-active');
+      await this.renderFavoriteTracks(userId);
+    });
+
+    this.recommendedMusicBtn.addEventListener('click', async () => {
+      this.myMusicBtn.classList.remove('playlist__page-active');
+      this.recommendedMusicBtn.classList.add('playlist__page-active');
+      await this.renderMusicChart();
+      await this.highlightFavoriteMusic(this.model.user?.uid as string);
+    });
+  }
+
+  async renderFavoriteTracks(userId: string) {
+    const favoriteTrack = await this.model.getUserFavoriteMusic(userId);
+    const tracks: Track[] = [];
+    Object.keys(favoriteTrack).forEach((track) => {
+      tracks.push(favoriteTrack[track]);
+    });
+    await this.renderMusicItem(tracks);
+  }
+
+  clipTrackId(id: string) {
+    const index = id.indexOf('tra.');
+    if (index !== -1) {
+      return id.substring(4);
+    }
+    return id;
+  }
+
+  private changeLang = () => {
+    this.recommendedMusicBtn.innerText = LANGTEXT['playlistOfDayBtn'][this.model.lang];
+    this.myMusicBtn.innerText = LANGTEXT['myMusicBtn'][this.model.lang];
+    this.searchMusicInput.placeholder = LANGTEXT['searchMusicInput'][this.model.lang];
+    this.searchMusicBtn.innerText = LANGTEXT['searchMusicBtn'][this.model.lang];
+    const trackListTitle: HTMLElement | null = document.querySelector('.track__list-title');
+    this.notFoundMusic.innerText = LANGTEXT['musicNotFound'][this.model.lang];
+    if (trackListTitle) trackListTitle.innerText = LANGTEXT['musicContainerTitle'][this.model.lang];
+  };
 }
