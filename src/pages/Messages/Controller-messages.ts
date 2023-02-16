@@ -13,19 +13,31 @@ export default class ControllerMessages {
     this.viewer.on('setSort', (sort: string) => this.setSort(sort as Sort));
     this.viewer.on('deleteMessage', (id: string) => this.deleteMessage(id));
     this.viewer.on('deleteDialogMessage', (id: string) => this.model.deleteDialogMessage(id));
+    this.viewer.on('deleteGroupMessage', (id: string) => this.model.deleteGroupMessage(id));
     this.viewer.on('subscripte', (uid: string) => this.model.subscripteUser(uid));
     this.viewer.on('unsubscripte', (uid: string) => this.model.unSubscripteUser(uid));
     this.viewer.on('writeUser', (uid: string) => this.model.writeUser(uid));
+    this.viewer.on('createGroup', (name: string) => this.model.createNewGroup(name));
+    this.viewer.on('comeInGroup', (id: string) => this.model.comeInGroup(id));
+    this.viewer.on('goOutGroup', (id: string) => this.model.goOutGroup(id));
+
     this.viewer.on('toChat', () => {
       this.model.isChat = true;
       this.model.isRooms = false;
+      this.model.isGroupRooms = false;
     });
     this.viewer.on('toRooms', () => {
       this.model.isChat = false;
       this.model.isRooms = true;
+      this.model.isGroupRooms = false;
     });
-    this.model.getMessage();
+    this.viewer.on('toGroupRooms', () => {
+      this.model.isChat = false;
+      this.model.isRooms = false;
+      this.model.isGroupRooms = true;
+    });
     this.viewer.on('checkDialog', (index: number) => this.model.checkDialog(index));
+    this.viewer.on('checkGroup', (index: number) => this.model.checkGroup(index));
   }
 
   sendMessage = (message = '') => {

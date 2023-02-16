@@ -26,3 +26,13 @@
   box-shadow: none;
   transition: all 0.1s;
 }
+
+.button.button_active {
+  box-shadow: none;
+  border: none;
+  box-shadow: inset #6161c8 0 0 6px;
+}
+
+.button.button_active:hover {
+  background-color: aliceblue;
+}
