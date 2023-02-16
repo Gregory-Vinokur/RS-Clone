@@ -11,6 +11,7 @@ enum PATCH_TO_DB {
   GROUP_ROOMS = 'groupRooms',
   USERS = 'users',
   LAST_CHANGE = 'lastChange',
+  MESSAGES = 'messages',
 }
 // type LangText = {
 //   [prop: string]: LangFild;

@@ -6,7 +6,7 @@ import Button from '../../base/button/Button';
 import avatar from '../../../assets/img/ava.jpg';
 import FindWindow from '../../base/find/FindWindow';
 import CreateGroupWindow from '../../base/createGroup/CreateGroup';
-import { LANGTEXT } from '../../constans/constans';
+import { LANGTEXT, PATCH_TO_DB } from '../../constans/constans';
 
 type EmitsName =
   | 'send'
@@ -142,12 +142,16 @@ export default class ViewerMessasges extends Page {
       debonseCreateRooms();
     });
     const debonceCreateGroups = debounce(this.createGroups, 200);
+    // const debonceShowGroup = debounce(this.showGroup, 200);
     this.model.on('updateGroups', () => {
       debonceCreateGroups();
+      // debonceShowGroup();
     });
     this.model.on('showDialog', this.showDialog);
+    this.model.on('showGroup', this.showGroup);
     this.model.on('updateDialog', (index?: number) => this.updateDialog(index));
     this.createRooms();
+    debonceCreateGroups();
   }
 
   private goTo = () => {
@@ -259,7 +263,7 @@ export default class ViewerMessasges extends Page {
   };
 
   private sendMessage = () => {
-    if (this.model.isChat || (this.model.isRooms && this.model.currentDialog)) {
+    if (this.model.isChat || (this.model.isRooms && this.model.currentDialog) || (this.model.isGroupRooms && this.model.currentGroup)) {
       this.emit('send', this.input.value);
       this.input.value = '';
       this.setTextAreaHeight();
@@ -287,6 +291,9 @@ export default class ViewerMessasges extends Page {
 
     for (let index = 0; index < userProp.length; index++) {
       const member = createHtmlElement('div', 'messages__member', ``, this.messagesRoomsMembers);
+      if (index === this.model.dialogRooms.findIndex((el) => el === this.model.currentDialog)) {
+        member.classList.add('active');
+      }
       const ava = this.createAva(`${userProp[index].userAvatar}`);
       const name = createHtmlElement('span', '', `${userProp[index].userName}`);
       // const containerButtons = createHtmlElement('div', 'messages__member__buttons');
@@ -313,12 +320,16 @@ export default class ViewerMessasges extends Page {
     const groupsProp = await Promise.all(this.model.groupsProp);
     groupsProp.forEach((group, index) => {
       const groupElement = createHtmlElement('div', 'messages__member', ``, this.messagesGroupRoomsNames);
+      if (group.uid === this.model.currentGroup) {
+        groupElement.classList.add('active');
+      }
+      const ava = this.createAva(`${group.groupAvatar}`);
       const name = createHtmlElement('p', 'messages__group-name', `${group.nameGroup}`);
       const button = createHtmlElement('div', 'messages__member__button');
       createHtmlElement('span', '', '', button);
       createHtmlElement('span', '', '', button);
       createHtmlElement('span', '', '', button);
-      groupElement.append(name, button);
+      groupElement.append(ava, name, button);
       this.groupRoomsElement.push(groupElement);
       button.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -328,9 +339,11 @@ export default class ViewerMessasges extends Page {
         groupElement.classList.remove('new-message');
         this.groupRoomsElement.forEach((el) => el.classList.remove('active'));
         groupElement.classList.add('active');
+        this.emit('checkGroup', index);
         console.log('checkGroup');
       });
     });
+    this.showGroup(); ////////////////////////////////////////////////////////////////////////////////////////////////////
   };
 
   private showDialog = () => {
@@ -354,8 +367,38 @@ export default class ViewerMessasges extends Page {
       const time = this.createDataElement(element?.time);
       message.append(time);
     });
-
     this.messagesRoomsChatContainer.scrollTop = this.messagesRoomsChatContainer.scrollHeight;
+  };
+
+  private showGroup = () => {
+    if (this.model.currentGroup) {
+      const index = this.model.groupRooms.findIndex((el) => el === this.model.currentGroup);
+      if (!this.model.groupsProp[index]) {
+        return;
+      }
+      this.messagesGroupRoomsChat.innerHTML = '';
+      const messages = this.model.groupsProp[index][PATCH_TO_DB.MESSAGES];
+      if (!messages) {
+        return;
+      }
+      const messagesKeys = Object.keys(messages);
+      messagesKeys.forEach((key) => {
+        const className = messages[key].uid === this.model.user?.uid ? 'my_message' : 'other_message';
+        const message = createHtmlElement('div', `containerMessage ${className}`, '', this.messagesGroupRoomsChat);
+        const container = createHtmlElement('div', 'container-text', '', message);
+        createHtmlElement('p', '', messages[key]?.text, container);
+        if (messages[key].uid === this.model.user?.uid) {
+          const button = new Button('deleteButton', this.model, () => this.deleteDialogMessage(messages[key].key));
+          this.buttonsDialog.push(button);
+          const containerButton = createHtmlElement('div', 'message__container-button', '', container);
+          containerButton.append(button.render());
+        }
+        const time = this.createDataElement(messages[key].time);
+        message.append(time);
+      });
+
+      console.log(this.model.currentGroup);
+    }
   };
 
   private updateDialog = async (index = -1) => {
@@ -364,10 +407,11 @@ export default class ViewerMessasges extends Page {
     } else {
       await Promise.all(this.model.dialogMembersProp);
       if (this.messagesRoomsMembersElement.length) {
-        if (index >= 0) {
-          if (this.model.lastChangeUserDialog[index] < this.model.lastChangeDialog[index]) {
-            this.messagesRoomsMembersElement[index].classList.add('new-message');
-          }
+        if (index < 0) {
+          return;
+        }
+        if (this.model.lastChangeUserDialog[index] < this.model.lastChangeDialog[index]) {
+          this.messagesRoomsMembersElement[index].classList.add('new-message');
         }
       }
     }

@@ -32,8 +32,9 @@ export default class ControllerMessages {
       this.model.isRooms = false;
       this.model.isGroupRooms = true;
     });
-    this.model.getMessage();
+    // this.model.getMessage();
     this.viewer.on('checkDialog', (index: number) => this.model.checkDialog(index));
+    this.viewer.on('checkGroup', (index: number) => this.model.checkGroup(index));
   }
 
   sendMessage = (message = '') => {

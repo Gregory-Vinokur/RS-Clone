@@ -22,7 +22,8 @@ type EmitsName =
   | 'updateGroups'
   | 'loadPercentFoto'
   | 'notEmptyUserNews'
-  | 'emptyUserNews';
+  | 'emptyUserNews'
+  | 'showGroup';
 
 export default abstract class Model extends EventEmitter {
   lang: Lang;

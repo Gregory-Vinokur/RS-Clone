@@ -14,8 +14,20 @@ type UserProp = {
   userId: string;
 };
 
+type DialogMessages = {
+  uid: string;
+  key: string;
+  name: string;
+  text: string;
+  time: string;
+};
+
 type GroupProps = {
   nameGroup: string;
+  groupAvatar: string;
+  messages: {
+    [x: string]: DialogMessages;
+  };
   uid: string;
   [PATCH_TO_DB.LAST_CHANGE]: number;
   members: {
@@ -23,4 +35,4 @@ type GroupProps = {
   };
 };
 
-export { Sort, TypeUser, UserProp, GroupProps };
+export { Sort, TypeUser, UserProp, GroupProps, DialogMessages };
