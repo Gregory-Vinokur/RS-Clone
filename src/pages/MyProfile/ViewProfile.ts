@@ -46,7 +46,7 @@ export default class ViewProfile extends Page {
   userMusicContainer: HTMLElement;
   currentTrack: HTMLAudioElement;
 
-  emit(event: EmitsName, data?: string | File) {
+  emit(event: EmitsName, data?: string | File | { [key: string]: string }) {
     return super.emit(event, data);
   }
 
@@ -299,7 +299,8 @@ export default class ViewProfile extends Page {
       const actionPost = createHtmlElement('div', 'post__action_user', '', postContainer);
       const likePostBtn = createHtmlElement('button', 'like__button like__btn_user', '', actionPost);
       const likeImg = createHtmlElement('div', 'like__img', '', likePostBtn);
-      createHtmlElement('span', 'like__counter', `${userPost[postId].likes || 0}`, likePostBtn);
+      let likeCounter = userPost[postId].likes || 0;
+      const likeCounterHTML = createHtmlElement('span', 'like__counter', `${likeCounter}`, likePostBtn);
 
       const repostPostBtn = createHtmlElement('button', 'share__button share__btn_user', '', actionPost);
       createHtmlElement('div', 'share__img', '', repostPostBtn);
@@ -307,6 +308,30 @@ export default class ViewProfile extends Page {
 
       deleteBtn.addEventListener('click', () => {
         this.emit('deletePost', postContainer.id);
+      });
+
+      likePostBtn.addEventListener('click', () => {
+        if (!likePostBtn.classList.contains('liked')) {
+          likePostBtn.classList.add('liked');
+          likeImg.classList.add('liked__img');
+          likeCounter++;
+          // this.emit('likePost', {
+          //   likeCounter: likeCounter,
+          //   postId: postContainer.id,
+          //   liked: `${this.model.user?.uid}-true`,
+          // });
+        } else {
+          likePostBtn.classList.remove('liked');
+          likeImg.classList.remove('liked__img');
+          likeCounter--;
+          // this.emit('likePost', {
+          //   likeCounter: likeCounter,
+          //   postId: postContainer.id,
+          //   liked: `${this.model.user?.uid}-false`,
+          //   userId:
+          // });
+        }
+        likeCounterHTML.textContent = `${likeCounter}`;
       });
     });
   }

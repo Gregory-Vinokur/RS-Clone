@@ -111,6 +111,7 @@ export default class ModelProfile extends Model {
       date: Date.now(),
       image: this.postImgUrl,
       likes: 0,
+      liked: {},
       logo: this.user?.photoURL,
     };
     updatesUserPost['/users/' + this.user?.uid + '/userPost/' + newPostKey] = postData;
