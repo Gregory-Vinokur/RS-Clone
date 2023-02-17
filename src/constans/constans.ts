@@ -169,6 +169,18 @@ const LANGTEXT = {
     rus: 'Сообщества',
     eng: 'Communities',
   },
+  messagePlaceholder: {
+    rus: 'Введите ваше сообщение',
+    eng: 'Enter your message',
+  },
+  findPlaceholder: {
+    rus: 'Введите имя',
+    eng: 'Enter name',
+  },
+  groupPlaceholder: {
+    rus: 'Введите название группы',
+    eng: 'Enter a group name',
+  },
 };
 
 type LangNameElement = keyof typeof LANGTEXT;

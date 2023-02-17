@@ -25,6 +25,7 @@ export default class FindWindow {
 
     this.inputFind = createHtmlElement('input', 'input__find', '', this.container) as HTMLInputElement;
     this.inputFind.setAttribute('type', 'text');
+    this.inputFind.placeholder = LANGTEXT['findPlaceholder'][this.model.lang];
     const debonsedFind = debounce(this.findUser, 450);
     this.inputFind.addEventListener('input', debonsedFind);
     const userFildContainer = createHtmlElement('div', 'find-user-fild-container', '', this.container);
@@ -71,6 +72,7 @@ export default class FindWindow {
 
   changeLang = () => {
     this.status.forEach((el) => (el.innerText = LANGTEXT['status'][this.model.lang]));
+    this.inputFind.placeholder = LANGTEXT['findPlaceholder'][this.model.lang];
   };
 
   render = () => {
