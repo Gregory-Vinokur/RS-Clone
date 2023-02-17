@@ -313,12 +313,13 @@ export default class ViewProfile extends Page {
         this.profilePerson.innerHTML = '';
         this.userNewsContainer.innerHTML = '';
         this.profileFriends.innerHTML = '';
+        this.userMusicContainer.innerHTML = '';
         await this.renderProfileAvatar(userId as string);
         await this.renderProfileName(userId as string);
         await this.renderProfileCover(userId as string);
         await this.renderNews(userId as string);
         await this.renderUserFriends(userId as string);
-
+        await this.renderUserMusicItem(userId as string);
         const profileAvaBtn: HTMLElement | null = document.querySelector('.profile__label');
         const createNews: HTMLElement | null = document.querySelector('.create__news');
         const deleteNewsBtn: HTMLElement | null = this.userNewsContainer.querySelector('.delete__post_user');
@@ -331,6 +332,7 @@ export default class ViewProfile extends Page {
         if (changeNameBtn) changeNameBtn.style.display = 'none';
         if (changeStatusBtn) changeStatusBtn.style.display = 'none';
         if (uploadCoverBtn) uploadCoverBtn.style.display = 'none';
+
         this.unsubscriptionBtn.style.display = 'block';
         this.subscriptionBtn.style.display = 'none';
         this.unsubscribeFriends(userId as string);
