@@ -150,6 +150,8 @@ export default class ViewProfile extends Page {
     this.profileAvatar.append(this.inputAvatar);
     uploadAvaLabel.setAttribute('for', 'profile__input');
     profileAvatarImg.setAttribute('src', `${user.userAvatar || defaultAva}`);
+    const uploadCoverLabel = createHtmlElement('label', 'profile__label-cover', '', this.profileAvatar);
+    uploadCoverLabel.setAttribute('for', 'profile__input-cover');
   }
 
   async renderProfileName(userId: string) {
@@ -180,8 +182,6 @@ export default class ViewProfile extends Page {
   async renderProfileCover(userId: string) {
     const user = await this.model.getUserInfo(userId);
     const profileCoverImg = createHtmlElement('img', 'profile__cover-img', '', this.profileCover);
-    const uploadCoverLabel = createHtmlElement('label', 'profile__label-cover', '', this.profileAvatar);
-    uploadCoverLabel.setAttribute('for', 'profile__input-cover');
     this.profileCover.append(this.inputCover);
     profileCoverImg.setAttribute('src', `${user.userCover || defaultCover}`);
 
