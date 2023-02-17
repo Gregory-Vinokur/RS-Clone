@@ -7,29 +7,38 @@ async function loadCats() {
     return data[0].url;
 }
 
-export const loadCatsPosts = () => {
-    setInterval(() => {
-        loadCats()
-            .then((image) => {
-                const data = {
-                    author: "Cats images",
-                    date: Date.now(),
-                    text: "We love cats!",
-                    image,
-                    likes: 0,
-                    shares: 0,
-                    logo: cat_logo,
-                    comments: [],
-                    liked: ''
-                };
+let postCount = 0;
+let intervalId: NodeJS.Timer;
 
-                return database.ref("posts/").push(data);
-            })
-            .then((response) => {
-                console.log("Post saved successfully: ", response);
-            })
-            .catch((error) => {
-                console.error("Error saving post: ", error);
-            });
-    }, 1000);
-}
+export const loadCatsPosts = () => {
+    intervalId = setInterval(() => {
+        if (postCount === 10) {
+            clearInterval(intervalId);
+        } else {
+            postCount++;
+            loadCats()
+                .then((image) => {
+                    const data = {
+                        author: "Cats images",
+                        date: Date.now(),
+                        text: "We love cats!",
+                        image,
+                        likes: 0,
+                        shares: 0,
+                        logo: cat_logo,
+                        comments: [],
+                        liked: "",
+                        reposted: ""
+                    };
+
+                    return database.ref("posts/").push(data);
+                })
+                .then((response) => {
+                    console.log("Post saved successfully: ", response);
+                })
+                .catch((error) => {
+                    console.error("Error saving post: ", error);
+                });
+        }
+    }, 60 * 1000);
+};

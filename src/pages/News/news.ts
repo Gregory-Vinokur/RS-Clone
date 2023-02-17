@@ -9,6 +9,7 @@ import throttle from './../../utils/throttle';
 import { Lang } from '../../constans/constans';
 import { TypeUser } from '../../constans/types';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { loadMorePosts } from '../../data/news_api/load_more_posts';
 
 export default class NewsPage extends Page {
   postsLimit: number;

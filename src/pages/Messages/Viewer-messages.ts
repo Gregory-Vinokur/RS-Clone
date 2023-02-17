@@ -137,11 +137,11 @@ export default class ViewerMessasges extends Page {
     this.sortASC.setAttribute('value', SORTBY.ASC);
     this.sortSelect.value = this.model.sort;
     this.sortSelect.addEventListener('change', () => this.emit('setSort', this.sortSelect.value));
-
+    const sendInputContainer = createHtmlElement('div', 'send-input-container');
     this.buttonSend = new Button('sendButton', this.model, this.sendMessage);
-    this.containerButtons.append(this.buttonSend.render());
+    sendInputContainer.append(this.input, this.buttonSend.render());
 
-    this.mainWrapper.append(buttonsHeaderContainer, this.messagesField, this.input, this.containerButtons);
+    this.mainWrapper.append(buttonsHeaderContainer, this.messagesField, sendInputContainer, this.containerButtons);
     this.messagesChat.innerHTML = `<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`;
     this.messagesChat.classList.add('messages__field_load');
     this.model.on('updateData', this.updateData);
@@ -257,6 +257,7 @@ export default class ViewerMessasges extends Page {
   createInputMessage = () => {
     const input = createHtmlElement('textarea', 'input__message') as HTMLInputElement;
     input.setAttribute('rows', '1');
+    input.placeholder = LANGTEXT['messagePlaceholder'][this.model.lang];
     input.addEventListener('input', this.setTextAreaHeight);
     return input;
   };
@@ -337,7 +338,7 @@ export default class ViewerMessasges extends Page {
         groupElement.classList.add('active');
       }
       const ava = this.createAva(`${group.groupAvatar}`);
-      const name = createHtmlElement('p', 'messages__group-name', `${group.nameGroup}`);
+      const name = createHtmlElement('span', '', `${group.nameGroup}`);
       const button = createHtmlElement('div', 'messages__member__button');
       createHtmlElement('span', '', '', button);
       createHtmlElement('span', '', '', button);
@@ -373,15 +374,15 @@ export default class ViewerMessasges extends Page {
       title.append(ava);
       createHtmlElement('span', '', `${element.name}`, title);
       const container = createHtmlElement('div', 'container-text', '', message);
-      createHtmlElement('p', '', element?.text, container);
+      createHtmlElement('p', 'message-text', element?.text, container);
+      const time = this.createDataElement(element?.time);
+      title.append(time);
       if (element.uid === this.model.user?.uid) {
         const button = new Button('deleteButton', this.model, () => this.emit('deleteDialogMessage', element.key));
         this.buttonsDialog.push(button);
-        const containerButton = createHtmlElement('div', 'message__container-button', '', container);
+        const containerButton = createHtmlElement('div', 'message__container-button', '', title);
         containerButton.append(button.render());
       }
-      const time = this.createDataElement(element?.time);
-      message.append(time);
     });
     this.messagesRoomsChatContainer.scrollTop = this.messagesRoomsChatContainer.scrollHeight;
   };
@@ -410,15 +411,15 @@ export default class ViewerMessasges extends Page {
         createHtmlElement('span', '', `${messages[key].name}`, title);
 
         const container = createHtmlElement('div', 'container-text', '', message);
-        createHtmlElement('p', '', messages[key]?.text, container);
+        createHtmlElement('p', 'message-text', messages[key]?.text, container);
+        const time = this.createDataElement(messages[key].time);
+        title.append(time);
         if (messages[key].uid === this.model.user?.uid) {
           const button = new Button('deleteButton', this.model, () => this.emit('deleteGroupMessage', key));
           this.buttonsDialog.push(button);
-          const containerButton = createHtmlElement('div', 'message__container-button', '', container);
+          const containerButton = createHtmlElement('div', 'message__container-button', '', title);
           containerButton.append(button.render());
         }
-        const time = this.createDataElement(messages[key].time);
-        message.append(time);
       });
     }
     this.messagesGroupRoomsChatContainer.scrollTop = this.messagesGroupRoomsChatContainer.scrollHeight;
@@ -457,15 +458,15 @@ export default class ViewerMessasges extends Page {
       if (document.uid !== this.model.user?.uid) {
         ava.addEventListener('click', (e) => this.createModalUserWindow(e, document.name, document.uid, document.photo));
       }
-
       createHtmlElement('span', '', `${document.name}`, title);
+      title.append(this.createDataElement(document.created?.seconds * 1000));
       if (document.uid === this.model.user?.uid) {
         const buttonDelete = new Button('deleteButton', this.model, () => this.deleteMessage(doc.id));
+        const containerButton = createHtmlElement('div', 'message__container-button', '', title);
         this.buttons.push(buttonDelete);
-        title.append(buttonDelete.render());
+        containerButton.append(buttonDelete.render());
       }
-      createHtmlElement('p', 'message_text', `${document.text}`, containerMessage);
-      containerMessage.append(this.createDataElement(document.created?.seconds * 1000));
+      createHtmlElement('p', 'message-text', `${document.text}`, containerMessage);
     });
     this.messagesChatContainer.scrollTop = this.messagesChatContainer.scrollHeight;
   };
@@ -556,9 +557,13 @@ export default class ViewerMessasges extends Page {
     if (this.findWindow) {
       this.findWindow.changeLang();
     }
+    if (this.findGroupWindow) {
+      this.findGroupWindow.changeLang();
+    }
     if (this.createGroupWindow) {
       this.createGroupWindow.changeLang();
     }
+    this.input.placeholder = LANGTEXT['messagePlaceholder'][this.model.lang];
     this.titleInRooms.innerText = LANGTEXT['textInRooms'][this.model.lang];
     this.titleInGroupRooms.innerText = LANGTEXT['textInRooms'][this.model.lang];
     this.limitText.innerText = LANGTEXT['inputLimit'][this.model.lang];

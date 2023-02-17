@@ -24,18 +24,18 @@
 }
 
 .input__find {
-  border-radius: 5px;
+  border-radius: 15px;
   border: none;
   padding: 5px 10px;
-  color: blue;
+  color: black;
   margin: 5px 0;
 }
 
 .find-user-fild-container {
   height: 300px;
-  border-radius: 5px;
+  border-radius: 15px;
   overflow-y: auto;
-  background-color: rgba(240, 248, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.8);
 }
 
 .find-user-fild {
