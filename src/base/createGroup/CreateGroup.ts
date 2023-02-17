@@ -3,6 +3,7 @@ import './createGroup.css';
 import ViewerMessasges from '../../pages/Messages/Viewer-messages';
 import ModelMessages from '../../pages/Messages/Model-messages';
 import Button from '../button/Button';
+import { LANGTEXT } from '../../constans/constans';
 
 export default class CreateGroupWindow {
   container: HTMLElement;
@@ -18,6 +19,7 @@ export default class CreateGroupWindow {
     const buttonClose = createHtmlElement('div', 'button_close', '✖', this.container);
     this.inputFind = createHtmlElement('input', 'input__find', '', this.container) as HTMLInputElement;
     this.inputFind.setAttribute('type', 'text');
+    this.inputFind.placeholder = LANGTEXT['groupPlaceholder'][this.model.lang];
     this.buttonCreate = new Button('createGroupButton', this.model, () => {
       if (this.inputFind.value) {
         this.parrent.emit('createGroup', this.inputFind.value);
@@ -40,6 +42,7 @@ export default class CreateGroupWindow {
 
   changeLang = () => {
     this.buttonCreate.changeLang();
+    this.inputFind.placeholder = LANGTEXT['groupPlaceholder'][this.model.lang];
   };
 
   render = () => {

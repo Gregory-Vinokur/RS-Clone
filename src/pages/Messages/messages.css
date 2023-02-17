@@ -2,6 +2,7 @@
   display: flex;
   margin: 10px auto;
   width: 100%;
+  gap: 10px;
   flex-direction: column;
   align-items: center;
 }
@@ -10,7 +11,9 @@
   width: 100%;
   align-self: flex-start;
   display: flex;
-  padding: 0 10px 10px 10px;
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 10px;
   gap: 10px;
 }
 
@@ -42,7 +45,7 @@
   height: 60vh;
   position: relative;
   border-radius: 5px;
-  background-color: aliceblue;
+  background-color: #fff;
 }
 
 .dark-theme .messages__field {
@@ -67,40 +70,40 @@
 }
 
 .containerMessage {
-  width: 60%;
+  width: 80%;
   margin: 10px 0;
   display: flex;
   flex-direction: column;
-  border-radius: 5px;
-  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 15px;
+  background-color: rgba(0, 0, 0, 0.05);
   overflow: hidden;
-  box-shadow: #6161c8 0 0 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14), 0 0 4px rgba(0, 0, 0, 0.22);
 }
 
 .dark-theme .other_message {
-  box-shadow: aliceblue 0 0 8px;
+  box-shadow: 0 4px 8px rgba(240, 248, 255, 0.14), 0 0 4px rgba(240, 248, 255, 0.22);
 }
 
 .containerMessage .container-text {
   display: flex;
   width: 100%;
+  padding: 5px;
 }
 
 .my_message {
-  border-color: greenyellow;
   margin-left: auto;
-  box-shadow: #93f303 0 0 8px;
+  box-shadow: 0 4px 8px rgba(147, 243, 3, 0.1), 0 0 4px rgba(147, 243, 3, 0.16);
 }
 
 .messageTitle {
   display: flex;
-  padding-bottom: 10px;
-  align-items: flex-end;
+  align-items: center;
+  padding: 5px;
 }
 
 .containerMessage img {
-  width: 50px;
-  height: 50px;
+  width: 38px;
+  height: 38px;
   object-fit: cover;
   border-radius: 50%;
   cursor: pointer;
@@ -120,28 +123,29 @@
   margin: 10px 5px;
   padding: 5px;
   border-radius: 2px;
-  color: blue;
+  color: black;
   transition: all 0.4s;
   cursor: pointer;
 }
 
 .modal-user-window p:hover {
-  color: #1380de;
+  color: #525252;
   transition: all 0.4s;
 }
 
 .containerMessage span {
-  color: #8282e6;
+  color: #2d81e0;
   font-size: 0.8em;
   padding: 10px;
 }
 
-.containerMessage p {
-  color: blue;
+.containerMessage .message-text {
+  color: black;
   flex-grow: 1;
-  border-bottom: 1px solid #a0a0c0;
-  border-radius: 5px;
+  border-radius: 15px;
   padding: 6px;
+  background-color: rgba(255, 255, 255, 0.3);
+  padding-left: 15px;
 }
 
 .message__container-button {
@@ -149,23 +153,33 @@
 }
 
 .containerMessage .message_time {
-  color: #a0a0c0;
+  color: #818c99;
   border: none;
-  padding: 6px 10px 3px 0;
+  padding: 10px;
   font-size: 0.7em;
-  margin-left: auto;
+}
+
+.send-input-container {
+  width: 100%;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #fff;
+  border-radius: 15px;
 }
 
 .input__limit,
 .input__message,
 .sort__select {
-  color: blue;
-  background-color: aliceblue;
-  border: 1px solid blue;
-  border-radius: 5px;
+  color: #000;
+  font-size: 0.9em;
+  background-color: #f2f3f5;
+  border: #e1e3e6;
+  border-radius: 15px;
   padding: 2px 5px;
   margin: 5px;
-  box-shadow: #6161c8 0 0 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04), 0 0 4px rgba(0, 0, 0, 0.06);
   outline: none;
 }
 
@@ -176,15 +190,15 @@
 }
 
 .sort__option {
-  color: blue;
+  color: black;
 }
 
 .input__message {
   resize: none;
   overflow-y: hidden;
-  min-height: 41px;
-  margin-top: 10px;
-  padding: 10px 5px;
+  min-height: 29px;
+  margin: 0;
+  padding: 5px 10px;
   width: 100%;
 }
 
@@ -193,7 +207,7 @@
 }
 
 .input-limit-title {
-  color: #8282e6;
+  color: #818c99;
 }
 
 .container-limit .disabled {
@@ -201,16 +215,19 @@
 }
 
 .message__containerButtons {
-  padding: 5px 0;
   width: 100%;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 15px;
+  background-color: #fff;
 }
 
 .button.button_deleteButton {
-  width: 70px;
-  height: 20px;
-  font-size: 0.8em;
+  width: 60px;
+  height: 16px;
+  font-size: 0.65em;
 }
 
 .messages__rooms {
@@ -228,27 +245,21 @@
 }
 
 .messages__member {
-  color: blue;
   display: flex;
   gap: 5px;
   align-items: end;
-  padding: 5px 10px;
-  border-radius: 4px;
-  background-color: #e2effa;
-  box-shadow: #6161c8 0 0 5px;
-
+  padding: 5px 10px 5px 5px;
+  border-radius: 15px;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04), 0 0 4px rgba(0, 0, 0, 0.06);
   transition: all 0.6s;
   cursor: pointer;
 }
 
-.messages__group-name {
-  color: blue;
-}
-
 .messages__member.active {
-  background-color: #a3bed3;
+  background-color: rgba(0, 0, 0, 0.08);
   transition: all 0.6s;
-  box-shadow: #4c06e2 0 0 5px;
+  box-shadow: 0 4px 8px rgba(206, 193, 233, 0.44), 0 0 4px rgba(206, 193, 233, 0.56);
 }
 
 .messages__member img {
@@ -266,17 +277,20 @@
 }
 
 .messages__member span {
-  color: blue;
+  color: black;
+  font-size: 0.9em;
+  font-weight: 500;
   padding-left: 10px;
 }
 
 .messages__member__button {
   width: 25px;
-  height: 15px;
+  height: 16px;
   position: relative;
   display: flex;
   flex-direction: column;
   margin-left: auto;
+  margin-top: 4px;
   align-self: start;
   justify-content: space-between;
 }
@@ -287,8 +301,8 @@
   display: inline-block;
   width: 25px;
   padding: 1px 3px;
-  border-radius: 4px;
-  bottom: -15px;
+  border-radius: 6px;
+  bottom: -18px;
   font-size: 0.5em;
   text-align: center;
   background-color: green;
@@ -310,7 +324,7 @@
 }
 
 .messages__member:hover {
-  background-color: #bbdcf6;
+  background-color: rgba(0, 0, 0, 0.12);
   transition: all 0.6s;
 }
 
@@ -321,11 +335,10 @@
   padding: 10px;
   min-height: 100%;
   border-left: 1px solid #d3d3f0;
-  color: blue;
 }
 
 .messages__roomsChat h2 {
-  color: blue;
+  color: #818c99;
   margin: auto 0;
   align-self: center;
   text-align: center;

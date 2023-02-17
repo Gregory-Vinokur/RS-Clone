@@ -5,6 +5,7 @@ import './findWindow.css';
 import ViewerMessasges from '../../pages/Messages/Viewer-messages';
 import ModelMessages from '../../pages/Messages/Model-messages';
 import { GroupProps } from '../../constans/types';
+import { LANGTEXT } from '../../constans/constans';
 
 export default class FindGroupWindow {
   parrent: ViewerMessasges;
@@ -24,6 +25,7 @@ export default class FindGroupWindow {
     this.status = [];
     this.inputFind = createHtmlElement('input', 'input__find', '', this.container) as HTMLInputElement;
     this.inputFind.setAttribute('type', 'text');
+    this.inputFind.placeholder = LANGTEXT['groupPlaceholder'][this.model.lang];
     const debonsedFind = debounce(this.findUser, 450);
     this.inputFind.addEventListener('input', debonsedFind);
     const userFildContainer = createHtmlElement('div', 'find-user-fild-container', '', this.container);
@@ -66,6 +68,10 @@ export default class FindGroupWindow {
     this.parrent.findGroupWindow = null;
     this.parrent.buttonFindGroup.element.classList.remove('button_active');
     this.container.remove();
+  };
+
+  changeLang = () => {
+    this.inputFind.placeholder = LANGTEXT['groupPlaceholder'][this.model.lang];
   };
 
   render = () => {
