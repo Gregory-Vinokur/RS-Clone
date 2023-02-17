@@ -116,6 +116,10 @@ const LANGTEXT = {
     rus: 'Музыка',
     eng: 'Music',
   },
+  CommunitiesPage: {
+    rus: 'Сообщества',
+    eng: 'Communities',
+  },
 };
 
 type LangNameElement = keyof typeof LANGTEXT;

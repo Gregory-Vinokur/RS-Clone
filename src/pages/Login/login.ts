@@ -7,6 +7,12 @@ import { PATH } from '../../app/app';
 import { Lang } from '../../constans/constans';
 
 export default class LoginPage extends Page {
+  userNamePasswordWrap: HTMLElement;
+  signInButton: HTMLButtonElement;
+  signUpButton: HTMLButtonElement;
+  submitButtonForSigIn: HTMLButtonElement;
+  submitButtonForSigUp: HTMLButtonElement;
+  resetPasswordLink: HTMLElement;
   constructor(id: string) {
     super(id);
     this.mainWrapper.className = 'error__wrap';
@@ -15,8 +21,8 @@ export default class LoginPage extends Page {
     const continueBtn = createHtmlElement('div', 'continue__btn', 'Continue', buttonsWrap);
     const changeUserBtn = createHtmlElement('div', 'change__user-btn', 'Change user', buttonsWrap);
 
-    const userNamePasswordWrap = createHtmlElement('div', 'user__mail-wrap', '', form);
-    const usernameLabel = createHtmlElement('label', '', 'E-mail:', userNamePasswordWrap);
+    this.userNamePasswordWrap = createHtmlElement('div', 'user__mail-wrap', '', form);
+    const usernameLabel = createHtmlElement('label', '', 'E-mail:', this.userNamePasswordWrap);
     const usernameInput = createHtmlElement('input', 'username', '', usernameLabel) as HTMLInputElement;
     usernameInput.setAttribute('type', 'text');
     usernameInput.setAttribute('required', '');
@@ -31,6 +37,7 @@ export default class LoginPage extends Page {
       }
     });
     usernameInput.addEventListener('input', function () {
+      const resetPasswordLink = document.querySelector('.reset__link') as HTMLElement;
       if (ErrorMessageUser.classList.contains('active')) {
         ErrorMessageUser.classList.toggle('active');
         usernameInput.classList.toggle('invalid');
@@ -51,11 +58,11 @@ export default class LoginPage extends Page {
       }
     });
 
-    const passwordLabel = createHtmlElement('label', '', 'Password:', userNamePasswordWrap);
+    const passwordLabel = createHtmlElement('label', '', 'Password:', this.userNamePasswordWrap);
     const passwordWrap = createHtmlElement('div', 'password__wrap', '', passwordLabel);
     const passwordInput = createHtmlElement('input', 'password', '', passwordWrap) as HTMLInputElement;
-    const resetPasswordLink = createHtmlElement('a', 'reset__link', 'Forgot your password?', userNamePasswordWrap);
-    const resetPasswordMessage = createHtmlElement('div', 'reset__text', '', userNamePasswordWrap);
+    this.resetPasswordLink = createHtmlElement('a', 'reset__link', 'Forgot your password?', this.userNamePasswordWrap);
+    const resetPasswordMessage = createHtmlElement('div', 'reset__text', '', this.userNamePasswordWrap);
     passwordInput.setAttribute('type', 'password');
     passwordInput.setAttribute('required', '');
     passwordInput.setAttribute('pattern', `[A-Za-zА-Яа-яЁё0-9-]{6,}`);
@@ -82,44 +89,29 @@ export default class LoginPage extends Page {
       hidePasswordSvg.classList.toggle('hide__svg');
     });
 
-    const signInButton = createHtmlElement('button', 'sign__in', 'Sign in', form);
+    this.signInButton = createHtmlElement('button', 'sign__in', 'Sign in', form) as HTMLButtonElement;
 
-    const signUpButton = createHtmlElement('button', 'sign__up', 'Sign up', form);
+    this.signUpButton = createHtmlElement('button', 'sign__up', 'Sign up', form) as HTMLButtonElement;
 
-    const submitButtonForSigIn = createHtmlElement('button', 'submit', 'Submit', form);
-    const submitButtonForSigUp = createHtmlElement('button', 'submit', 'Submit', form);
+    this.submitButtonForSigIn = createHtmlElement('button', 'submit', 'Submit', form) as HTMLButtonElement;
+    this.submitButtonForSigUp = createHtmlElement('button', 'submit', 'Submit', form) as HTMLButtonElement;
 
-    signInButton.addEventListener('click', (e: Event) => {
+    this.signInButton.addEventListener('click', (e: Event) => {
       e.preventDefault();
-      userNamePasswordWrap.classList.toggle('visible');
-      signInButton.classList.toggle('invisible');
-      signUpButton.classList.toggle('invisible');
-      submitButtonForSigIn.classList.toggle('submit__visible');
-      const params = qs.parse(window.location.search);
-      params.auth = 'sign_in';
-      const search = qs.stringify(params);
-      window.history.pushState({}, 'path', window.location.origin + window.location.pathname + `${search ? '?' + search : ''}`);
-      resetPasswordLink.classList.toggle('active');
+      this.setSignInLayout();
     });
 
-    signUpButton.addEventListener('click', (e: Event) => {
+    this.signUpButton.addEventListener('click', (e: Event) => {
       e.preventDefault();
-      userNamePasswordWrap.classList.toggle('visible');
-      signInButton.classList.toggle('invisible');
-      signUpButton.classList.toggle('invisible');
-      submitButtonForSigUp.classList.toggle('submit__visible');
-      const params = qs.parse(window.location.search);
-      params.auth = 'sign_up';
-      const search = qs.stringify(params);
-      window.history.pushState({}, 'path', window.location.origin + window.location.pathname + `${search ? '?' + search : ''}`);
+      this.setSignUpLayout();
     });
 
-    submitButtonForSigIn.addEventListener('click', (e: Event) => {
+    this.submitButtonForSigIn.addEventListener('click', (e: Event) => {
       e.preventDefault();
       signIn(usernameInput, passwordInput, ErrorMessageUser, ErrorMessagePassword);
     });
 
-    submitButtonForSigUp.addEventListener('click', (e: Event) => {
+    this.submitButtonForSigUp.addEventListener('click', (e: Event) => {
       e.preventDefault();
       signUp(usernameInput.value, passwordInput.value, passwordInput, ErrorMessagePassword);
     });
@@ -132,8 +124,8 @@ export default class LoginPage extends Page {
       handleLogout();
     });
 
-    resetPasswordLink.addEventListener('click', () => {
-      resetPassword(usernameInput.value, usernameInput, resetPasswordMessage, resetPasswordLink);
+    this.resetPasswordLink.addEventListener('click', () => {
+      resetPassword(usernameInput.value, usernameInput, resetPasswordMessage, this.resetPasswordLink);
     });
   }
 
@@ -142,6 +134,36 @@ export default class LoginPage extends Page {
   };
 
   render(): HTMLElement {
+    const params = qs.parse(window.location.search).auth;
+    if (params === 'sign_in') {
+      this.setSignInLayout();
+    }
+    if (params === 'sign_up') {
+      this.setSignUpLayout();
+    }
     return this.mainWrapper;
+  }
+
+  setSignInLayout() {
+    this.userNamePasswordWrap.classList.toggle('visible');
+    this.signInButton.classList.toggle('invisible');
+    this.signUpButton.classList.toggle('invisible');
+    this.submitButtonForSigIn.classList.toggle('submit__visible');
+    const params = qs.parse(window.location.search);
+    params.auth = 'sign_in';
+    const search = qs.stringify(params);
+    window.history.pushState({}, 'path', window.location.origin + window.location.pathname + `${search ? '?' + search : ''}`);
+    this.resetPasswordLink.classList.toggle('active');
+  }
+
+  setSignUpLayout() {
+    this.userNamePasswordWrap.classList.toggle('visible');
+    this.signInButton.classList.toggle('invisible');
+    this.signUpButton.classList.toggle('invisible');
+    this.submitButtonForSigUp.classList.toggle('submit__visible');
+    const params = qs.parse(window.location.search);
+    params.auth = 'sign_up';
+    const search = qs.stringify(params);
+    window.history.pushState({}, 'path', window.location.origin + window.location.pathname + `${search ? '?' + search : ''}`);
   }
 }

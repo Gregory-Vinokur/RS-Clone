@@ -6,6 +6,9 @@ import { loadComments } from './../../data/news_api/load_comments_to_posts';
 import ModelProfile from './../../pages/MyProfile/ModelProfile';
 import { Lang } from '../../constans/constans';
 import { TypeUser } from '../../constans/types';
+import cat_logo from '../../../assets/img/cat_logo.jpg';
+import meme_logo from '../../../assets/img/meme_logo.jpg';
+import sport_logo from '../../../assets/img/sport_logo.jpg';
 
 export default class Post extends ModelProfile {
     element: HTMLElement;
@@ -14,12 +17,42 @@ export default class Post extends ModelProfile {
         this.element = createHtmlElement("div", "post__container", "");
         const postHeader = createHtmlElement("div", "post__header", "", this.element);
         const postLogo = createHtmlElement("img", "post__logo", '', postHeader) as HTMLImageElement;
+
+        postLogo.addEventListener('click', (e: Event) => {
+            const params = new URLSearchParams(window.location.search);
+            const { target } = e;
+            if ((target as HTMLImageElement).src === cat_logo) {
+                params.set('community_name', 'cats_images');
+                const search = params.toString();
+                const url = `${window.location.origin}/communities?${search}`;
+                window.history.pushState({}, '', url);
+                window.location.href = url;
+            }
+            if ((target as HTMLImageElement).src === meme_logo) {
+                params.set('community_name', 'memes');
+                const search = params.toString();
+                const url = `${window.location.origin}/communities?${search}`;
+                window.history.pushState({}, '', url);
+                window.location.href = url;
+            }
+            if ((target as HTMLImageElement).src === sport_logo) {
+                params.set('community_name', 'sport_news');
+                const search = params.toString();
+                const url = `${window.location.origin}/communities?${search}`;
+                window.history.pushState({}, '', url);
+                window.location.href = url;
+            }
+        });
         const postInfo = createHtmlElement("div", "post__info", "", postHeader);
         const postAuthor = createHtmlElement("div", "post__author", '', postInfo);
         const postDate = createHtmlElement("div", "post__date", '', postInfo);
         const postTextElement = createHtmlElement("div", "post__text", "", this.element);
         const postImageElement = createHtmlElement("img", "post__image", "", this.element) as HTMLImageElement;
-        postImageElement.src = postData.image;
+        if (postData.image) {
+            postImageElement.src = postData.image;
+        } else {
+            postImageElement.style.display = 'none';
+        }
         const postActions = createHtmlElement("div", "post__actions", "", this.element);
         const likeButton = createHtmlElement("button", "like__button", '', postActions);
         const likeImg = createHtmlElement("div", "like__img", '', likeButton);
@@ -70,21 +103,29 @@ export default class Post extends ModelProfile {
             });
         });
 
+
         shareButton.addEventListener('click', () => {
             const postId = this.element.id;
-            database.ref(`posts/${postId}/shares`).once("value", (snapshot) => {
-                let shares = snapshot.val() || 0;
-                if (shareCounter.textContent === '') {
+            database.ref(`posts/${postId}`).once("value", (snapshot) => {
+                const postData = snapshot.val();
+                let shares = postData.shares || 0;
+                let reposted = postData.reposted;
+                if (reposted !== `${user?.uid}-true`) {
                     shares++;
+                    reposted = `${user?.uid}-true`
+                    database.ref(`users/${user?.uid}/userPost`).push(postData);
                 } else {
-                    shares--;
+                    return;
                 }
                 shareCounter.textContent = (shares === 0) ? "" : shares.toString();
                 database.ref(`posts/${postId}`).update({
-                    shares
+                    shares,
+                    reposted
                 });
             });
         });
+
+
 
         textarea.addEventListener('input', () => {
             replySubmitButton.classList.add('button__active');

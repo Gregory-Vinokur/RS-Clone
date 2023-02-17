@@ -6,8 +6,11 @@ import { getTimeDifference } from './../../utils/getTimeDifference';
 import { Lang } from '../../constans/constans';
 import { TypeUser } from '../../constans/types';
 
-export const loadPosts = (wrapper: HTMLElement, postLimit: number, lang: Lang, user: TypeUser) => {
-    const postsRef = database.ref("posts").limitToLast(postLimit);
+export const loadPosts = (wrapper: HTMLElement, postLimit: number, lang: Lang, user: TypeUser, author?: string) => {
+    let postsRef = database.ref("posts").limitToLast(postLimit);
+    if (author) {
+        postsRef = postsRef.orderByChild("author").equalTo(author);
+    }
 
     postsRef.once("value", (snapshot) => {
         wrapper.innerHTML = "";
@@ -15,7 +18,11 @@ export const loadPosts = (wrapper: HTMLElement, postLimit: number, lang: Lang, u
             const postData: IPost = childSnapshot.val();
             const post = new Post(postData, lang, user);
             const postImageElement = post.element.querySelector(".post__image") as HTMLImageElement;
-            postImageElement.src = postData.image;
+            if (postData.image) {
+                postImageElement.src = postData.image;
+            } else {
+                postImageElement.style.display = 'none';
+            }
             const postLogo = post.element.querySelector(".post__logo") as HTMLImageElement;
             postLogo.src = postData.logo;
             const postAuthor = post.element.querySelector(".post__author") as HTMLElement;
