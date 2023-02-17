@@ -100,24 +100,25 @@ export default class ModelProfile extends Model {
   }
 
   createNews(newsText: string) {
-    const optionsTime: { [key: string]: string } = { hour: 'numeric', minute: 'numeric' };
-    const timeDate = new Date().toLocaleTimeString([], optionsTime);
-    const dayDate = new Date().toLocaleDateString();
     const db = getDatabase();
     const newPostKey = push(child(refDB(db), 'posts')).key;
-    const updates: { [key: string]: object } = {};
-
+    const updatesUserPost: { [key: string]: object } = {};
+    const updatesPosts: { [key: string]: object } = {};
     const postData = {
       id: newPostKey,
       author: this.user?.displayName,
       text: newsText,
-      time: `${timeDate} / ${dayDate}`,
-      img: this.postImgUrl,
+      date: Date.now(),
+      image: this.postImgUrl,
       likes: 0,
+      liked: {},
+      logo: this.user?.photoURL,
     };
-    updates['/users/' + this.user?.uid + '/userPost/' + newPostKey] = postData;
+    updatesUserPost['/users/' + this.user?.uid + '/userPost/' + newPostKey] = postData;
+    updatesPosts[`posts/${newPostKey}`] = postData;
 
-    update(refDB(db), updates);
+    update(refDB(db), updatesPosts);
+    update(refDB(db), updatesUserPost);
     this.emit('updateData');
     this.postImgUrl = '';
   }
@@ -143,7 +144,9 @@ export default class ModelProfile extends Model {
 
   deleteUserPost(id: string) {
     const databaseRef = database.ref(`users/${this.user?.uid}/userPost/${id}`);
+    const databaseRefPosts = database.ref(`posts/${id}`);
     databaseRef.remove();
+    databaseRefPosts.remove();
     this.emit('updateData');
   }
 
@@ -165,7 +168,6 @@ export default class ModelProfile extends Model {
         this.emit('loadPostImg');
         // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
         const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log('Upload is ' + progress + '% done');
       },
       (error) => {
         console.log('Oops, Error', error.code);
@@ -190,7 +192,7 @@ export default class ModelProfile extends Model {
         if (snapshot.exists()) {
           const { userName, userStatus, userAvatar, userCover, subscripts, userId } = snapshot.val();
           this.userPage = {
-            userName: userName || 'Кот Петр',
+            userName: userName || 'Иван Иванов',
             userStatus: userStatus || 'Обновите ваш статус :)',
             userAvatar: userAvatar,
             userCover: userCover,

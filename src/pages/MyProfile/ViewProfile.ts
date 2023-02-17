@@ -6,6 +6,9 @@ import defaultCover from '../../../assets/img/default-cover.jpg';
 import defaultAva from '../../../assets/img/default-ava.jpg';
 import ViewRecommendedFriends from './ViewRecommendedFriends';
 import { LANGTEXT } from '../../constans/constans';
+import ModelMusicPage from '../Music/ModelMusicPage';
+import formatTime from '../../utils/formatTime';
+import { getTimeDifference } from '../../utils/getTimeDifference';
 
 type EmitsName =
   | 'uploadAvatar'
@@ -22,6 +25,7 @@ type EmitsName =
 
 export default class ViewProfile extends Page {
   model: ModelProfile;
+  musicModel: ModelMusicPage;
   inputAvatar: HTMLInputElement;
   inputCover: HTMLInputElement;
   inputCreateNews: HTMLInputElement;
@@ -39,8 +43,10 @@ export default class ViewProfile extends Page {
   unsubscriptionBtn: HTMLElement;
   subscriptionBtn: HTMLElement;
   emptyBlock: HTMLElement;
+  userMusicContainer: HTMLElement;
+  currentTrack: HTMLAudioElement;
 
-  emit(event: EmitsName, data?: string | File) {
+  emit(event: EmitsName, data?: string | File | { [key: string]: string }) {
     return super.emit(event, data);
   }
 
@@ -48,9 +54,10 @@ export default class ViewProfile extends Page {
     return super.on(event, callback);
   }
 
-  constructor(id: string, model: ModelProfile) {
+  constructor(id: string, model: ModelProfile, musicModel: ModelMusicPage) {
     super(id);
     this.model = model;
+    this.musicModel = musicModel;
     this.mainWrapper.className = 'my__page';
     this.profileWrapper = createHtmlElement('div', 'profile__wrapper', '', this.mainWrapper);
     this.profileInfo = createHtmlElement('div', 'profile__info', '', this.profileWrapper);
@@ -67,16 +74,11 @@ export default class ViewProfile extends Page {
     this.inputCover = createHtmlElement('input', 'profile__input-cover') as HTMLInputElement;
     this.inputCover.setAttribute('type', 'file');
     this.inputCover.id = 'profile__input-cover';
-
     this.inputCreateNews = createHtmlElement('input', 'input__create-news') as HTMLInputElement;
     this.inputCreateNews.setAttribute('type', 'text');
-
     this.createNewsBtn = createHtmlElement('button', 'create__news-btn', LANGTEXT['createUserNewsBtn'][this.model.lang]);
-
     this.inputCreatePostImg = createHtmlElement('input', 'input__news-img') as HTMLInputElement;
-
     this.spinnerLoad = createHtmlElement('div', 'spinner__load');
-
     this.unsubscriptionBtn = createHtmlElement(
       'button',
       'unsubscription__user_btn',
@@ -84,6 +86,8 @@ export default class ViewProfile extends Page {
       this.profileInfo
     );
     this.subscriptionBtn = createHtmlElement('button', 'subscription__user_btn', LANGTEXT['subscriptsUserBtn'][this.model.lang], this.profileInfo);
+    this.userMusicContainer = createHtmlElement('ul', 'user__music-container');
+    this.currentTrack = createHtmlElement('audio', 'user__current-track') as HTMLAudioElement;
 
     this.renderProfileCover(this.model.user?.uid as string);
     this.renderProfileAvatar(this.model.user?.uid as string);
@@ -92,7 +96,8 @@ export default class ViewProfile extends Page {
     this.renderNews(this.model.user?.uid as string);
     this.renderUserFriends(this.model.user?.uid as string);
     this.renderFriendProfile();
-
+    this.renderUserMusic();
+    this.renderUserMusicItem(this.model.user?.uid as string);
     this.inputAvatar.addEventListener('change', (e: Event) => {
       this.model.uploadUserAvatar(e);
     });
@@ -145,6 +150,8 @@ export default class ViewProfile extends Page {
     this.profileAvatar.append(this.inputAvatar);
     uploadAvaLabel.setAttribute('for', 'profile__input');
     profileAvatarImg.setAttribute('src', `${user.userAvatar || defaultAva}`);
+    const uploadCoverLabel = createHtmlElement('label', 'profile__label-cover', '', this.profileAvatar);
+    uploadCoverLabel.setAttribute('for', 'profile__input-cover');
   }
 
   async renderProfileName(userId: string) {
@@ -154,8 +161,6 @@ export default class ViewProfile extends Page {
     const profileNameBtn = createHtmlElement('button', 'profile__name-btn', '', profileNameWrapper);
     const profileNameInput = createHtmlElement('input', 'profile__name-input', '', this.profilePerson);
     profileNameInput.setAttribute('type', 'text');
-    profileNameInput.setAttribute('placeholder', 'Введите новые данные');
-
     profileNameBtn.addEventListener('click', () => {
       this.editProfileName();
     });
@@ -165,7 +170,6 @@ export default class ViewProfile extends Page {
     const profileStatusBtn = createHtmlElement('button', 'profile__status-btn', '', profileStatusWrapper);
     const profileStatusInput = createHtmlElement('input', 'profile__status-input', '', this.profilePerson);
     profileStatusInput.setAttribute('type', 'text');
-    profileStatusInput.setAttribute('placeholder', 'Введите новые данные');
 
     profileStatusBtn.addEventListener('click', () => {
       this.editProfileStatus();
@@ -178,8 +182,6 @@ export default class ViewProfile extends Page {
   async renderProfileCover(userId: string) {
     const user = await this.model.getUserInfo(userId);
     const profileCoverImg = createHtmlElement('img', 'profile__cover-img', '', this.profileCover);
-    const uploadCoverLabel = createHtmlElement('label', 'profile__label-cover', '', this.profileAvatar);
-    uploadCoverLabel.setAttribute('for', 'profile__input-cover');
     this.profileCover.append(this.inputCover);
     profileCoverImg.setAttribute('src', `${user.userCover || defaultCover}`);
 
@@ -189,10 +191,30 @@ export default class ViewProfile extends Page {
   editProfileName() {
     const inputName: HTMLInputElement | null = document.querySelector('.profile__name-input');
     const profileName: HTMLElement | null = document.querySelector('.profile__name');
-    if (inputName) inputName.style.display = 'block';
-    inputName?.addEventListener('change', () => {
+    const profileNameBtn: HTMLElement | null = document.querySelector('.profile__name-btn');
+    profileNameBtn?.classList.add('profile__name-btn-edit');
+    const regex = /^[a-zA-Zа-яА-я\s]+$/;
+    profileName !== null ? (profileName.style.display = 'none') : '';
+    if (inputName) {
+      inputName.style.display = 'block';
+      inputName.value = `${profileName?.textContent}`;
+    }
+    inputName?.addEventListener('input', () => {
+      const inputValue = inputName.value;
+      if (!regex.test(inputValue)) {
+        inputName.value = inputValue.replace(/[^a-zA-Zа-яА-Я\s]/g, '');
+      }
       if (profileName) profileName.textContent = `${inputName?.value}`;
+      profileName !== null ? (profileName.style.display = 'none') : '';
+    });
+
+    inputName?.addEventListener('change', () => {
+      if (!inputName.value) {
+        return false;
+      }
       inputName.style.display = 'none';
+      profileName !== null ? (profileName.style.display = 'block') : '';
+      profileNameBtn?.classList.remove('profile__name-btn-edit');
       this.emit('changeName', `${inputName?.value}`);
     });
   }
@@ -200,11 +222,23 @@ export default class ViewProfile extends Page {
   editProfileStatus() {
     const inputStatus: HTMLInputElement | null = document.querySelector('.profile__status-input');
     const profileStatus: HTMLElement | null = document.querySelector('.profile__status');
-    if (inputStatus) inputStatus.style.display = 'block';
-
+    const profileStatustBtn: HTMLElement | null = document.querySelector('.profile__status-btn');
+    profileStatustBtn?.classList.add('profile__status-btn-edit');
+    profileStatus !== null ? (profileStatus.style.display = 'none') : '';
+    if (inputStatus) {
+      inputStatus.style.display = 'block';
+      inputStatus.value = `${profileStatus?.textContent}`;
+    }
     inputStatus?.addEventListener('change', () => {
-      if (profileStatus) profileStatus.textContent = `${inputStatus?.value}`;
+      if (!inputStatus.value) {
+        return false;
+      }
       inputStatus.style.display = 'none';
+      if (profileStatus) {
+        profileStatus.textContent = `${inputStatus?.value}`;
+        profileStatus.style.display = 'block';
+      }
+      profileStatustBtn?.classList.remove('profile__status-btn-edit');
       this.emit('changeStatus', `${inputStatus?.value}`);
     });
   }
@@ -251,7 +285,7 @@ export default class ViewProfile extends Page {
       const postHeader = createHtmlElement('div', 'post__header_user', '', postContainer);
       const postInfo = createHtmlElement('div', 'post__info_user', '', postHeader);
       createHtmlElement('p', 'post__author', `Autor: ${userPost[postId].author}`, postInfo);
-      createHtmlElement('p', 'post__date', `Time: ${userPost[postId].time}`, postInfo);
+      createHtmlElement('p', 'post__date', `${getTimeDifference(userPost[postId].date)}`, postInfo);
 
       const deleteBtn = createHtmlElement('button', 'delete__post_user', '', postHeader);
 
@@ -259,13 +293,14 @@ export default class ViewProfile extends Page {
       createHtmlElement('p', 'post__text', `${userPost[postId].text}`, postContent);
       const postImgContainer = createHtmlElement('div', 'post__container_img', '', postContent);
       const postImg = createHtmlElement('img', 'post__img_user', '', postImgContainer) as HTMLImageElement;
-      postImg.src = `${userPost[postId].img}`;
+      postImg.src = `${userPost[postId].image || ''}`;
       createdPostContainer?.prepend(postContainer);
 
       const actionPost = createHtmlElement('div', 'post__action_user', '', postContainer);
       const likePostBtn = createHtmlElement('button', 'like__button like__btn_user', '', actionPost);
       const likeImg = createHtmlElement('div', 'like__img', '', likePostBtn);
-      createHtmlElement('span', 'like__counter', `${userPost[postId].likes || 0}`, likePostBtn);
+      let likeCounter = userPost[postId].likes || 0;
+      const likeCounterHTML = createHtmlElement('span', 'like__counter', `${likeCounter}`, likePostBtn);
 
       const repostPostBtn = createHtmlElement('button', 'share__button share__btn_user', '', actionPost);
       createHtmlElement('div', 'share__img', '', repostPostBtn);
@@ -273,6 +308,30 @@ export default class ViewProfile extends Page {
 
       deleteBtn.addEventListener('click', () => {
         this.emit('deletePost', postContainer.id);
+      });
+
+      likePostBtn.addEventListener('click', () => {
+        if (!likePostBtn.classList.contains('liked')) {
+          likePostBtn.classList.add('liked');
+          likeImg.classList.add('liked__img');
+          likeCounter++;
+          // this.emit('likePost', {
+          //   likeCounter: likeCounter,
+          //   postId: postContainer.id,
+          //   liked: `${this.model.user?.uid}-true`,
+          // });
+        } else {
+          likePostBtn.classList.remove('liked');
+          likeImg.classList.remove('liked__img');
+          likeCounter--;
+          // this.emit('likePost', {
+          //   likeCounter: likeCounter,
+          //   postId: postContainer.id,
+          //   liked: `${this.model.user?.uid}-false`,
+          //   userId:
+          // });
+        }
+        likeCounterHTML.textContent = `${likeCounter}`;
       });
     });
   }
@@ -309,12 +368,13 @@ export default class ViewProfile extends Page {
         this.profilePerson.innerHTML = '';
         this.userNewsContainer.innerHTML = '';
         this.profileFriends.innerHTML = '';
+        this.userMusicContainer.innerHTML = '';
         await this.renderProfileAvatar(userId as string);
         await this.renderProfileName(userId as string);
         await this.renderProfileCover(userId as string);
         await this.renderNews(userId as string);
         await this.renderUserFriends(userId as string);
-
+        await this.renderUserMusicItem(userId as string);
         const profileAvaBtn: HTMLElement | null = document.querySelector('.profile__label');
         const createNews: HTMLElement | null = document.querySelector('.create__news');
         const deleteNewsBtn: HTMLElement | null = this.userNewsContainer.querySelector('.delete__post_user');
@@ -327,7 +387,7 @@ export default class ViewProfile extends Page {
         if (changeNameBtn) changeNameBtn.style.display = 'none';
         if (changeStatusBtn) changeStatusBtn.style.display = 'none';
         if (uploadCoverBtn) uploadCoverBtn.style.display = 'none';
-        console.log(uploadCoverBtn);
+
         this.unsubscriptionBtn.style.display = 'block';
         this.subscriptionBtn.style.display = 'none';
         this.unsubscribeFriends(userId as string);
@@ -362,6 +422,56 @@ export default class ViewProfile extends Page {
     setTimeout(() => {
       if (progressBarPercent) progressBarPercent.style.width = '0%';
     }, 2000);
+  }
+
+  renderUserMusic() {
+    const userMusicWrapper = createHtmlElement('div', 'user__music-wrapper', '', this.profileFriendsWrapper);
+    createHtmlElement('p', 'user__music-title', 'Музыка', userMusicWrapper);
+    userMusicWrapper.append(this.userMusicContainer);
+  }
+
+  async renderUserMusicItem(userId: string) {
+    const userMusic = await this.musicModel.getUserFavoriteMusic(userId);
+    this.userMusicContainer.innerHTML = '';
+    Object.keys(userMusic).forEach((track) => {
+      const trackItem = createHtmlElement('li', 'track__item-user');
+      trackItem.id = `${userMusic[track].id}`;
+      const trackItemSrc = createHtmlElement('audio', 'track__item-src', '', trackItem) as HTMLAudioElement;
+      trackItemSrc.src = `${userMusic[track].previewURL}`;
+      const trackInfo = createHtmlElement('div', 'track__info-container', '', trackItem);
+      const trackAva = createHtmlElement('div', 'track__item-ava', '', trackInfo);
+      const playBtnTrackItem = createHtmlElement('button', 'track__item-play', '', trackAva);
+      const trackTitleContainer = createHtmlElement('div', 'track__title-container', '', trackInfo);
+      createHtmlElement('p', 'track__item-title', `${userMusic[track].name}`, trackTitleContainer);
+      createHtmlElement('p', 'track__item-author', `${userMusic[track].artistName}`, trackTitleContainer);
+      const trackControls = createHtmlElement('div', 'track__item-controls', '', trackItem);
+      createHtmlElement('p', 'track__item-duration', `${formatTime(userMusic[track].playbackSeconds)}`, trackControls);
+      this.userMusicContainer.append(trackItem);
+
+      playBtnTrackItem.addEventListener('click', () => {
+        const isPlaying = this.userMusicContainer.classList.contains('play');
+        this.currentTrack.src = `${userMusic[track].previewURL}`;
+        if (isPlaying) {
+          this.removePlayIcon();
+          this.userMusicContainer.classList.remove('play');
+          playBtnTrackItem.classList.remove('track__item-pause');
+          this.currentTrack.pause();
+        } else {
+          this.userMusicContainer.classList.add('play');
+          playBtnTrackItem.classList.add('track__item-pause');
+          this.currentTrack.play();
+        }
+      });
+    });
+  }
+
+  removePlayIcon() {
+    const trackItemsPlayBtn = document.querySelectorAll('.track__item-play');
+    trackItemsPlayBtn.forEach((btn) => {
+      if (btn.classList.contains('track__item-pause')) {
+        btn.classList.remove('track__item-pause');
+      }
+    });
   }
 
   private changeLang = () => {

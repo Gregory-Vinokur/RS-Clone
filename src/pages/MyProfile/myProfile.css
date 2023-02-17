@@ -118,12 +118,18 @@
   display: flex;
   align-items: center;
   gap: 15px;
+  position: relative;
 }
 
 .profile__name-input,
 .profile__status-input {
   display: none;
   color: black;
+  padding: 3px 10px;
+}
+
+.profile__name-input {
+  margin-bottom: 5px;
 }
 
 .profile__name-btn,
@@ -136,6 +142,12 @@
   cursor: pointer;
 }
 
+.profile__name-btn-edit,
+.profile__status-btn-edit {
+  position: absolute;
+  top: 4px;
+  right: 7px;
+}
 /* Profile Main */
 
 .profile__main {
@@ -154,7 +166,6 @@
 .recommended__friends_wrapper {
   background: #fff;
   padding: 10px 10px 20px 10px;
-  /* height: 100%; */
   width: 100%;
   border-radius: 15px;
 }
@@ -196,6 +207,9 @@
   cursor: pointer;
 }
 
+.news__container_user {
+  padding: 10px 0;
+}
 .create__news-btn:disabled {
   background: gray;
 }
@@ -204,7 +218,7 @@
   background-color: #fff;
   border-radius: 15px;
   padding: 10px 20px;
-  margin-top: 10px;
+  margin-bottom: 10px;
 }
 .post__header_user {
   display: flex;
@@ -327,7 +341,6 @@
   background: #fff;
   border-radius: 15px;
   padding: 10px 20px;
-  margin-top: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -401,6 +414,34 @@
   background: rgb(2, 0, 36);
   background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(104, 104, 121, 1) 35%, rgba(0, 212, 255, 1) 100%);
   border-radius: 5px;
+}
+
+/* User music */
+.user__music-wrapper {
+  background: #fff;
+  padding: 10px 10px 20px 10px;
+  width: 100%;
+  border-radius: 15px;
+  margin-top: 10px;
+}
+
+.track__item-user {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.user__music-title {
+  color: #000000;
+}
+
+.track__item-user {
+  list-style: none;
+}
+
+.user__music-title {
+  margin-bottom: 10px;
 }
 @keyframes changeContent {
   10% {
