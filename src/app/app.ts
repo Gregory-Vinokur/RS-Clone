@@ -23,7 +23,7 @@ export const PATH = {
   messagesPage: '/messages',
   newsPage: '/news',
   musicPage: '/music',
-  communitiesPage: '/communities'
+  communitiesPage: '/communities',
 };
 
 class App {
@@ -45,6 +45,7 @@ class App {
       if (user) {
         // User is signed in, see docs for a list of available properties
         this.user = user;
+        this.model.user = user;
       } else {
         // User is signed out
         this.user = null;
