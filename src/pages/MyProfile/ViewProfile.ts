@@ -6,6 +6,8 @@ import defaultCover from '../../../assets/img/default-cover.jpg';
 import defaultAva from '../../../assets/img/default-ava.jpg';
 import ViewRecommendedFriends from './ViewRecommendedFriends';
 import { LANGTEXT } from '../../constans/constans';
+import ModelMusicPage from '../Music/ModelMusicPage';
+import formatTime from '../../utils/formatTime';
 
 type EmitsName =
   | 'uploadAvatar'
@@ -22,6 +24,7 @@ type EmitsName =
 
 export default class ViewProfile extends Page {
   model: ModelProfile;
+  musicModel: ModelMusicPage;
   inputAvatar: HTMLInputElement;
   inputCover: HTMLInputElement;
   inputCreateNews: HTMLInputElement;
@@ -39,6 +42,9 @@ export default class ViewProfile extends Page {
   unsubscriptionBtn: HTMLElement;
   subscriptionBtn: HTMLElement;
   emptyBlock: HTMLElement;
+  userMusicContainer: HTMLElement;
+  currentTrack: HTMLAudioElement;
+
   emit(event: EmitsName, data?: string | File) {
     return super.emit(event, data);
   }
@@ -47,9 +53,10 @@ export default class ViewProfile extends Page {
     return super.on(event, callback);
   }
 
-  constructor(id: string, model: ModelProfile) {
+  constructor(id: string, model: ModelProfile, musicModel: ModelMusicPage) {
     super(id);
     this.model = model;
+    this.musicModel = musicModel;
     this.mainWrapper.className = 'my__page';
     this.profileWrapper = createHtmlElement('div', 'profile__wrapper', '', this.mainWrapper);
     this.profileInfo = createHtmlElement('div', 'profile__info', '', this.profileWrapper);
@@ -66,16 +73,11 @@ export default class ViewProfile extends Page {
     this.inputCover = createHtmlElement('input', 'profile__input-cover') as HTMLInputElement;
     this.inputCover.setAttribute('type', 'file');
     this.inputCover.id = 'profile__input-cover';
-
     this.inputCreateNews = createHtmlElement('input', 'input__create-news') as HTMLInputElement;
     this.inputCreateNews.setAttribute('type', 'text');
-
     this.createNewsBtn = createHtmlElement('button', 'create__news-btn', LANGTEXT['createUserNewsBtn'][this.model.lang]);
-
     this.inputCreatePostImg = createHtmlElement('input', 'input__news-img') as HTMLInputElement;
-
     this.spinnerLoad = createHtmlElement('div', 'spinner__load');
-
     this.unsubscriptionBtn = createHtmlElement(
       'button',
       'unsubscription__user_btn',
@@ -83,6 +85,8 @@ export default class ViewProfile extends Page {
       this.profileInfo
     );
     this.subscriptionBtn = createHtmlElement('button', 'subscription__user_btn', LANGTEXT['subscriptsUserBtn'][this.model.lang], this.profileInfo);
+    this.userMusicContainer = createHtmlElement('ul', 'user__music-container');
+    this.currentTrack = createHtmlElement('audio', 'user__current-track') as HTMLAudioElement;
 
     this.renderProfileCover(this.model.user?.uid as string);
     this.renderProfileAvatar(this.model.user?.uid as string);
@@ -92,6 +96,7 @@ export default class ViewProfile extends Page {
     this.renderUserFriends(this.model.user?.uid as string);
     this.renderFriendProfile();
     this.renderUserMusic();
+    this.renderUserMusicItem(this.model.user?.uid as string);
     this.inputAvatar.addEventListener('change', (e: Event) => {
       this.model.uploadUserAvatar(e);
     });
@@ -326,7 +331,6 @@ export default class ViewProfile extends Page {
         if (changeNameBtn) changeNameBtn.style.display = 'none';
         if (changeStatusBtn) changeStatusBtn.style.display = 'none';
         if (uploadCoverBtn) uploadCoverBtn.style.display = 'none';
-        console.log(uploadCoverBtn);
         this.unsubscriptionBtn.style.display = 'block';
         this.subscriptionBtn.style.display = 'none';
         this.unsubscribeFriends(userId as string);
@@ -366,7 +370,51 @@ export default class ViewProfile extends Page {
   renderUserMusic() {
     const userMusicWrapper = createHtmlElement('div', 'user__music-wrapper', '', this.profileFriendsWrapper);
     createHtmlElement('p', 'user__music-title', 'Музыка', userMusicWrapper);
-    const musicContainer = createHtmlElement('div', 'user__music-container', '', userMusicWrapper);
+    userMusicWrapper.append(this.userMusicContainer);
+  }
+
+  async renderUserMusicItem(userId: string) {
+    const userMusic = await this.musicModel.getUserFavoriteMusic(userId);
+    this.userMusicContainer.innerHTML = '';
+    Object.keys(userMusic).forEach((track) => {
+      const trackItem = createHtmlElement('li', 'track__item-user');
+      trackItem.id = `${userMusic[track].id}`;
+      const trackItemSrc = createHtmlElement('audio', 'track__item-src', '', trackItem) as HTMLAudioElement;
+      trackItemSrc.src = `${userMusic[track].previewURL}`;
+      const trackInfo = createHtmlElement('div', 'track__info-container', '', trackItem);
+      const trackAva = createHtmlElement('div', 'track__item-ava', '', trackInfo);
+      const playBtnTrackItem = createHtmlElement('button', 'track__item-play', '', trackAva);
+      const trackTitleContainer = createHtmlElement('div', 'track__title-container', '', trackInfo);
+      createHtmlElement('p', 'track__item-title', `${userMusic[track].name}`, trackTitleContainer);
+      createHtmlElement('p', 'track__item-author', `${userMusic[track].artistName}`, trackTitleContainer);
+      const trackControls = createHtmlElement('div', 'track__item-controls', '', trackItem);
+      createHtmlElement('p', 'track__item-duration', `${formatTime(userMusic[track].playbackSeconds)}`, trackControls);
+      this.userMusicContainer.append(trackItem);
+
+      playBtnTrackItem.addEventListener('click', () => {
+        const isPlaying = this.userMusicContainer.classList.contains('play');
+        this.currentTrack.src = `${userMusic[track].previewURL}`;
+        if (isPlaying) {
+          this.removePlayIcon();
+          this.userMusicContainer.classList.remove('play');
+          playBtnTrackItem.classList.remove('track__item-pause');
+          this.currentTrack.pause();
+        } else {
+          this.userMusicContainer.classList.add('play');
+          playBtnTrackItem.classList.add('track__item-pause');
+          this.currentTrack.play();
+        }
+      });
+    });
+  }
+
+  removePlayIcon() {
+    const trackItemsPlayBtn = document.querySelectorAll('.track__item-play');
+    trackItemsPlayBtn.forEach((btn) => {
+      if (btn.classList.contains('track__item-pause')) {
+        btn.classList.remove('track__item-pause');
+      }
+    });
   }
 
   private changeLang = () => {

@@ -411,8 +411,24 @@
   border-radius: 15px;
   margin-top: 10px;
 }
+
+.track__item-user {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
 .user__music-title {
   color: #000000;
+}
+
+.track__item-user {
+  list-style: none;
+}
+
+.user__music-title {
+  margin-bottom: 10px;
 }
 @keyframes changeContent {
   10% {
