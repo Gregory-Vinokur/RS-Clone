@@ -165,6 +165,10 @@ const LANGTEXT = {
     rus: 'Покинуть',
     eng: 'Go out',
   },
+  CommunitiesPage: {
+    rus: 'Сообщества',
+    eng: 'Communities',
+  },
   messagePlaceholder: {
     rus: 'Введите ваше сообщение',
     eng: 'Enter your message',

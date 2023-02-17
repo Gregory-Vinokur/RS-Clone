@@ -69,6 +69,7 @@
   display: none;
   cursor: pointer;
   width: fit-content;
+  border-bottom: 2px solid transparent;
 }
 
 .reset__text {
