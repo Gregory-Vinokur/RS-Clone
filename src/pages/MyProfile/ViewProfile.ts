@@ -8,6 +8,7 @@ import ViewRecommendedFriends from './ViewRecommendedFriends';
 import { LANGTEXT } from '../../constans/constans';
 import ModelMusicPage from '../Music/ModelMusicPage';
 import formatTime from '../../utils/formatTime';
+import { getTimeDifference } from '../../utils/getTimeDifference';
 
 type EmitsName =
   | 'uploadAvatar'
@@ -255,7 +256,7 @@ export default class ViewProfile extends Page {
       const postHeader = createHtmlElement('div', 'post__header_user', '', postContainer);
       const postInfo = createHtmlElement('div', 'post__info_user', '', postHeader);
       createHtmlElement('p', 'post__author', `Autor: ${userPost[postId].author}`, postInfo);
-      createHtmlElement('p', 'post__date', `Time: ${userPost[postId].time}`, postInfo);
+      createHtmlElement('p', 'post__date', `${getTimeDifference(userPost[postId].date)}`, postInfo);
 
       const deleteBtn = createHtmlElement('button', 'delete__post_user', '', postHeader);
 
@@ -263,7 +264,7 @@ export default class ViewProfile extends Page {
       createHtmlElement('p', 'post__text', `${userPost[postId].text}`, postContent);
       const postImgContainer = createHtmlElement('div', 'post__container_img', '', postContent);
       const postImg = createHtmlElement('img', 'post__img_user', '', postImgContainer) as HTMLImageElement;
-      postImg.src = `${userPost[postId].img}`;
+      postImg.src = `${userPost[postId].image || ''}`;
       createdPostContainer?.prepend(postContainer);
 
       const actionPost = createHtmlElement('div', 'post__action_user', '', postContainer);

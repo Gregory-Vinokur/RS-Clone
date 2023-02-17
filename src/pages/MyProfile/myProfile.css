@@ -206,6 +206,7 @@
   background-color: #fff;
   border-radius: 15px;
   padding: 10px 20px;
+  margin-bottom: 10px;
 }
 .post__header_user {
   display: flex;
