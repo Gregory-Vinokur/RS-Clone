@@ -14,14 +14,11 @@
   gap: 10px;
 }
 
-.buttons-header .button_active {
-  box-shadow: none;
-  border: none;
-  box-shadow: inset #6161c8 0 0 6px;
-}
-
-.buttons-header .button_active:hover {
-  background-color: aliceblue;
+.buttons-group-rooms {
+  align-self: flex-start;
+  display: flex;
+  padding: 10px;
+  gap: 10px;
 }
 
 .button.button_buttonFind {
@@ -103,13 +100,20 @@
 
 .containerMessage img {
   width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
   cursor: pointer;
 }
 
 .modal-user-window {
+  min-width: 250px;
+  display: flex;
+  flex-direction: column;
   border-radius: 5px;
   padding: 10px;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255, 255, 255, 0.5);
+  box-shadow: aliceblue 0 0 8px;
 }
 
 .modal-user-window p {
@@ -237,9 +241,28 @@
   cursor: pointer;
 }
 
+.messages__group-name {
+  color: blue;
+}
+
+.messages__member.active {
+  background-color: #a3bed3;
+  transition: all 0.6s;
+  box-shadow: #4c06e2 0 0 5px;
+}
+
 .messages__member img {
   width: 50px;
-  border-radius: 20px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.modal-user-window img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .messages__member span {
