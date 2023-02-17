@@ -1,3 +1,4 @@
+import { IComment } from './IComment';
 export interface IPost {
   author: string;
   date: number;
