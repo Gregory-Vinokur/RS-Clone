@@ -191,7 +191,7 @@ export default class ModelProfile extends Model {
         if (snapshot.exists()) {
           const { userName, userStatus, userAvatar, userCover, subscripts, userId } = snapshot.val();
           this.userPage = {
-            userName: userName || 'Кот Петр',
+            userName: userName || 'Иван Иванов',
             userStatus: userStatus || 'Обновите ваш статус :)',
             userAvatar: userAvatar,
             userCover: userCover,

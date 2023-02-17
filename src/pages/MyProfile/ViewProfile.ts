@@ -159,8 +159,6 @@ export default class ViewProfile extends Page {
     const profileNameBtn = createHtmlElement('button', 'profile__name-btn', '', profileNameWrapper);
     const profileNameInput = createHtmlElement('input', 'profile__name-input', '', this.profilePerson);
     profileNameInput.setAttribute('type', 'text');
-    profileNameInput.setAttribute('placeholder', 'Введите новые данные');
-
     profileNameBtn.addEventListener('click', () => {
       this.editProfileName();
     });
@@ -170,7 +168,6 @@ export default class ViewProfile extends Page {
     const profileStatusBtn = createHtmlElement('button', 'profile__status-btn', '', profileStatusWrapper);
     const profileStatusInput = createHtmlElement('input', 'profile__status-input', '', this.profilePerson);
     profileStatusInput.setAttribute('type', 'text');
-    profileStatusInput.setAttribute('placeholder', 'Введите новые данные');
 
     profileStatusBtn.addEventListener('click', () => {
       this.editProfileStatus();
@@ -194,10 +191,30 @@ export default class ViewProfile extends Page {
   editProfileName() {
     const inputName: HTMLInputElement | null = document.querySelector('.profile__name-input');
     const profileName: HTMLElement | null = document.querySelector('.profile__name');
-    if (inputName) inputName.style.display = 'block';
-    inputName?.addEventListener('change', () => {
+    const profileNameBtn: HTMLElement | null = document.querySelector('.profile__name-btn');
+    profileNameBtn?.classList.add('profile__name-btn-edit');
+    const regex = /^[a-zA-Zа-яА-я\s]+$/;
+    profileName !== null ? (profileName.style.display = 'none') : '';
+    if (inputName) {
+      inputName.style.display = 'block';
+      inputName.value = `${profileName?.textContent}`;
+    }
+    inputName?.addEventListener('input', () => {
+      const inputValue = inputName.value;
+      if (!regex.test(inputValue)) {
+        inputName.value = inputValue.replace(/[^a-zA-Zа-яА-Я\s]/g, '');
+      }
       if (profileName) profileName.textContent = `${inputName?.value}`;
+      profileName !== null ? (profileName.style.display = 'none') : '';
+    });
+
+    inputName?.addEventListener('change', () => {
+      if (!inputName.value) {
+        return false;
+      }
       inputName.style.display = 'none';
+      profileName !== null ? (profileName.style.display = 'block') : '';
+      profileNameBtn?.classList.remove('profile__name-btn-edit');
       this.emit('changeName', `${inputName?.value}`);
     });
   }
@@ -205,11 +222,23 @@ export default class ViewProfile extends Page {
   editProfileStatus() {
     const inputStatus: HTMLInputElement | null = document.querySelector('.profile__status-input');
     const profileStatus: HTMLElement | null = document.querySelector('.profile__status');
-    if (inputStatus) inputStatus.style.display = 'block';
-
+    const profileStatustBtn: HTMLElement | null = document.querySelector('.profile__status-btn');
+    profileStatustBtn?.classList.add('profile__status-btn-edit');
+    profileStatus !== null ? (profileStatus.style.display = 'none') : '';
+    if (inputStatus) {
+      inputStatus.style.display = 'block';
+      inputStatus.value = `${profileStatus?.textContent}`;
+    }
     inputStatus?.addEventListener('change', () => {
-      if (profileStatus) profileStatus.textContent = `${inputStatus?.value}`;
+      if (!inputStatus.value) {
+        return false;
+      }
       inputStatus.style.display = 'none';
+      if (profileStatus) {
+        profileStatus.textContent = `${inputStatus?.value}`;
+        profileStatus.style.display = 'block';
+      }
+      profileStatustBtn?.classList.remove('profile__status-btn-edit');
       this.emit('changeStatus', `${inputStatus?.value}`);
     });
   }

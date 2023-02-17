@@ -118,12 +118,18 @@
   display: flex;
   align-items: center;
   gap: 15px;
+  position: relative;
 }
 
 .profile__name-input,
 .profile__status-input {
   display: none;
   color: black;
+  padding: 3px 10px;
+}
+
+.profile__name-input {
+  margin-bottom: 5px;
 }
 
 .profile__name-btn,
@@ -136,6 +142,12 @@
   cursor: pointer;
 }
 
+.profile__name-btn-edit,
+.profile__status-btn-edit {
+  position: absolute;
+  top: 4px;
+  right: 7px;
+}
 /* Profile Main */
 
 .profile__main {
