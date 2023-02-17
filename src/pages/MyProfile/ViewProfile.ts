@@ -426,7 +426,7 @@ export default class ViewProfile extends Page {
 
   renderUserMusic() {
     const userMusicWrapper = createHtmlElement('div', 'user__music-wrapper', '', this.profileFriendsWrapper);
-    createHtmlElement('p', 'user__music-title', 'Музыка', userMusicWrapper);
+    createHtmlElement('p', 'user__music-title', LANGTEXT['userMusicTitle'][this.model.lang], userMusicWrapper);
     userMusicWrapper.append(this.userMusicContainer);
   }
 
@@ -482,8 +482,10 @@ export default class ViewProfile extends Page {
     const userSubscriptionsBtn: HTMLElement | null = document.querySelector('.profile__friends_text');
     const userRecommendedSubscriptions: HTMLElement | null = document.querySelector('.recommended__text');
     const emptyBlockText: HTMLElement | null = document.querySelector('.empty__block_text');
+    const musicTitle: HTMLElement | null = document.querySelector('.user__music-title');
     if (userSubscriptionsBtn) userSubscriptionsBtn.innerText = LANGTEXT['userSubscriptions'][this.model.lang];
     if (userRecommendedSubscriptions) userRecommendedSubscriptions.innerText = LANGTEXT['recommendedSubscriptions'][this.model.lang];
     if (emptyBlockText) emptyBlockText.innerText = LANGTEXT['emptyUserNews'][this.model.lang];
+    if (musicTitle) musicTitle.innerText = LANGTEXT['userMusicTitle'][this.model.lang];
   };
 }

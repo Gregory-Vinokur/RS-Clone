@@ -181,6 +181,10 @@ const LANGTEXT = {
     rus: 'Введите название группы',
     eng: 'Enter a group name',
   },
+  userMusicTitle: {
+    rus: 'Музыка',
+    eng: 'Music',
+  },
 };
 
 type LangNameElement = keyof typeof LANGTEXT;

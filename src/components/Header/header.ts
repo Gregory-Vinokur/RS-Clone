@@ -5,6 +5,7 @@ import { createHtmlElement } from '../../utils/createElement';
 import { PATH } from '../../app/app';
 import Button from '../../base/button/Button';
 import { CLASSTHEME, THEME } from '../../constans/constans';
+import defaultAva from '../../../assets/img/default-ava.jpg';
 
 type EmitsName = 'changeLang' | 'navigate';
 
@@ -13,7 +14,7 @@ export default class Header extends EventEmitter {
   logo: HTMLElement;
   model: ModelApp;
   buttonLang: Button<ModelApp>;
-
+  userAvatar: HTMLImageElement;
   emit(event: EmitsName, data?: string) {
     return super.emit(event, data);
   }
@@ -29,14 +30,16 @@ export default class Header extends EventEmitter {
     this.element = createHtmlElement('header', 'header');
     document.body.prepend(this.element);
     const wrapper = createHtmlElement('div', 'header__wrapper', '', this.element);
-    this.logo = createHtmlElement('div', 'logo__img', '', wrapper);
-
+    const logoContainer = createHtmlElement('div', 'header__logo', '', wrapper);
+    this.logo = createHtmlElement('div', 'logo__img', '', logoContainer);
+    createHtmlElement('h1', 'logo__title', 'Вконтакте', logoContainer);
     const buttonContainer = createHtmlElement('div', 'containerButtons__header', '', wrapper);
     this.buttonLang = new Button('langButton', this.model, () => this.emit('changeLang'));
     buttonContainer.append(this.buttonLang.render());
     const buttonTheme = createHtmlElement('div', 'theme-button', '', buttonContainer);
     buttonTheme.addEventListener('click', this.changeTheme);
-
+    this.userAvatar = createHtmlElement('img', 'header__user-ava', '', buttonContainer) as HTMLImageElement;
+    this.userAvatar.src = `${this.model.user?.photoURL || defaultAva}`;
     this.logo.addEventListener('click', () => {
       this.emit('navigate', PATH.login);
     });
