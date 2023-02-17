@@ -5,8 +5,6 @@ import { PATH } from '../../app/app';
 import { handleLogout } from '../../server/firebaseAuth';
 import ModelApp from '../../app/Model-app';
 import { LANGTEXT } from '../../constans/constans';
-import { loadCatsPosts } from './../../data/news_api/cats_api';
-import { loadMemePosts } from './../../data/news_api/memes_api';
 export default class Navbar extends EventEmitter {
   element: HTMLElement;
   model: ModelApp;
@@ -15,6 +13,7 @@ export default class Navbar extends EventEmitter {
   messenger: HTMLElement;
   Logout: HTMLElement;
   music: HTMLElement;
+  communities: HTMLElement;
   constructor(model: ModelApp) {
     super();
     this.model = model;
@@ -25,6 +24,7 @@ export default class Navbar extends EventEmitter {
     this.myProfile = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
     this.news = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
     this.messenger = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
+    this.communities = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
     this.music = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
     this.Logout = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
     this.changeLang();
@@ -39,15 +39,18 @@ export default class Navbar extends EventEmitter {
 
     this.news.addEventListener('click', () => {
       this.emit('navigate', PATH.newsPage);
-      // loadCatsPosts();
-      // loadMemePosts();
     });
 
     this.Logout.addEventListener('click', () => {
       handleLogout();
     });
+
     this.music.addEventListener('click', () => {
       this.emit('navigate', PATH.musicPage);
+    });
+
+    this.communities.addEventListener('click', () => {
+      this.emit('navigate', PATH.communitiesPage);
     });
   }
 
@@ -57,6 +60,7 @@ export default class Navbar extends EventEmitter {
     this.messenger.innerText = LANGTEXT['messenger'][this.model.lang];
     this.Logout.innerText = LANGTEXT['Logout'][this.model.lang];
     this.music.innerText = LANGTEXT['musicPage'][this.model.lang];
+    this.communities.innerText = LANGTEXT['CommunitiesPage'][this.model.lang];
   };
   render(): HTMLElement {
     return this.element;

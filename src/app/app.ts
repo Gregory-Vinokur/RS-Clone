@@ -12,6 +12,7 @@ import MusicPage from './../pages/Music/MusicPage';
 import { CLASSTHEME, Lang, THEME } from '../constans/constans';
 import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import NewsPage from './../pages/News/news';
+import CommunitiesPage from './../pages/Communities/communities';
 
 const LANG = 'LANG';
 
@@ -22,6 +23,7 @@ export const PATH = {
   messagesPage: '/messages',
   newsPage: '/news',
   musicPage: '/music',
+  communitiesPage: '/communities'
 };
 
 class App {
@@ -30,7 +32,7 @@ class App {
   private navbarWrap: HTMLElement;
   private routes;
   user: User | null;
-  page: LoginPage | ErrorPage | myProfile | Messages | NewsPage | MusicPage | null;
+  page: LoginPage | ErrorPage | myProfile | Messages | NewsPage | MusicPage | CommunitiesPage | null;
   header: Header;
   navbar: Navbar;
   model: ModelApp;
@@ -72,6 +74,7 @@ class App {
       [PATH.messagesPage]: this.messagesPage,
       [PATH.newsPage]: this.newsPage,
       [PATH.musicPage]: this.musicPage,
+      [PATH.communitiesPage]: this.communitiesPage,
     };
 
     window.addEventListener('popstate', this.loadPages);
@@ -136,6 +139,13 @@ class App {
   private musicPage = () => {
     this.container.innerHTML = '';
     const page = new MusicPage(PATH.musicPage, this.lang, this.user);
+    this.page = page;
+    this.container.append(page.render());
+  };
+
+  private communitiesPage = () => {
+    this.container.innerHTML = '';
+    const page = new CommunitiesPage(PATH.communitiesPage, this.lang, this.user);
     this.page = page;
     this.container.append(page.render());
   };
