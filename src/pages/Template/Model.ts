@@ -16,11 +16,18 @@ type EmitsName =
   | 'uploadAvatar'
   | 'uploadCover'
   | 'updateDialog'
+  | 'updateGroup'
   | 'showDialog'
   | 'updateDialogs'
+  | 'updateGroups'
   | 'loadPercentFoto'
   | 'notEmptyUserNews'
-  | 'emptyUserNews';
+  | 'emptyUserNews'
+  | 'showGroup'
+  | 'findSearchTracks'
+  | 'getMusic'
+  | 'deleteFavoriteTrack'
+  | 'getFavoriteMusic';
 
 export default abstract class Model extends EventEmitter {
   lang: Lang;

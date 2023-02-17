@@ -236,10 +236,4 @@ export default class ModelProfile extends Model {
       });
     return this.allUsers;
   }
-
-  // async setLikeUserPost(userPost: { [key: string]: string | number }) {
-  //   await update(refDB(this.db, `users/${this.currentUserId}/userPost/${userPost.idPost}`), {
-  //     likes: userPost.likes,
-  //   });
-  // }
 }

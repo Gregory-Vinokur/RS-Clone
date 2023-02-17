@@ -5,7 +5,6 @@ import { PATH } from '../../app/app';
 import { handleLogout } from '../../server/firebaseAuth';
 import ModelApp from '../../app/Model-app';
 import { LANGTEXT } from '../../constans/constans';
-
 export default class Navbar extends EventEmitter {
   element: HTMLElement;
   model: ModelApp;
@@ -28,7 +27,6 @@ export default class Navbar extends EventEmitter {
     this.communities = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
     this.music = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
     this.Logout = createHtmlElement('li', 'side__bar-item my__pr', '', sideBarOl);
-
     this.changeLang();
 
     this.myProfile.addEventListener('click', () => {

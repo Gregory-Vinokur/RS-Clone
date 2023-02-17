@@ -5,9 +5,14 @@ type LangFild = {
   rus: string;
   eng: string;
 };
-// type LangText = {
-//   [prop: string]: LangFild;
-// };
+
+enum PATCH_TO_DB {
+  DIALOGS_ROOMS = 'dialogRooms',
+  GROUP_ROOMS = 'groupRooms',
+  USERS = 'users',
+  LAST_CHANGE = 'lastChange',
+  MESSAGES = 'messages',
+}
 
 type Lang = keyof LangFild;
 
@@ -28,9 +33,21 @@ const LANGTEXT = {
     rus: 'Чат',
     eng: 'Chat',
   },
-  roomsButton: {
+  groupRoomsButton: {
     rus: 'Группы',
-    eng: 'Rooms',
+    eng: 'Groups',
+  },
+  roomsButton: {
+    rus: 'Диалог',
+    eng: 'Dialog',
+  },
+  createGroupButton: {
+    rus: 'Создать',
+    eng: 'Create',
+  },
+  findGroupButton: {
+    rus: 'Найти',
+    eng: 'Find',
   },
   inputLimit: {
     rus: 'Лимит сообщений: ',
@@ -116,6 +133,38 @@ const LANGTEXT = {
     rus: 'Музыка',
     eng: 'Music',
   },
+  playlistOfDayBtn: {
+    rus: 'Плейлист дня',
+    eng: 'Playlist of the day',
+  },
+  myMusicBtn: {
+    rus: 'Моя музыка',
+    eng: 'My music',
+  },
+  searchMusicInput: {
+    rus: 'Название трека или исполнителя',
+    eng: 'Enter the name of the track or artist',
+  },
+  searchMusicBtn: {
+    rus: 'Найти',
+    eng: 'Search',
+  },
+  musicContainerTitle: {
+    rus: 'Собрано для Вас',
+    eng: 'Collected for you',
+  },
+  musicNotFound: {
+    rus: 'Треков не найдено, попробуйте изменить запрос. Наша база содержит более 30 миллионов треков.',
+    eng: 'No tracks found, try editing your query. Our database contains over 30 million tracks.',
+  },
+  comeInGroup: {
+    rus: 'Присоеденится',
+    eng: 'Join the group',
+  },
+  goOutGroup: {
+    rus: 'Покинуть',
+    eng: 'Go out',
+  },
   CommunitiesPage: {
     rus: 'Сообщества',
     eng: 'Communities',
@@ -124,4 +173,4 @@ const LANGTEXT = {
 
 type LangNameElement = keyof typeof LANGTEXT;
 
-export { LANGTEXT, Lang, LangNameElement, CLASSTHEME, THEME };
+export { LANGTEXT, Lang, LangNameElement, CLASSTHEME, THEME, PATCH_TO_DB };
