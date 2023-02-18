@@ -45,7 +45,7 @@ class App {
       if (user) {
         // User is signed in, see docs for a list of available properties
         this.user = user;
-        this.model.user = user;
+        this.model.setUser(user);
       } else {
         // User is signed out
         this.user = null;
