@@ -6,6 +6,9 @@ footer {
   padding: 5px 10px;
 }
 
+.dark-theme footer {
+  background: #222222;
+}
 .footer__wrap {
   max-width: 1200px;
   width: 100%;

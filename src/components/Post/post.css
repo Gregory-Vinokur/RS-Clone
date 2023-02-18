@@ -357,3 +357,8 @@
   top: 44px;
   right: 48px;
 }
+
+.dark-theme .post__container {
+  background-color: #222222;
+  box-shadow: none;
+}

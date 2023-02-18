@@ -179,6 +179,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+
   gap: 15px 18px;
 }
 
@@ -201,4 +202,23 @@
 .community__page-follower-name {
   font-size: 12px;
   color: black;
+}
+
+.dark-theme .communities__wrapper,
+.dark-theme .community__page-header,
+.dark-theme .community__page-followers {
+  background-color: #222222;
+  border: none;
+}
+
+.dark-theme .community__title,
+.dark-theme .community__page-title,
+.dark-theme .community__page-followers-text,
+.dark-theme .community__page-follower-name {
+  color: #e1e3e6;
+}
+
+.dark-theme .follow__btn {
+  background-color: #424242;
+  color: #e1e3e6;
 }
