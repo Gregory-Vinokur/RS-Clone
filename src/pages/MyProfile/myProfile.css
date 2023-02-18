@@ -26,10 +26,14 @@
 }
 .profile__name,
 .profile__status {
-  color: black;
+  color: #000000;
   font-weight: 500;
 }
 
+.dark-theme .profile__name,
+.dark-theme .profile__status {
+  color: #e1e3e6;
+}
 .profile__ava_container {
   display: flex;
   flex-direction: column;
@@ -113,6 +117,10 @@
   border-radius: 10px;
 }
 
+.dark-theme .profile__header {
+  background-color: #222222;
+}
+
 .profile__name-wrapper,
 .profile__status-wrapper {
   display: flex;
@@ -170,6 +178,10 @@
   border-radius: 15px;
 }
 
+.dark-theme .profile__friends_wrapper {
+  background-color: #222222;
+}
+
 .recommended__friends_wrapper {
   margin-top: 10px;
 }
@@ -191,12 +203,17 @@
   border-radius: 15px;
 }
 
+.dark-theme .create__news {
+  background: #222222;
+}
+
 .input__create-news {
   width: 100%;
   color: black;
   padding: 10px 20px;
   border: none;
   outline: none;
+  background: inherit;
 }
 
 .create__news-btn {
@@ -212,6 +229,12 @@
   background: #346397;
   transition: all 0.5s;
 }
+
+.dark-theme .create__news-btn {
+  background: #424242;
+  color: #e1e3e6;
+}
+
 .news__container_user {
   padding: 10px 0;
 }
@@ -321,6 +344,11 @@
   color: black;
 }
 
+.dark-theme .profile__friends_name,
+.dark-theme .recommended__friends_name {
+  color: #e1e3e6;
+}
+
 .profile__friends_text,
 .recommended__text {
   color: #000000;
@@ -328,6 +356,10 @@
   margin-bottom: 10px;
 }
 
+.dark-theme .profile__friends_text,
+.dark-theme .recommended__text {
+  color: #e1e3e6;
+}
 .profile__friends_empty {
   color: #000000;
   text-align: center;
@@ -413,7 +445,7 @@
 .progress-bar__wrapper {
   width: 100%;
   height: 10px;
-  background: #fff;
+  background: inherit;
   position: absolute;
   bottom: -20px;
   left: 0;
@@ -448,6 +480,13 @@
   color: #000000;
 }
 
+.dark-theme .user__music-title,
+.dark-theme .track__item-title,
+.dark-theme .track__item-duration,
+.dark-theme .post__author,
+.dark-theme .post__text {
+  color: #e1e3e6;
+}
 .track__item-user {
   list-style: none;
 }
@@ -483,4 +522,30 @@
   90% {
     content: '⠏';
   }
+}
+
+.dark-theme .recommended__friends_wrapper,
+.dark-theme .user__music-wrapper,
+.dark-theme .post__container_user {
+  background-color: #222222;
+}
+
+.dark-theme .like__button,
+.dark-theme .share__button,
+.dark-theme .comment__button {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+.dark-theme .empty__block_user {
+  background-color: #222222;
+}
+
+.dark-theme .profile__friends_empty,
+.dark-theme .empty__block_text {
+  color: #e1e3e6;
+}
+
+.dark-theme .subscription__user_btn,
+.dark-theme .unsubscription__user_btn {
+  background-color: rgba(255, 255, 255, 0.02);
 }

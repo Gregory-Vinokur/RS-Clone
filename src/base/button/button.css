@@ -14,11 +14,12 @@
 }
 
 .dark-theme .button {
-  box-shadow: aliceblue 0 0 5px;
+  background-color: #424242;
+  color: #e1e3e6;
 }
-
 .button:hover {
-  background-color: #ebedf0;
+  background-color: #346397;
+  color: #fff;
   transition: all 0.5s;
 }
 
@@ -51,4 +52,9 @@
 
 .button_createGroupButton:hover {
   background: #346397;
+}
+
+.dark-theme .button.button_active {
+  box-shadow: none;
+  border: none;
 }

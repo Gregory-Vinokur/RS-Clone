@@ -11,6 +11,10 @@
   box-shadow: 0 4px 8px rgb(0 0 0 / 4%), 0 0 4px rgb(0 0 0 / 6%);
 }
 
+.dark-theme .header {
+  background: #222222;
+}
+
 .header__wrapper {
   width: 100%;
   max-width: 1200px;
@@ -42,8 +46,13 @@
   color: #000000;
 }
 
+.dark-theme .logo__title {
+  color: #e1e3e6;
+}
+
 .containerButtons__header {
   display: flex;
+  align-items: center;
   gap: 20px;
 }
 
@@ -56,6 +65,10 @@
   background: #5181b8;
   color: #ffffff;
   font-weight: 400;
+}
+
+.dark-theme .button.button_langButton {
+  box-shadow: none;
 }
 
 .button.button_langButton:hover {

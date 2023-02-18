@@ -48,10 +48,6 @@
   background-color: #fff;
 }
 
-.dark-theme .messages__field {
-  background-color: #6161c8;
-}
-
 .messages__container {
   flex-grow: 1;
   height: 100%;
@@ -79,10 +75,6 @@
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14), 0 0 4px rgba(0, 0, 0, 0.22);
   padding: 0 5px;
-}
-
-.dark-theme .other_message {
-  box-shadow: 0 4px 8px rgba(240, 248, 255, 0.14), 0 0 4px rgba(240, 248, 255, 0.22);
 }
 
 .containerMessage .container-text {
@@ -442,4 +434,35 @@
 .modal__name {
   color: #000000;
   margin-bottom: 15px;
+}
+
+.dark-theme .containerMessage,
+.dark-theme .buttons-header,
+.dark-theme .send-input-container,
+.dark-theme .input__message,
+.dark-theme .message__containerButtons,
+.dark-theme .sort__select,
+.dark-theme .input__limit {
+  background-color: #222222;
+  color: #e1e3e6;
+}
+
+.dark-theme .messages__field {
+  background-color: inherit;
+}
+
+.dark-theme .message-text,
+.dark-theme .containerMessage span,
+.dark-theme .messages__member span,
+.dark-theme .modal__name {
+  color: #e1e3e6;
+}
+
+.dark-theme .containerMessage .message-text {
+  background-color: #222222;
+}
+
+.dark-theme .messages__member,
+.dark-theme .modal-user-window {
+  background-color: #222222;
 }
