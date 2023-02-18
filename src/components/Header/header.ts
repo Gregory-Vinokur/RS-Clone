@@ -39,9 +39,12 @@ export default class Header extends EventEmitter {
     const buttonTheme = createHtmlElement('div', 'theme-button', '', buttonContainer);
     buttonTheme.addEventListener('click', this.changeTheme);
     this.userAvatar = createHtmlElement('img', 'header__user-ava', '', buttonContainer) as HTMLImageElement;
-    this.userAvatar.src = `${this.model.user?.photoURL || defaultAva}`;
+
     this.logo.addEventListener('click', () => {
       this.emit('navigate', PATH.login);
+    });
+    this.model.on('setUser', () => {
+      this.userAvatar.src = `${this.model.user?.photoURL || defaultAva}`;
     });
   }
 
