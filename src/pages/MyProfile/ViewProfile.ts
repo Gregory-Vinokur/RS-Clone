@@ -144,6 +144,8 @@ export default class ViewProfile extends Page {
 
   async renderProfileAvatar(userId: string) {
     const user = await this.model.getUserInfo(userId);
+    const avaHeader: HTMLImageElement | null = document.querySelector('.header__user-ava');
+    if (avaHeader) avaHeader.src = `${user.userAvatar || defaultAva}`;
     const profileAvatarImgContainer = createHtmlElement('div', 'profile__ava', '', this.profileAvatar);
     const profileAvatarImg = createHtmlElement('img', 'profile__ava-img', '', profileAvatarImgContainer);
     const uploadAvaLabel = createHtmlElement('label', 'profile__label', '', this.profileAvatar);
