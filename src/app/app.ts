@@ -62,6 +62,8 @@ class App {
     this.header = new Header(this.model);
     this.navbar = new Navbar(this.model);
     this.header.on('changeLang', this.changeLang);
+    this.header.on('openMenu', this.openMenu);
+    this.navbar.on('closeMenu', this.closeMenu);
     this.wrapper = createHtmlElement('main', 'main__wrapper', '', document.body);
     this.navbarWrap = this.navbar.render();
     this.wrapper.append(this.navbarWrap);
@@ -149,6 +151,16 @@ class App {
     const page = new CommunitiesPage(PATH.communitiesPage, this.lang, this.user);
     this.page = page;
     this.container.append(page.render());
+  };
+
+  openMenu = () => {
+    this.header.humburger.classList.toggle('open');
+    this.navbar.element.classList.toggle('open');
+  };
+
+  closeMenu = () => {
+    this.header.humburger.classList.remove('open');
+    this.navbar.element.classList.remove('open');
   };
 
   changeLang = () => {

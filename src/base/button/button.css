@@ -5,7 +5,7 @@
   justify-content: center;
   align-items: center;
   color: #818c99;
-  font-size: 0.75em;
+  font-size: 14px;
   font-weight: 600;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04), 0 0 4px rgba(0, 0, 0, 0.06);
   border-radius: 8px;
@@ -57,4 +57,12 @@
 .dark-theme .button.button_active {
   box-shadow: none;
   border: none;
+}
+
+@media (max-width: 340px) {
+  .button {
+    width: 60px;
+    height: 24px;
+    font-size: 12px;
+  }
 }

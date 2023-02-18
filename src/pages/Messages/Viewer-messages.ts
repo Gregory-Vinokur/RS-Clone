@@ -377,7 +377,7 @@ export default class ViewerMessasges extends Page {
       const container = createHtmlElement('div', 'container-text', '', message);
       createHtmlElement('p', 'message-text', element?.text, container);
       const time = this.createDataElement(element?.time);
-      title.append(time);
+      message.append(time);
       if (element.uid === this.model.user?.uid) {
         const button = new Button('deleteButton', this.model, () => this.emit('deleteDialogMessage', element.key));
         this.buttonsDialog.push(button);
@@ -414,7 +414,7 @@ export default class ViewerMessasges extends Page {
         const container = createHtmlElement('div', 'container-text', '', message);
         createHtmlElement('p', 'message-text', messages[key]?.text, container);
         const time = this.createDataElement(messages[key].time);
-        title.append(time);
+        message.append(time);
         if (messages[key].uid === this.model.user?.uid) {
           const button = new Button('deleteButton', this.model, () => this.emit('deleteGroupMessage', key));
           this.buttonsDialog.push(button);
@@ -460,7 +460,7 @@ export default class ViewerMessasges extends Page {
         ava.addEventListener('click', (e) => this.createModalUserWindow(e, document.name, document.uid, document.photo));
       }
       createHtmlElement('span', '', `${document.name}`, title);
-      title.append(this.createDataElement(document.created?.seconds * 1000));
+
       if (document.uid === this.model.user?.uid) {
         const buttonDelete = new Button('deleteButton', this.model, () => this.deleteMessage(doc.id));
         const containerButton = createHtmlElement('div', 'message__container-button', '', title);
@@ -468,6 +468,7 @@ export default class ViewerMessasges extends Page {
         containerButton.append(buttonDelete.render());
       }
       createHtmlElement('p', 'message-text', `${document.text}`, containerMessage);
+      containerMessage.append(this.createDataElement(document.created?.seconds * 1000));
     });
     this.messagesChatContainer.scrollTop = this.messagesChatContainer.scrollHeight;
   };
