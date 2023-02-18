@@ -313,3 +313,34 @@
   display: none;
   padding: 30px 0;
 }
+
+.dark-theme .main-player__wrapper,
+.dark-theme .music__list,
+.dark-theme .search__music-input {
+  background-color: #222222;
+}
+
+.dark-theme .main-player__name,
+.dark-theme .main-player__time,
+.dark-theme .track__list-title {
+  color: #e1e3e6;
+}
+
+.dark-theme .playlist__page-active {
+  border: 1px solid #e1e3e6;
+  color: #e1e3e6;
+}
+.dark-theme .search__music-btn {
+  background-color: #424242;
+  color: #e1e3e6;
+}
+.dark-theme .track__item {
+  background-color: #424242;
+}
+.dark-theme .track__item:hover {
+  background-color: #222222;
+}
+
+.dark-theme .search__music-input {
+  color: #e1e3e6;
+}

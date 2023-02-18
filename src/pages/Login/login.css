@@ -190,3 +190,7 @@
   margin-bottom: 20px;
   text-align: center;
 }
+
+.dark-theme .login__form {
+  background-color: #222222;
+}
