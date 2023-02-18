@@ -538,7 +538,7 @@ export default class ViewerMessasges extends Page {
     const wrapper = createHtmlElement('div', 'modal-user-window', '', shadow);
     const buttonClose = createHtmlElement('div', 'button_close', '✖', wrapper);
     const ava = this.createAva(imgUrl);
-    const nameTitle = createHtmlElement('h2', '', name);
+    const nameTitle = createHtmlElement('h2', 'modal__name', name);
     wrapper.append(ava, nameTitle, ...link);
 
     wrapper.addEventListener('click', (e) => e.stopPropagation());

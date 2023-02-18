@@ -90,8 +90,12 @@
   font-size: 13px;
   width: 80%;
   cursor: pointer;
+  transition: all 0.3s;
 }
-
+.follow__btn:hover {
+  background: #346397;
+  transition: all 0.3s;
+}
 .community__page-follow-status {
   display: none;
 }
@@ -143,12 +147,12 @@
 
 .community__page-content {
   display: flex;
-  gap: 20px;
+  justify-content: space-between;
 }
 
 .community__page-posts {
   border-radius: 15px;
-  padding: 10px 20px;
+  margin-top: -18px;
 }
 
 .community__page-followers {

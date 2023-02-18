@@ -179,7 +179,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 15px 18px;
+  gap: 15px 10px;
 }
 
 .create__news {
@@ -202,11 +202,16 @@
 .create__news-btn {
   padding: 5px;
   border: none;
-  background: blue;
+  background: #5181b8;
   border-radius: 5px;
+  transition: all 0.5s;
   cursor: pointer;
 }
 
+.create__news-btn:hover {
+  background: #346397;
+  transition: all 0.5s;
+}
 .news__container_user {
   padding: 10px 0;
 }
@@ -386,10 +391,17 @@
   cursor: pointer;
   padding: 5px;
   border: none;
-  background: blue;
+  background: #5181b8;
   border-radius: 5px;
   margin: 0 0 10px 40px;
   display: none;
+  transition: all 0.5s;
+}
+
+.unsubscription__user_btn:hover,
+.subscription__user_btn:hover {
+  background: #346397;
+  transition: all 0.5s;
 }
 
 .subscription__user_btn {

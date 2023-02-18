@@ -13,7 +13,7 @@
   border-radius: 15px;
   padding: 10px 15px;
   position: sticky;
-  top: 0;
+  top: 45px;
   left: 0;
   z-index: 999;
   box-shadow: 0 4px 8px rgb(0 0 0 / 4%), 0 0 4px rgb(0 0 0 / 6%);
@@ -196,8 +196,12 @@
   background: #5181b8;
   border-radius: 5px;
   cursor: pointer;
+  transition: all 0.5s;
 }
-
+.search__music-btn:hover {
+  background: #346397;
+  transition: all 0.5s;
+}
 /* Track item */
 
 .track__item {
