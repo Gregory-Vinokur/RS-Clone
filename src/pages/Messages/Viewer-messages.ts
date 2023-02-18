@@ -106,7 +106,8 @@ export default class ViewerMessasges extends Page {
     this.messagesChat = createHtmlElement('div', 'messages__chat', '', this.messagesChatContainer);
 
     this.messagesRooms = createHtmlElement('div', 'messages__rooms');
-    this.messagesRoomsMembers = createHtmlElement('div', 'messages__members', '', this.messagesRooms);
+    const messagesRoomsMembersContainer = createHtmlElement('div', 'messages__group-rooms-container', '', this.messagesRooms);
+    this.messagesRoomsMembers = createHtmlElement('div', 'messages__members', '', messagesRoomsMembersContainer);
     this.messagesRoomsChatContainer = createHtmlElement('div', 'messages__container', '', this.messagesRooms);
     this.messagesRoomsChat = createHtmlElement('div', 'messages__roomsChat', '', this.messagesRoomsChatContainer);
     this.titleInRooms = createHtmlElement('h2', '', LANGTEXT['textInRooms'][this.model.lang], this.messagesRoomsChat);

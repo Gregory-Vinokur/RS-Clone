@@ -59,6 +59,8 @@
 }
 
 .messages__chat {
+  display: flex;
+  flex-direction: column;
   padding: 10px;
 }
 
@@ -70,7 +72,7 @@
 }
 
 .containerMessage {
-  width: 80%;
+  min-width: 80%;
   margin: 10px 0;
   display: flex;
   flex-direction: column;
@@ -79,6 +81,10 @@
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14), 0 0 4px rgba(0, 0, 0, 0.22);
   padding: 0 5px;
+}
+
+.other_message {
+  margin-right: auto;
 }
 
 .dark-theme .other_message {
@@ -241,6 +247,8 @@
 
 .messages__members {
   padding: 10px;
+  min-width: 235px;
+  height: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -249,6 +257,10 @@
 
 .messages__member {
   display: flex;
+  width: 205px;
+  min-width: 205px;
+  height: 60px;
+  /* min-height: 60px; */
   gap: 5px;
   align-items: center;
   padding: 5px 10px 5px 5px;
@@ -258,6 +270,10 @@
   transition: all 0.6s;
   cursor: pointer;
 }
+
+/* .messages__group-rooms-container {
+  max-height: 100%;
+} */
 
 .messages__member.active {
   background-color: rgba(0, 0, 0, 0.08);
@@ -346,6 +362,26 @@
   align-self: center;
   text-align: center;
   font-size: 1.3em;
+}
+
+@media (max-width: 850px) {
+  .messages__rooms {
+    flex-direction: column;
+  }
+  .messages__members {
+    width: 100%;
+    height: 80px;
+    flex-direction: row;
+    align-items: center;
+    overflow-y: hidden;
+    overflow-x: auto;
+  }
+  .messages__roomsChat {
+    border: none;
+  }
+}
+
+@media (max-width: 610px) {
 }
 
 /* /////////////////////////// */
