@@ -27,7 +27,8 @@ type EmitsName =
   | 'findSearchTracks'
   | 'getMusic'
   | 'deleteFavoriteTrack'
-  | 'getFavoriteMusic';
+  | 'getFavoriteMusic'
+  | 'setUser';
 
 export default abstract class Model extends EventEmitter {
   lang: Lang;
@@ -79,5 +80,10 @@ export default abstract class Model extends EventEmitter {
   changeLang = (lang: Lang) => {
     this.lang = lang;
     this.emit('changeLang');
+  };
+
+  setUser = (user: TypeUser) => {
+    this.user = user;
+    this.emit('setUser');
   };
 }
