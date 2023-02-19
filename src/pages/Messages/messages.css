@@ -55,6 +55,8 @@
 }
 
 .messages__chat {
+  display: flex;
+  flex-direction: column;
   padding: 10px;
 }
 
@@ -66,7 +68,7 @@
 }
 
 .containerMessage {
-  width: 80%;
+  min-width: 80%;
   margin: 10px 0;
   display: flex;
   flex-direction: column;
@@ -75,6 +77,10 @@
   overflow: hidden;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.14), 0 0 4px rgba(0, 0, 0, 0.22);
   padding: 0 5px;
+}
+
+.other_message {
+  margin-right: auto;
 }
 
 .containerMessage .container-text {
@@ -130,7 +136,7 @@
 .containerMessage span {
   color: #000;
   font-size: 16px;
-  padding: 10px;
+  padding: 10px 5px;
 }
 
 .containerMessage .message-text {
@@ -148,8 +154,10 @@
 .containerMessage .message_time {
   color: #818c99;
   border: none;
-  padding: 10px;
-  font-size: 0.7em;
+  padding: 5px;
+  font-size: 12px;
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 .send-input-container {
@@ -222,7 +230,7 @@
 .button.button_deleteButton {
   width: 60px;
   height: 16px;
-  font-size: 0.65em;
+  font-size: 12px;
 }
 
 .messages__rooms {
@@ -233,6 +241,8 @@
 
 .messages__members {
   padding: 10px;
+  min-width: 235px;
+  height: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -241,6 +251,10 @@
 
 .messages__member {
   display: flex;
+  width: 205px;
+  min-width: 205px;
+  height: 60px;
+  /* min-height: 60px; */
   gap: 5px;
   align-items: center;
   padding: 5px 10px 5px 5px;
@@ -338,6 +352,56 @@
   align-self: center;
   text-align: center;
   font-size: 1.3em;
+}
+
+@media (max-width: 850px) {
+  .messages__rooms {
+    flex-direction: column;
+  }
+  .messages__members {
+    width: 100%;
+    height: 80px;
+    flex-direction: row;
+    align-items: center;
+    overflow-y: hidden;
+    overflow-x: auto;
+  }
+  .messages__roomsChat {
+    border: none;
+  }
+}
+
+@media (max-width: 430px) {
+  .containerMessage span {
+    font-size: 14px;
+  }
+  .containerMessage .message_time {
+    font-size: 10px;
+  }
+  .button.button_deleteButton {
+    width: 50px;
+    height: 14px;
+    font-size: 10px;
+  }
+
+  .containerMessage .message-text {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 340px) {
+  .button.button_sendButton {
+    width: 68px;
+  }
+  .input__limit,
+  .input__message,
+  .sort__select {
+    font-size: 14px;
+  }
+
+  .input__message::placeholder {
+    font-size: 12px;
+  }
 }
 
 /* /////////////////////////// */

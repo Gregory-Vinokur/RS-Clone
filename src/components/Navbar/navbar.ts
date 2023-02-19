@@ -5,6 +5,9 @@ import { PATH } from '../../app/app';
 import { handleLogout } from '../../server/firebaseAuth';
 import ModelApp from '../../app/Model-app';
 import { LANGTEXT } from '../../constans/constans';
+
+type EmitsName = 'navigate' | 'closeMenu';
+
 export default class Navbar extends EventEmitter {
   element: HTMLElement;
   model: ModelApp;
@@ -14,6 +17,15 @@ export default class Navbar extends EventEmitter {
   Logout: HTMLElement;
   music: HTMLElement;
   communities: HTMLElement;
+
+  emit(event: EmitsName, data?: string) {
+    return super.emit(event, data);
+  }
+
+  on(event: EmitsName, callback: ((data?: string) => void) | ((data: string) => void)) {
+    return super.on(event, callback);
+  }
+
   constructor(model: ModelApp) {
     super();
     this.model = model;
@@ -52,6 +64,8 @@ export default class Navbar extends EventEmitter {
     this.communities.addEventListener('click', () => {
       this.emit('navigate', PATH.communitiesPage);
     });
+
+    this.element.addEventListener('click', () => this.emit('closeMenu'));
   }
 
   changeLang = () => {

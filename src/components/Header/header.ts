@@ -7,7 +7,7 @@ import Button from '../../base/button/Button';
 import { CLASSTHEME, THEME } from '../../constans/constans';
 import defaultAva from '../../../assets/img/default-ava.jpg';
 
-type EmitsName = 'changeLang' | 'navigate';
+type EmitsName = 'changeLang' | 'navigate' | 'openMenu';
 
 export default class Header extends EventEmitter {
   element: HTMLElement;
@@ -15,6 +15,7 @@ export default class Header extends EventEmitter {
   model: ModelApp;
   buttonLang: Button<ModelApp>;
   userAvatar: HTMLImageElement;
+  humburger: HTMLElement;
   emit(event: EmitsName, data?: string) {
     return super.emit(event, data);
   }
@@ -32,6 +33,11 @@ export default class Header extends EventEmitter {
     const wrapper = createHtmlElement('div', 'header__wrapper', '', this.element);
     const logoContainer = createHtmlElement('div', 'header__logo', '', wrapper);
     this.logo = createHtmlElement('div', 'logo__img', '', logoContainer);
+    this.humburger = createHtmlElement('div', 'hamburger', '', logoContainer);
+    createHtmlElement('span', '', '', this.humburger);
+    createHtmlElement('span', '', '', this.humburger);
+    createHtmlElement('span', '', '', this.humburger);
+    this.humburger.addEventListener('click', () => this.emit('openMenu'));
     createHtmlElement('h1', 'logo__title', 'Вконтакте', logoContainer);
     const buttonContainer = createHtmlElement('div', 'containerButtons__header', '', wrapper);
     this.buttonLang = new Button('langButton', this.model, () => this.emit('changeLang'));
