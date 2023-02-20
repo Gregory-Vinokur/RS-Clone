@@ -28,7 +28,8 @@ export const loadCatsPosts = () => {
                         logo: cat_logo,
                         comments: [],
                         liked: "",
-                        reposted: ""
+                        reposted: "",
+                        id: ""
                     };
 
                     return database.ref("posts/").push(data);

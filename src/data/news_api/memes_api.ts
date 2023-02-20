@@ -29,7 +29,8 @@ export const loadMemePosts = () => {
                     logo: meme_logo,
                     comments: [],
                     liked: '',
-                    reposted: ""
+                    reposted: "",
+                    id: ""
                 };
 
                 return database.ref("posts/").push(data);

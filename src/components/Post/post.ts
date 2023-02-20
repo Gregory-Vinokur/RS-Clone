@@ -125,18 +125,21 @@ export default class Post extends ModelProfile {
                 const postData = snapshot.val();
                 let shares = postData.shares || 0;
                 let reposted = postData.reposted || {};
+                let id = postData.id || '';
                 if (reposted[userUid] !== true) {
                     shares++;
                     reposted[userUid] = true;
                     postData.id = postId;
                     database.ref(`users/${user?.uid}/userPost`).push(postData);
+
                 } else {
                     return;
                 }
                 shareCounter.textContent = (shares === 0) ? "" : shares.toString();
                 database.ref(`posts/${postId}`).update({
                     shares,
-                    reposted
+                    reposted,
+                    id
                 });
             });
         });
