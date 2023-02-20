@@ -62,7 +62,7 @@ export default class Post extends ModelProfile {
         if (!userUid) {
             return;
         }
-        if (postData.liked[userUid] === true) {
+        if (postData.liked && postData.liked[userUid] === true) {
             likeButton.classList.add('liked');
             likeImg.classList.add('liked__img');
         }
