@@ -36,9 +36,10 @@ export default class ViewRecommendedFriends {
         (userAva as HTMLImageElement).src = `${userPage.userAvatar || defaultAva}`;
       });
     } else {
-      const userInfoWrapper = createHtmlElement('div', 'profile__friends_empty', 'Рекоммендованых подписок нет', this.element);
+      const userInfoWrapper = createHtmlElement('div', 'profile__friends_empty', 'Рекомендованных подписок нет', this.element);
     }
   }
+
   render(): HTMLElement {
     return this.element;
   }

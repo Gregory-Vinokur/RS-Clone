@@ -35,11 +35,5 @@ export default class ControllerProfule {
     this.view.on('subscriptionUser', (userId) => {
       this.model.subscriptionUser(userId as string);
     });
-
-    this.view.on('openUserPage', (userId) => {
-      if (typeof userId === 'string') {
-        this.model.currentUserId = userId;
-      }
-    });
   }
 }
