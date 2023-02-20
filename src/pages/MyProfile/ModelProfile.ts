@@ -14,7 +14,6 @@ export default class ModelProfile extends Model {
   userPage: { [key: string]: string };
   userFriends: { [key: string]: any };
   allUsers: { [key: string]: object };
-  currentUserId: string;
   constructor(lang: Lang, user: TypeUser) {
     super(lang, user);
     this.userPosts = {};
@@ -22,7 +21,6 @@ export default class ModelProfile extends Model {
     this.userPage = {};
     this.userFriends = {};
     this.allUsers = {};
-    this.currentUserId = `${this.user?.uid}`;
   }
 
   db = getDatabase();

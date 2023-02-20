@@ -9,7 +9,7 @@ import { LANGTEXT } from '../../constans/constans';
 import ModelMusicPage from '../Music/ModelMusicPage';
 import formatTime from '../../utils/formatTime';
 import { getTimeDifference } from '../../utils/getTimeDifference';
-
+import qs from 'query-string';
 type EmitsName =
   | 'uploadAvatar'
   | 'changeLang'
@@ -45,7 +45,7 @@ export default class ViewProfile extends Page {
   emptyBlock: HTMLElement;
   userMusicContainer: HTMLElement;
   currentTrack: HTMLAudioElement;
-
+  paramsId: string;
   emit(event: EmitsName, data?: string | File | { [key: string]: string }) {
     return super.emit(event, data);
   }
@@ -89,15 +89,12 @@ export default class ViewProfile extends Page {
     this.userMusicContainer = createHtmlElement('ul', 'user__music-container');
     this.currentTrack = createHtmlElement('audio', 'user__current-track') as HTMLAudioElement;
 
-    this.renderProfileCover(this.model.user?.uid as string);
-    this.renderProfileAvatar(this.model.user?.uid as string);
-    this.renderProfileName(this.model.user?.uid as string);
-    this.renderProfileContainer();
-    this.renderNews(this.model.user?.uid as string);
-    this.renderUserFriends(this.model.user?.uid as string);
+    this.paramsId = qs.parse(window.location.search).id as string;
+
+    this.paramsId !== undefined ? this.loadFriendsProfile(this.paramsId) : this.renderUserPage(this.model.user?.uid as string);
+
     this.renderFriendProfile();
-    this.renderUserMusic();
-    this.renderUserMusicItem(this.model.user?.uid as string);
+
     this.inputAvatar.addEventListener('change', (e: Event) => {
       this.model.uploadUserAvatar(e);
     });
@@ -345,7 +342,6 @@ export default class ViewProfile extends Page {
       Object.keys(user.userSubscripts).forEach(async (userId) => {
         const userPage = await this.model.getUserInfo(userId);
         const onlyName = userPage.userName.split(' ').slice(0, 1).join('');
-
         const userInfoWrapper = createHtmlElement('div', 'profile__friends_content', '', this.profileFriends);
         userInfoWrapper.id = `${userPage.userId}`;
         const userAva = createHtmlElement('img', 'profile__friends_ava', '', userInfoWrapper);
@@ -358,25 +354,28 @@ export default class ViewProfile extends Page {
     }
   }
 
-  renderFriendProfile() {
+  async renderFriendProfile() {
     this.profileFriendsWrapper?.addEventListener('click', async (e: Event) => {
       const { target } = e;
       const userId = (target as HTMLElement).parentElement?.id;
-      this.emit('openUserPage', userId);
-      const userPage = (target as HTMLElement).parentElement;
-      if (userPage?.classList.contains('profile__friends_content') || userPage?.classList.contains('recommended__friends_content')) {
+      if (userId) {
+        const params = qs.parse(window.location.search);
+        params.id = userId;
+        const search = qs.stringify(params);
+        window.history.pushState({}, 'path', window.location.origin + window.location.pathname + `${search ? '?' + search : ''}`);
         this.profileAvatar.innerHTML = '';
         this.profileCover.innerHTML = '';
         this.profilePerson.innerHTML = '';
         this.userNewsContainer.innerHTML = '';
         this.profileFriends.innerHTML = '';
         this.userMusicContainer.innerHTML = '';
-        await this.renderProfileAvatar(userId as string);
-        await this.renderProfileName(userId as string);
-        await this.renderProfileCover(userId as string);
-        await this.renderNews(userId as string);
-        await this.renderUserFriends(userId as string);
-        await this.renderUserMusicItem(userId as string);
+        await this.renderProfileAvatar(userId);
+        await this.renderProfileName(userId);
+        await this.renderProfileCover(userId);
+        await this.renderNews(userId);
+        await this.renderUserFriends(userId);
+        await this.renderUserMusicItem(userId);
+        await this.checkSubscription(userId);
         const profileAvaBtn: HTMLElement | null = document.querySelector('.profile__label');
         const createNews: HTMLElement | null = document.querySelector('.create__news');
         const deleteNewsBtn: HTMLElement | null = this.userNewsContainer.querySelector('.delete__post_user');
@@ -389,17 +388,69 @@ export default class ViewProfile extends Page {
         if (changeNameBtn) changeNameBtn.style.display = 'none';
         if (changeStatusBtn) changeStatusBtn.style.display = 'none';
         if (uploadCoverBtn) uploadCoverBtn.style.display = 'none';
-
-        this.unsubscriptionBtn.style.display = 'block';
-        this.subscriptionBtn.style.display = 'none';
-        this.unsubscribeFriends(userId as string);
       }
-      if (userPage?.classList.contains('recommended__friends_content')) {
-        this.subscriptionBtn.style.display = 'block';
-        this.unsubscriptionBtn.style.display = 'none';
-        this.subscribeFriends(userId as string);
+
+      if (userId === (this.model.user?.uid as string)) {
+        console.log('me');
       }
     });
+  }
+
+  async checkSubscription(userId: string) {
+    const { userSubscripts } = await this.model.getUserInfo(this.model.user?.uid as string);
+    if (userSubscripts) {
+      const id = Object.keys(userSubscripts).find((subscript) => {
+        return subscript === userId;
+      });
+      if (id) {
+        this.subscriptionBtn.style.display = 'none';
+        this.unsubscriptionBtn.style.display = 'block';
+        this.unsubscribeFriends(userId);
+      } else {
+        this.subscriptionBtn.style.display = 'block';
+        this.unsubscriptionBtn.style.display = 'none';
+        this.subscribeFriends(userId);
+      }
+    } else {
+      this.subscriptionBtn.style.display = 'block';
+      this.unsubscriptionBtn.style.display = 'none';
+      this.subscribeFriends(userId);
+    }
+  }
+
+  async loadFriendsProfile(paramsId: string) {
+    await this.renderProfileCover(paramsId);
+    await this.renderProfileAvatar(paramsId);
+    await this.renderProfileName(paramsId);
+    await this.renderProfileContainer();
+    await this.renderNews(paramsId);
+    await this.renderUserFriends(paramsId);
+    await this.renderUserMusic();
+    await this.renderUserMusicItem(paramsId);
+    await this.checkSubscription(paramsId);
+    const profileAvaBtn: HTMLElement | null = document.querySelector('.profile__label');
+    const createNews: HTMLElement | null = document.querySelector('.create__news');
+    const deleteNewsBtn: HTMLElement | null = this.userNewsContainer.querySelector('.delete__post_user');
+    const changeNameBtn: HTMLElement | null = document.querySelector('.profile__name-btn');
+    const changeStatusBtn: HTMLElement | null = document.querySelector('.profile__status-btn');
+    const uploadCoverBtn: HTMLElement | null = document.querySelector('.profile__label-cover');
+    if (profileAvaBtn) profileAvaBtn.style.visibility = 'hidden';
+    if (createNews) createNews.style.display = 'none';
+    if (deleteNewsBtn) deleteNewsBtn.style.display = 'none';
+    if (changeNameBtn) changeNameBtn.style.display = 'none';
+    if (changeStatusBtn) changeStatusBtn.style.display = 'none';
+    if (uploadCoverBtn) uploadCoverBtn.style.display = 'none';
+  }
+
+  async renderUserPage(paramsId: string) {
+    await this.renderProfileCover(paramsId);
+    await this.renderProfileAvatar(paramsId);
+    await this.renderProfileName(paramsId);
+    await this.renderProfileContainer();
+    await this.renderNews(paramsId);
+    await this.renderUserFriends(paramsId);
+    await this.renderUserMusic();
+    await this.renderUserMusicItem(paramsId);
   }
 
   unsubscribeFriends(userId: string) {

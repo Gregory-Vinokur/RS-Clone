@@ -36,9 +36,28 @@ export default class ViewRecommendedFriends {
         (userAva as HTMLImageElement).src = `${userPage.userAvatar || defaultAva}`;
       });
     } else {
-      const userInfoWrapper = createHtmlElement('div', 'profile__friends_empty', 'Рекоммендованых подписок нет', this.element);
+      //const userInfoWrapper = createHtmlElement('div', 'profile__friends_empty', 'Рекомендованных подписок пока что нет.', this.element);
+      const userSubscripts = Object.keys(allUsers);
+      userSubscripts.push(this.model.user?.uid as string); // Текущий ID добавляется в массив подписок, чтобы пользователь не рекомендовался сам себе
+      const recommendedFriends = allUsers.filter((user) => {
+        return userSubscripts.indexOf(user) === -1;
+      });
+      const limitRecommendedFriends = recommendedFriends.slice(0, maxLength);
+
+      limitRecommendedFriends.forEach(async (userId) => {
+        const userPage = await this.model.getUserInfo(userId);
+        const onlyName = userPage.userName.split(' ').slice(0, 1).join('');
+
+        const userInfoWrapper = createHtmlElement('div', 'recommended__friends_content', '', this.element);
+        userInfoWrapper.id = `${userPage.userId}`;
+        const userAva = createHtmlElement('img', 'recommended__friends_ava', '', userInfoWrapper);
+        const userName = createHtmlElement('div', 'recommended__friends_name', '', userInfoWrapper);
+        userName.textContent = `${onlyName || 'Иван'}`;
+        (userAva as HTMLImageElement).src = `${userPage.userAvatar || defaultAva}`;
+      });
     }
   }
+
   render(): HTMLElement {
     return this.element;
   }
