@@ -30,7 +30,8 @@ export const loadSportPosts = () => {
                     logo: sport_logo,
                     comments: [],
                     liked: '',
-                    reposted: ""
+                    reposted: "",
+                    id: ""
                 };
 
                 return database.ref("posts/").push(data);
