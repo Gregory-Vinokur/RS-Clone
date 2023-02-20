@@ -68,7 +68,7 @@ export function checkAuthStatus(loginForm: HTMLElement, buttonsWrap: HTMLElement
     firebase.auth().onAuthStateChanged(function (user) {
         if (user) {
             loginForm.innerHTML = '';
-            const authQuestion = createHtmlElement('div', 'auth__q', `Want to continue as ${user.email}?`, loginForm);
+            const authQuestion = createHtmlElement('div', 'auth__q', `Want to continue as ${user.displayName}?`, loginForm);
             loginForm.append(buttonsWrap);
             console.log('User is signed in:', user);
         } else {
@@ -78,10 +78,23 @@ export function checkAuthStatus(loginForm: HTMLElement, buttonsWrap: HTMLElement
 }
 
 // Function to sign up a new user
-export function signUp(email: string, password: string, passwordInput: HTMLInputElement, ErrorMessagePassword: HTMLElement) {
+export function signUp(email: string, username: string, password: string, passwordInput: HTMLInputElement, ErrorMessagePassword: HTMLElement) {
     firebase
         .auth()
         .createUserWithEmailAndPassword(email, password)
+        .then(function (userCredential) {
+            const user = userCredential.user;
+            if (user) {
+                user.updateProfile({
+                    displayName: username,
+                    photoURL: 'https://firebasestorage.googleapis.com/v0/b/rs-clone-ts.appspot.com/o/images%2Funknown_user.jpg?alt=media&token=5f1a7af2-0306-4fe4-a7aa-f03f8d2814b5'
+                }).then(function () {
+                    console.log('User name saved to Firebase!');
+                }).catch(function (error) {
+                    console.error('Error saving user name to Firebase:', error);
+                });
+            }
+        })
         .then(function () {
             console.log('Sign up successful!');
             app.navigate(PATH.profilePage);
@@ -97,6 +110,7 @@ export function signUp(email: string, password: string, passwordInput: HTMLInput
             }
         });
 }
+
 
 export function resetPassword(email: string, usernameInput: HTMLInputElement, resetPasswordMessage: HTMLElement, resetPasswordLink: HTMLElement) {
     firebase

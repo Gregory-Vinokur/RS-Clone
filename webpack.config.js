@@ -24,6 +24,7 @@ const config = {
   plugins: [
     new HtmlWebpackPlugin({
       template: "index.html",
+      favicon: "./assets/img/favicon-32x32.png"
     }),
 
     // Add your plugins here

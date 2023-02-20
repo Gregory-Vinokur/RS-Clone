@@ -30,6 +30,8 @@ export default class ModelProfile extends Model {
   setUserId(id: string) {
     update(refDB(this.db, 'users/' + this.user?.uid), {
       userId: id,
+      userName: this.user?.displayName,
+      userAvatar: this.user?.photoURL
     });
   }
   setUserName(name: string) {
@@ -37,7 +39,7 @@ export default class ModelProfile extends Model {
       userName: name,
     });
     updateProfile(this.user as User, {
-      displayName: name || 'Иван Иванов',
+      displayName: name,
     });
   }
 
@@ -192,7 +194,7 @@ export default class ModelProfile extends Model {
         if (snapshot.exists()) {
           const { userName, userStatus, userAvatar, userCover, subscripts, userId } = snapshot.val();
           this.userPage = {
-            userName: userName || 'Иван Иванов',
+            userName: userName,
             userStatus: userStatus || 'Обновите ваш статус :)',
             userAvatar: userAvatar,
             userCover: userCover,
