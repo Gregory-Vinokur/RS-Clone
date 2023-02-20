@@ -10,4 +10,5 @@ export interface IPost {
   comments: Array<IComment>;
   liked: { [key: string]: boolean };
   reposted: { [key: string]: boolean };
+  id: string
 }

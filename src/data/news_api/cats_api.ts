@@ -41,5 +41,5 @@ export const loadCatsPosts = () => {
                     console.error("Error saving post: ", error);
                 });
         }
-    }, 1000);
+    }, 60 * 1000);
 };
