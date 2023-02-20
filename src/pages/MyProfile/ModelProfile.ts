@@ -28,8 +28,6 @@ export default class ModelProfile extends Model {
   setUserId(id: string) {
     update(refDB(this.db, 'users/' + this.user?.uid), {
       userId: id,
-      userName: this.user?.displayName,
-      userAvatar: this.user?.photoURL
     });
   }
   setUserName(name: string) {
