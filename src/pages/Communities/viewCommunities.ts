@@ -34,7 +34,6 @@ export default class ViewerCommunities extends Page {
     }
     constructor(id: string, lang: Lang, user: TypeUser) {
         super(id);
-        // this.model = model;
         this.postsLimit = 10;
         this.postsCount = 0;
         this.lang = lang;

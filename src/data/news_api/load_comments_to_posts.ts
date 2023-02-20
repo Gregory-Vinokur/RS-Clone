@@ -34,7 +34,12 @@ export const loadComments = (postId: string, commentsContainer: HTMLElement, com
                 }
                 const likeCounter = createHtmlElement("span", "like__counter-reply", '', likeButton);
                 likeCounter.textContent = (comment.likes === 0) ? "" : comment.likes.toString();
-                if (comment.liked === `${user?.uid}-true`) {
+                const userUid = user?.uid;
+
+                if (!userUid) {
+                    return;
+                }
+                if (comment.liked && comment.liked[userUid] === true) {
                     likeButton.classList.add('liked__comment');
                     likeCounter.style.color = 'rgb(255, 51, 71)';
                 }
@@ -102,13 +107,19 @@ export const loadComments = (postId: string, commentsContainer: HTMLElement, com
                 })
 
                 likeButton.addEventListener('click', () => {
+                    const userUid = user?.uid;
+
+                    if (!userUid) {
+                        return;
+                    }
                     let likes = comment.likes;
-                    let liked = comment.liked;
-                    if (liked === `${user?.uid}-false`) {
-                        liked = `${user?.uid}-true`
+                    let liked = comment.liked || {};
+                    if (liked[userUid] !== true) {
+                        liked[userUid] = true;
                         likes++;
-                    } else {
-                        liked = `${user?.uid}-false`
+                    }
+                    else {
+                        delete liked[userUid];
                         likes--;
                     }
                     database.ref(`posts/${postId}/comments/${comment.id}`).update({

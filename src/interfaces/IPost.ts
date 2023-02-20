@@ -8,6 +8,6 @@ export interface IPost {
   shares: number;
   logo: string;
   comments: Array<IComment>;
-  liked: string;
-  reposted: string;
+  liked: { [key: string]: boolean };
+  reposted: { [key: string]: boolean };
 }

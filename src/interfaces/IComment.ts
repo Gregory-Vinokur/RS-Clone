@@ -5,5 +5,5 @@ export interface IComment {
     logo: string,
     id: string | null,
     likes: number,
-    liked: string
+    liked: { [key: string]: boolean }
 }

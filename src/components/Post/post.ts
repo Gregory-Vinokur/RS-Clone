@@ -57,7 +57,12 @@ export default class Post extends ModelProfile {
         const likeButton = createHtmlElement("button", "like__button", '', postActions);
         const likeImg = createHtmlElement("div", "like__img", '', likeButton);
         const likeCounter = createHtmlElement("span", "like__counter", '', likeButton);
-        if (postData.liked === `${user?.uid}-true`) {
+        const userUid = this.user?.uid;
+
+        if (!userUid) {
+            return;
+        }
+        if (postData.liked && postData.liked[userUid] === true) {
             likeButton.classList.add('liked');
             likeImg.classList.add('liked__img');
         }
@@ -80,20 +85,25 @@ export default class Post extends ModelProfile {
 
 
         likeButton.addEventListener('click', () => {
+            const userUid = this.user?.uid;
+
+            if (!userUid) {
+                return;
+            }
             const postId = this.element.id;
             database.ref(`posts/${postId}`).once("value", (snapshot) => {
                 let likes = snapshot.val().likes || 0;
-                let liked = snapshot.val().liked;
+                let liked = snapshot.val().liked || {};
                 if (!likeButton.classList.contains('liked')) {
                     likeButton.classList.add('liked');
                     likeImg.classList.add('liked__img');
                     likes++;
-                    liked = `${user?.uid}-true`;
+                    liked[userUid] = true;
                 } else {
                     likeButton.classList.remove('liked');
                     likeImg.classList.remove('liked__img');
                     likes--;
-                    liked = `${user?.uid}-false`;
+                    delete liked[userUid]
                 }
                 likeCounter.textContent = (likes === 0) ? "" : likes.toString();
                 database.ref(`posts/${postId}`).update({
@@ -105,14 +115,20 @@ export default class Post extends ModelProfile {
 
 
         shareButton.addEventListener('click', () => {
+            const userUid = this.user?.uid;
+
+            if (!userUid) {
+                return;
+            }
             const postId = this.element.id;
             database.ref(`posts/${postId}`).once("value", (snapshot) => {
                 const postData = snapshot.val();
                 let shares = postData.shares || 0;
-                let reposted = postData.reposted;
-                if (reposted !== `${user?.uid}-true`) {
+                let reposted = postData.reposted || {};
+                if (reposted[userUid] !== true) {
                     shares++;
-                    reposted = `${user?.uid}-true`
+                    reposted[userUid] = true;
+                    postData.id = postId;
                     database.ref(`users/${user?.uid}/userPost`).push(postData);
                 } else {
                     return;
@@ -155,7 +171,7 @@ export default class Post extends ModelProfile {
                         date: Date.now(),
                         logo: this.user?.photoURL,
                         likes: 0,
-                        liked: `${this.user?.uid}-false`
+                        liked: {}
                     };
                     comments.push(newComment);
                     textarea.value = '';
