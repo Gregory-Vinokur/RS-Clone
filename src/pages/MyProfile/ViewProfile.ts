@@ -342,7 +342,6 @@ export default class ViewProfile extends Page {
       Object.keys(user.userSubscripts).forEach(async (userId) => {
         const userPage = await this.model.getUserInfo(userId);
         const onlyName = userPage.userName.split(' ').slice(0, 1).join('');
-        console.log(userId);
         const userInfoWrapper = createHtmlElement('div', 'profile__friends_content', '', this.profileFriends);
         userInfoWrapper.id = `${userPage.userId}`;
         const userAva = createHtmlElement('img', 'profile__friends_ava', '', userInfoWrapper);
@@ -400,17 +399,22 @@ export default class ViewProfile extends Page {
   async checkSubscription(userId: string) {
     const { userSubscripts } = await this.model.getUserInfo(this.model.user?.uid as string);
     if (userSubscripts) {
-      Object.keys(userSubscripts).forEach((subscrip) => {
-        if (subscrip === userId) {
-          this.unsubscriptionBtn.style.display = 'block';
-          this.subscriptionBtn.style.display = 'none';
-          this.unsubscribeFriends(userId);
-        } else if (subscrip !== userId) {
-          this.subscriptionBtn.style.display = 'block';
-          this.unsubscriptionBtn.style.display = 'none';
-          this.subscribeFriends(userId);
-        }
+      const id = Object.keys(userSubscripts).find((subscript) => {
+        return subscript === userId;
       });
+      if (id) {
+        this.subscriptionBtn.style.display = 'none';
+        this.unsubscriptionBtn.style.display = 'block';
+        this.unsubscribeFriends(userId);
+      } else {
+        this.subscriptionBtn.style.display = 'block';
+        this.unsubscriptionBtn.style.display = 'none';
+        this.subscribeFriends(userId);
+      }
+    } else {
+      this.subscriptionBtn.style.display = 'block';
+      this.unsubscriptionBtn.style.display = 'none';
+      this.subscribeFriends(userId);
     }
   }
 
