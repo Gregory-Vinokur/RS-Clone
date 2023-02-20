@@ -28,7 +28,8 @@ export const loadCatsPosts = () => {
                         logo: cat_logo,
                         comments: [],
                         liked: "",
-                        reposted: ""
+                        reposted: "",
+                        id: ""
                     };
 
                     return database.ref("posts/").push(data);
@@ -40,5 +41,5 @@ export const loadCatsPosts = () => {
                     console.error("Error saving post: ", error);
                 });
         }
-    }, 60 * 1000);
+    }, 1000);
 };
