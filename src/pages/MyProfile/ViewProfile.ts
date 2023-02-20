@@ -399,17 +399,19 @@ export default class ViewProfile extends Page {
 
   async checkSubscription(userId: string) {
     const { userSubscripts } = await this.model.getUserInfo(this.model.user?.uid as string);
-    Object.keys(userSubscripts).forEach((subscrip) => {
-      if (subscrip === userId) {
-        this.unsubscriptionBtn.style.display = 'block';
-        this.subscriptionBtn.style.display = 'none';
-        this.unsubscribeFriends(userId);
-      } else if (subscrip !== userId) {
-        this.subscriptionBtn.style.display = 'block';
-        this.unsubscriptionBtn.style.display = 'none';
-        this.subscribeFriends(userId);
-      }
-    });
+    if (userSubscripts) {
+      Object.keys(userSubscripts).forEach((subscrip) => {
+        if (subscrip === userId) {
+          this.unsubscriptionBtn.style.display = 'block';
+          this.subscriptionBtn.style.display = 'none';
+          this.unsubscribeFriends(userId);
+        } else if (subscrip !== userId) {
+          this.subscriptionBtn.style.display = 'block';
+          this.unsubscriptionBtn.style.display = 'none';
+          this.subscribeFriends(userId);
+        }
+      });
+    }
   }
 
   async loadFriendsProfile(paramsId: string) {
