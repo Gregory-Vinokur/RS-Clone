@@ -49,7 +49,10 @@ export default class Header extends EventEmitter {
     this.logo.addEventListener('click', () => {
       this.emit('navigate', PATH.login);
     });
+
+    this.userAvatar.style.visibility = 'hidden';
     this.model.on('setUser', () => {
+      this.userAvatar.style.visibility = 'visible';
       this.userAvatar.src = `${this.model.user?.photoURL || defaultAva}`;
     });
   }
