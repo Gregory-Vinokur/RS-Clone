@@ -59,7 +59,7 @@
   border: none;
 }
 
-@media (max-width: 340px) {
+@media (max-width: 380px) {
   .button {
     width: 60px;
     height: 24px;
