@@ -21,7 +21,8 @@ type EmitsName =
   | 'subscriptionUser'
   | 'unsubscriptionUser'
   | 'likePost'
-  | 'openUserPage';
+  | 'openUserPage'
+  | 'changePostsCounter';
 
 export default class ViewProfile extends Page {
   model: ModelProfile;
@@ -46,6 +47,7 @@ export default class ViewProfile extends Page {
   userMusicContainer: HTMLElement;
   currentTrack: HTMLAudioElement;
   paramsId: string;
+  currendOpenPageId: string;
   emit(event: EmitsName, data?: string | File | { [key: string]: string }) {
     return super.emit(event, data);
   }
@@ -92,7 +94,7 @@ export default class ViewProfile extends Page {
     this.paramsId = qs.parse(window.location.search).id as string;
 
     this.paramsId !== undefined ? this.loadFriendsProfile(this.paramsId) : this.renderUserPage(this.model.user?.uid as string);
-
+    this.currendOpenPageId = this.model.user?.uid as string;
     this.renderFriendProfile();
 
     this.inputAvatar.addEventListener('change', (e: Event) => {
@@ -142,7 +144,7 @@ export default class ViewProfile extends Page {
   async renderProfileAvatar(userId: string) {
     const user = await this.model.getUserInfo(userId);
     const avaHeader: HTMLImageElement | null = document.querySelector('.header__user-ava');
-    if (avaHeader) avaHeader.src = `${user.userAvatar || defaultAva}`;
+    if (avaHeader) avaHeader.src = `${this.model.user?.photoURL || defaultAva}`;
     const profileAvatarImgContainer = createHtmlElement('div', 'profile__ava', '', this.profileAvatar);
     const profileAvatarImg = createHtmlElement('img', 'profile__ava-img', '', profileAvatarImgContainer);
     const uploadAvaLabel = createHtmlElement('label', 'profile__label', '', this.profileAvatar);
@@ -281,6 +283,7 @@ export default class ViewProfile extends Page {
     Object.keys(userPost).forEach((postId: string) => {
       const postContainer = createHtmlElement('div', 'post__container_user', '', createdPostContainer as HTMLElement);
       postContainer.id = `${userPost[postId].id}`;
+      if (userPost[postId].postsId) postContainer.setAttribute('data-id', userPost[postId].postsId);
       const postHeader = createHtmlElement('div', 'post__header_user', '', postContainer);
       const postInfo = createHtmlElement('div', 'post__info_user', '', postHeader);
       createHtmlElement('p', 'post__author', `Autor: ${userPost[postId].author}`, postInfo);
@@ -305,7 +308,14 @@ export default class ViewProfile extends Page {
       createHtmlElement('div', 'share__img', '', repostPostBtn);
       createHtmlElement('span', 'share__counter', '', repostPostBtn);
 
+      if (userPost[postId].liked && userPost[postId].liked[this.model.user?.uid as string] === true) {
+        likePostBtn.classList.add('liked');
+        likeImg.classList.add('liked__img');
+      }
+
       deleteBtn.addEventListener('click', () => {
+        const repostId = postContainer.getAttribute('data-id');
+        if (repostId) this.emit('changePostsCounter', repostId);
         this.emit('deletePost', postContainer.id);
       });
 
@@ -314,21 +324,22 @@ export default class ViewProfile extends Page {
           likePostBtn.classList.add('liked');
           likeImg.classList.add('liked__img');
           likeCounter++;
-          // this.emit('likePost', {
-          //   likeCounter: likeCounter,
-          //   postId: postContainer.id,
-          //   liked: `${this.model.user?.uid}-true`,
-          // });
+          this.emit('likePost', {
+            likeCounter: likeCounter,
+            postId: postContainer.id,
+            liked: 'true',
+            userId: this.currendOpenPageId,
+          });
         } else {
           likePostBtn.classList.remove('liked');
           likeImg.classList.remove('liked__img');
           likeCounter--;
-          // this.emit('likePost', {
-          //   likeCounter: likeCounter,
-          //   postId: postContainer.id,
-          //   liked: `${this.model.user?.uid}-false`,
-          //   userId:
-          // });
+          this.emit('likePost', {
+            likeCounter: likeCounter,
+            postId: postContainer.id,
+            liked: 'false',
+            userId: this.currendOpenPageId,
+          });
         }
         likeCounterHTML.textContent = `${likeCounter}`;
       });
@@ -362,6 +373,7 @@ export default class ViewProfile extends Page {
         const params = qs.parse(window.location.search);
         params.id = userId;
         const search = qs.stringify(params);
+        this.currendOpenPageId = userId;
         window.history.pushState({}, 'path', window.location.origin + window.location.pathname + `${search ? '?' + search : ''}`);
         this.profileAvatar.innerHTML = '';
         this.profileCover.innerHTML = '';
@@ -430,16 +442,21 @@ export default class ViewProfile extends Page {
     await this.checkSubscription(paramsId);
     const profileAvaBtn: HTMLElement | null = document.querySelector('.profile__label');
     const createNews: HTMLElement | null = document.querySelector('.create__news');
-    const deleteNewsBtn: HTMLElement | null = this.userNewsContainer.querySelector('.delete__post_user');
+    // const deleteNewsBtn: HTMLElement | null = this.userNewsContainer.querySelector('.delete__post_user');
+    const deleteNewsBtn = this.userNewsContainer.querySelectorAll('.delete__post_user');
+    console.log(deleteNewsBtn);
     const changeNameBtn: HTMLElement | null = document.querySelector('.profile__name-btn');
     const changeStatusBtn: HTMLElement | null = document.querySelector('.profile__status-btn');
     const uploadCoverBtn: HTMLElement | null = document.querySelector('.profile__label-cover');
     if (profileAvaBtn) profileAvaBtn.style.visibility = 'hidden';
     if (createNews) createNews.style.display = 'none';
-    if (deleteNewsBtn) deleteNewsBtn.style.display = 'none';
     if (changeNameBtn) changeNameBtn.style.display = 'none';
     if (changeStatusBtn) changeStatusBtn.style.display = 'none';
     if (uploadCoverBtn) uploadCoverBtn.style.display = 'none';
+
+    deleteNewsBtn.forEach((btn) => {
+      (btn as HTMLElement).style.display = 'none';
+    });
   }
 
   async renderUserPage(paramsId: string) {
