@@ -476,7 +476,7 @@ export default class ViewerMessasges extends Page {
   createDataElement = (sec?: number | string) => {
     const timeSec = sec ? Number(sec) : Date.now();
     const time = new Date(timeSec);
-    const timeText = `${time.getDate().toString().padStart(2, '0')}.${time.getMonth().toString().padStart(2, '0')}.${time.getFullYear()} ${time
+    const timeText = `${time.getDate().toString().padStart(2, '0')}.${(time.getMonth() + 1).toString().padStart(2, '0')}.${time.getFullYear()} ${time
       .getHours()
       .toString()
       .padStart(2, '0')}:${time.getMinutes().toString().padStart(2, '0')}`;

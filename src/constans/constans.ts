@@ -12,6 +12,8 @@ enum PATCH_TO_DB {
   USERS = 'users',
   LAST_CHANGE = 'lastChange',
   MESSAGES = 'messages',
+  DEFAULT_NAME = 'Иван Иванов',
+  PHOTO_URL = 'https://firebasestorage.googleapis.com/v0/b/rs-clone-ts.appspot.com/o/images%2F04.jpg?alt=media&token=60ae0ee3-7b9b-44a1-9812-155b9c766d1c',
 }
 
 type Lang = keyof LangFild;

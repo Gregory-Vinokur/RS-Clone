@@ -129,8 +129,9 @@ export default class Post extends ModelProfile {
                 if (reposted[userUid] !== true) {
                     shares++;
                     reposted[userUid] = true;
-                    postData.id = postId;
-                    database.ref(`users/${user?.uid}/userPost`).push(postData);
+                    const newUserPostRef = database.ref(`users/${user?.uid}/userPost`).push(postData);
+                    postData.id = newUserPostRef.key;
+                    newUserPostRef.set(postData);
 
                 } else {
                     return;
