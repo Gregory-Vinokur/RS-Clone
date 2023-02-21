@@ -140,12 +140,59 @@ export default class ModelProfile extends Model {
     return this.userPosts;
   }
 
-  deleteUserPost(id: string) {
+  async deleteUserPost(id: string) {
     const databaseRef = database.ref(`users/${this.user?.uid}/userPost/${id}`);
     const databaseRefPosts = database.ref(`posts/${id}`);
     databaseRef.remove();
     databaseRefPosts.remove();
     this.emit('updateData');
+  }
+
+  async setPostRepostCount(id: string) {
+    const dbRef = refDB(getDatabase());
+    await get(child(dbRef, `posts/${id}`))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const posts = snapshot.val();
+          const shares = posts.shares;
+          const reposted = posts.reposted;
+          delete reposted[this.user?.uid as string];
+          update(refDB(this.db, `posts/${id}`), {
+            shares: shares - 1,
+            reposted: reposted,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  async setPostLikes(params: { [key: string]: string }) {
+    const dbRef = refDB(getDatabase());
+    await get(child(dbRef, `users/${params.userId}/userPost/${params.postId}`))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const post = snapshot.val();
+          let likes = post.likes;
+          likes = params.likeCounter;
+          const liked = post.liked || {};
+          console.log(params.liked);
+          if (params.liked === 'true') {
+            liked[this.user?.uid as string] = true;
+          }
+          if (params.liked === 'false') {
+            delete liked[this.user?.uid as string];
+          }
+          update(refDB(this.db, `users/${params.userId}/userPost/${params.postId}`), {
+            likes: likes,
+            liked: liked,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   async createPostImg(img: File) {
