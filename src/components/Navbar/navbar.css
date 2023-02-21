@@ -32,7 +32,7 @@
   background: inherit;
 }
 
-@media (max-width: 610px) {
+@media (max-width: 800px) {
   .side__bar {
     position: absolute;
     width: 100%;

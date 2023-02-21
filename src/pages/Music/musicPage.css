@@ -344,3 +344,76 @@
 .dark-theme .search__music-input {
   color: #e1e3e6;
 }
+
+@media (max-width: 960px) {
+  .track__list-container {
+    flex-direction: column;
+  }
+  .track__item {
+    max-width: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .music__list {
+    padding: 10px;
+  }
+  .search__music-input {
+    width: 80%;
+    font-size: 14px;
+    padding-right: 10px;
+  }
+  .search__music-input::placeholder {
+    font-size: 12px;
+  }
+  .search__music-btn {
+    font-size: 14px;
+    padding: 5px;
+  }
+}
+
+@media (max-width: 540px) {
+  .main-player__wrapper {
+    flex-direction: column;
+    align-items: start;
+    gap: 5px;
+    padding: 5px 10px;
+  }
+  .advertising__banner {
+    height: 120px;
+  }
+  .main-player__info {
+    width: 100%;
+  }
+  .main-player__name,
+  .main-player__author,
+  .main-player__time {
+    font-size: 14px;
+  }
+  .volume__slider {
+    margin-top: 5px;
+  }
+}
+
+@media (max-width: 460px) {
+  .music__wrapper {
+    padding: 5px 10px;
+  }
+  .track__item-title,
+  .track__item-author {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 340px) {
+  .search__music-wrapper {
+    gap: 4px;
+  }
+  .search__music-input {
+    width: auto;
+    padding: 8px 5px;
+  }
+  .search__music-btn {
+    font-size: 12px;
+  }
+}

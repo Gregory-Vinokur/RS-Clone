@@ -88,7 +88,7 @@
 }
 .profile__cover-img {
   width: 100%;
-  height: 260px;
+  height: 100%;
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -548,4 +548,115 @@
 .dark-theme .subscription__user_btn,
 .dark-theme .unsubscription__user_btn {
   background-color: rgba(255, 255, 255, 0.02);
+}
+
+@media (max-width: 1000px) {
+  .profile__ava {
+    width: 120px;
+    height: 120px;
+  }
+  .profile__label {
+    right: 2px;
+  }
+  .profile__label-cover {
+    top: -65px;
+  }
+  .profile__cover {
+    height: 210px;
+  }
+  .profile__header {
+    height: 70px;
+  }
+  .profile__info {
+    gap: 45px;
+    margin-top: 60px;
+  }
+  .profile__name,
+  .profile__status {
+    font-size: 20px;
+  }
+  .unsubscription__user_btn,
+  .subscription__user_btn {
+    margin-left: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .profile__wrapper {
+    margin: 0.5rem;
+    margin-bottom: 0;
+  }
+  .profile__main {
+    flex-direction: column-reverse;
+    gap: 15px;
+  }
+  .profile__label-cover {
+    top: -50px;
+  }
+  .profile__label {
+    right: -4px;
+  }
+  .profile__ava {
+    width: 100px;
+    height: 100px;
+  }
+  .profile__info {
+    gap: 25px;
+    margin-top: 40px;
+    margin-bottom: 15px;
+  }
+  .profile__cover {
+    height: 170px;
+  }
+  .profile__header {
+    height: 60px;
+  }
+  .unsubscription__user_btn,
+  .subscription__user_btn {
+    font-size: 12px;
+    margin-left: 0;
+    margin-bottom: 14px;
+  }
+  .profile__name,
+  .profile__status,
+  .profile__name-input,
+  .profile__status-input {
+    font-size: 18px;
+  }
+  .create__news {
+    margin-bottom: 5px;
+  }
+  .news__container_user {
+    padding: 0;
+  }
+  .post__container_user {
+    padding: 10px;
+    padding-bottom: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile__info {
+    height: 225px;
+    flex-direction: column;
+    align-items: start;
+    margin-top: 0;
+    gap: 10px;
+  }
+  .profile__label-cover {
+    top: -10px;
+  }
+  .unsubscription__user_btn,
+  .subscription__user_btn {
+    margin: 0;
+  }
+  .profile__cover {
+    height: 230px;
+  }
+  .profile__header {
+    height: 140px;
+  }
+  .post__author {
+    font-size: 16px;
+  }
 }
