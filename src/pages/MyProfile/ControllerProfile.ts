@@ -35,5 +35,13 @@ export default class ControllerProfule {
     this.view.on('subscriptionUser', (userId) => {
       this.model.subscriptionUser(userId as string);
     });
+
+    this.view.on('changePostsCounter', (postId) => {
+      if (typeof postId === 'string') this.model.setPostRepostCount(postId);
+    });
+
+    this.view.on('likePost', (params) => {
+      if (typeof params === 'object') this.model.setPostLikes(params as { [key: string]: string });
+    });
   }
 }
