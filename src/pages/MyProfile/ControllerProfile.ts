@@ -43,5 +43,9 @@ export default class ControllerProfule {
     this.view.on('likePost', (params) => {
       if (typeof params === 'object') this.model.setPostLikes(params as { [key: string]: string });
     });
+
+    this.view.on('shareNews', (params) => {
+      if (typeof params === 'object') this.model.getUserPost(params as { [key: string]: string });
+    });
   }
 }

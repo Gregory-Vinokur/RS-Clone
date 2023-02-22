@@ -22,7 +22,8 @@ type EmitsName =
   | 'unsubscriptionUser'
   | 'likePost'
   | 'openUserPage'
-  | 'changePostsCounter';
+  | 'changePostsCounter'
+  | 'shareNews';
 
 export default class ViewProfile extends Page {
   model: ModelProfile;
@@ -48,6 +49,7 @@ export default class ViewProfile extends Page {
   currentTrack: HTMLAudioElement;
   paramsId: string;
   currendOpenPageId: string;
+
   emit(event: EmitsName, data?: string | File | { [key: string]: string }) {
     return super.emit(event, data);
   }
@@ -130,6 +132,7 @@ export default class ViewProfile extends Page {
       this.createNewsBtn.textContent = '';
       this.createNewsBtn.append(this.spinnerLoad);
     });
+
     this.model.on('postImgLoaded', () => {
       (this.createNewsBtn as HTMLButtonElement).disabled = false;
       this.createNewsBtn.textContent = 'Поделиться';
@@ -304,9 +307,9 @@ export default class ViewProfile extends Page {
       let likeCounter = userPost[postId].likes || 0;
       const likeCounterHTML = createHtmlElement('span', 'like__counter', `${likeCounter}`, likePostBtn);
 
-      const repostPostBtn = createHtmlElement('button', 'share__button share__btn_user', '', actionPost);
+      const repostPostBtn = createHtmlElement('button', 'share__button share__btn_user', '', actionPost); // Исправить счетчик если 0 то не показывать
       createHtmlElement('div', 'share__img', '', repostPostBtn);
-      createHtmlElement('span', 'share__counter', '', repostPostBtn);
+      createHtmlElement('span', 'share__counter', `${userPost[postId].shares || 0}`, repostPostBtn);
 
       if (userPost[postId].liked && userPost[postId].liked[this.model.user?.uid as string] === true) {
         likePostBtn.classList.add('liked');
@@ -342,6 +345,13 @@ export default class ViewProfile extends Page {
           });
         }
         likeCounterHTML.textContent = `${likeCounter}`;
+      });
+
+      repostPostBtn.addEventListener('click', () => {
+        this.emit('shareNews', {
+          postId: postContainer.id,
+          userId: this.currendOpenPageId,
+        });
       });
     });
   }
@@ -390,16 +400,18 @@ export default class ViewProfile extends Page {
         await this.checkSubscription(userId);
         const profileAvaBtn: HTMLElement | null = document.querySelector('.profile__label');
         const createNews: HTMLElement | null = document.querySelector('.create__news');
-        const deleteNewsBtn: HTMLElement | null = this.userNewsContainer.querySelector('.delete__post_user');
+        const deleteNewsBtn = this.userNewsContainer.querySelectorAll('.delete__post_user');
         const changeNameBtn: HTMLElement | null = document.querySelector('.profile__name-btn');
         const changeStatusBtn: HTMLElement | null = document.querySelector('.profile__status-btn');
         const uploadCoverBtn: HTMLElement | null = document.querySelector('.profile__label-cover');
         if (profileAvaBtn) profileAvaBtn.style.visibility = 'hidden';
         if (createNews) createNews.style.display = 'none';
-        if (deleteNewsBtn) deleteNewsBtn.style.display = 'none';
         if (changeNameBtn) changeNameBtn.style.display = 'none';
         if (changeStatusBtn) changeStatusBtn.style.display = 'none';
         if (uploadCoverBtn) uploadCoverBtn.style.display = 'none';
+        deleteNewsBtn.forEach((btn) => {
+          (btn as HTMLElement).style.display = 'none';
+        });
       }
 
       if (userId === (this.model.user?.uid as string)) {
@@ -442,9 +454,7 @@ export default class ViewProfile extends Page {
     await this.checkSubscription(paramsId);
     const profileAvaBtn: HTMLElement | null = document.querySelector('.profile__label');
     const createNews: HTMLElement | null = document.querySelector('.create__news');
-    // const deleteNewsBtn: HTMLElement | null = this.userNewsContainer.querySelector('.delete__post_user');
     const deleteNewsBtn = this.userNewsContainer.querySelectorAll('.delete__post_user');
-    console.log(deleteNewsBtn);
     const changeNameBtn: HTMLElement | null = document.querySelector('.profile__name-btn');
     const changeStatusBtn: HTMLElement | null = document.querySelector('.profile__status-btn');
     const uploadCoverBtn: HTMLElement | null = document.querySelector('.profile__label-cover');
@@ -453,7 +463,6 @@ export default class ViewProfile extends Page {
     if (changeNameBtn) changeNameBtn.style.display = 'none';
     if (changeStatusBtn) changeStatusBtn.style.display = 'none';
     if (uploadCoverBtn) uploadCoverBtn.style.display = 'none';
-
     deleteNewsBtn.forEach((btn) => {
       (btn as HTMLElement).style.display = 'none';
     });

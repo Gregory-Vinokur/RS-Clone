@@ -140,6 +140,31 @@ export default class ModelProfile extends Model {
     return this.userPosts;
   }
 
+  async getUserPost(params: { [key: string]: string }) {
+    const dbRef = refDB(getDatabase());
+    await get(child(dbRef, `users/${params.userId}/userPost/${params.postId}`))
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const userNews = snapshot.val();
+          let shares = userNews.shares || 0;
+          const reposted = userNews.reposted || {};
+          if (reposted[this.user?.uid as string] !== true) {
+            shares++;
+            reposted[this.user?.uid as string] = true;
+            const newUserPostRef = database.ref(`users/${this.user?.uid}/userPost`).push(userNews);
+            newUserPostRef.set(userNews);
+          }
+          database.ref(`users/${params.userId}/userPost/${params.postId}`).update({
+            shares,
+            reposted,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
   async deleteUserPost(id: string) {
     const databaseRef = database.ref(`users/${this.user?.uid}/userPost/${id}`);
     const databaseRefPosts = database.ref(`posts/${id}`);
