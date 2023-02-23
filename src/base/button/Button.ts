@@ -12,7 +12,10 @@ export default class Button<T extends Model> {
     this.element = createHtmlElement('div', `button button_${name}`);
     this.model = model;
     this.changeLang();
-    this.element.addEventListener('click', callback);
+    this.element.addEventListener('click', (e) => {
+      e.stopPropagation();
+      callback();
+    });
   }
 
   changeLang = () => {

@@ -1,0 +1,20 @@
+.edite-message-container {
+  position: absolute;
+  padding: 0 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  top: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 15px;
+}
+
+.edite-message-buttons {
+  padding: 10px 15px;
+  border-radius: 15px;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}

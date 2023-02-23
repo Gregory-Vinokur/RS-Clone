@@ -9,6 +9,7 @@ export default class ControllerMessages {
     this.model = model;
     this.viewer = viewer;
     this.viewer.on('send', (message: string) => this.sendMessage(message));
+    this.viewer.on('edite', (id: string, message: string) => this.model.updateMessage(id, message));
     this.viewer.on('setLimit', (limit: string) => this.setLimit(limit));
     this.viewer.on('setSort', (sort: string) => this.setSort(sort as Sort));
     this.viewer.on('deleteMessage', (id: string) => this.deleteMessage(id));
