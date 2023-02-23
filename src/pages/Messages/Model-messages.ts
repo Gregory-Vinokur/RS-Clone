@@ -13,6 +13,7 @@ import {
   doc,
   deleteDoc,
   getDocs,
+  updateDoc,
   onSnapshot,
   query,
   orderBy,
@@ -66,7 +67,7 @@ export default class ModelMessages extends Model {
     this.currentGroup = '';
     const app = initializeApp(firebaseConfig);
     this.db = getFirestore(app);
-    onSnapshot(query(collection(this.db, 'messages'), orderBy('created', this.sort), limit(this.limit)), (querySnapshot) => {
+    onSnapshot(query(collection(this.db, PATCH_TO_DB.MESSAGES), orderBy('created', this.sort), limit(this.limit)), (querySnapshot) => {
       this.messages = querySnapshot;
       this.emit('updateData');
     });
@@ -263,9 +264,21 @@ export default class ModelMessages extends Model {
     }
   };
 
+  updateMessage = (id: string, message: string) => {
+    if (this.isChat) {
+      this.editeMessageInChat(id, message);
+    }
+    if (this.isRooms) {
+      this.editeMessageInRooms(id, message);
+    }
+    if (this.isGroupRooms) {
+      this.editeMessageTInGroupRooms(id, message);
+    }
+  };
+
   private sendMessageToChat = async (message: string) => {
     try {
-      await addDoc(collection(this.db, 'messages'), {
+      await addDoc(collection(this.db, PATCH_TO_DB.MESSAGES), {
         uid: this.user?.uid,
         name: this.user?.displayName ? this.user.displayName : 'unknown',
         photo: this.user?.photoURL,
@@ -274,6 +287,18 @@ export default class ModelMessages extends Model {
       });
     } catch (e) {
       console.error('Error adding document: ', e);
+    }
+  };
+
+  private editeMessageInChat = async (id: string, message: string) => {
+    try {
+      const updateMessage = doc(this.db, PATCH_TO_DB.MESSAGES, id);
+      await updateDoc(updateMessage, {
+        text: message,
+        // created: serverTimestamp(),
+      });
+    } catch (e) {
+      console.error('Error editing document: ', e);
     }
   };
 
@@ -307,6 +332,16 @@ export default class ModelMessages extends Model {
     }
   };
 
+  private editeMessageInRooms = (id: string, message: string) => {
+    try {
+      const updates: { [index: string]: string } = {};
+      updates[`${PATCH_TO_DB.DIALOGS_ROOMS}/${this.currentDialog}/${id}/${PATCH_TO_DB.MESSAGE_TEXT}`] = message;
+      update(ref(this.rtdb), updates);
+    } catch (e) {
+      console.error('Error editing document: ', e);
+    }
+  };
+
   private sendMessageToGroupRooms = (message: string) => {
     try {
       const dialogRef = ref(this.rtdb, `${PATCH_TO_DB.GROUP_ROOMS}/${this.currentGroup}`);
@@ -330,6 +365,16 @@ export default class ModelMessages extends Model {
       }
     } catch (e) {
       console.error('Error adding document: ', e);
+    }
+  };
+
+  private editeMessageTInGroupRooms = (id: string, message: string) => {
+    try {
+      const updates: { [index: string]: string } = {};
+      updates[`${PATCH_TO_DB.GROUP_ROOMS}/${this.currentGroup}/${PATCH_TO_DB.MESSAGES}/${id}/text`] = message;
+      update(ref(this.rtdb), updates);
+    } catch (e) {
+      console.error('Error editing document: ', e);
     }
   };
 
@@ -409,7 +454,7 @@ export default class ModelMessages extends Model {
   };
 
   getMessage = async () => {
-    this.messages = await getDocs(query(collection(this.db, 'messages'), orderBy('created', this.sort), limit(this.limit)));
+    this.messages = await getDocs(query(collection(this.db, PATCH_TO_DB.MESSAGES), orderBy('created', this.sort), limit(this.limit)));
     this.emit('updateData');
   };
 
