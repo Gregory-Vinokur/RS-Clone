@@ -7,10 +7,12 @@ import avatar from '../../../assets/img/ava.jpg';
 import FindWindow from '../../base/find/FindWindow';
 import CreateGroupWindow from '../../base/createGroup/CreateGroup';
 import FindGroupWindow from '../../base/find/FindGroupWindow';
+import EditeMessage from '../../base/editeMessage/EditeMessage';
 import { LANGTEXT, PATCH_TO_DB } from '../../constans/constans';
 
 type EmitsName =
   | 'send'
+  | 'edite'
   | 'changeLang'
   | 'deleteMessage'
   | 'deleteDialogMessage'
@@ -34,7 +36,7 @@ enum SORTBY {
   ASC = 'asc',
 }
 
-type Callback = ((data: string) => void) | ((data: number) => void) | (() => void);
+type Callback = ((data: string, text: string) => void) | ((data: number) => void) | (() => void);
 
 export default class ViewerMessasges extends Page {
   model: ModelMessages;
@@ -76,9 +78,15 @@ export default class ViewerMessasges extends Page {
   isCreateWindow: boolean;
   isFindGrop: boolean;
   findGroupWindow: FindGroupWindow | null;
+  editeMessageWindow: EditeMessage | null;
+  isEditeMessageWindow: boolean;
+  isEditeMessage: boolean;
+  editeMessageId: string;
+  buttonEdite: Button<ModelMessages>;
+  buttonEditeClose: HTMLElement;
 
-  emit(event: EmitsName, data?: string | number) {
-    return super.emit(event, data);
+  emit(event: EmitsName, data?: string | number, text?: string) {
+    return super.emit(event, data, text);
   }
 
   on(event: EmitsName, callback: Callback) {
@@ -96,9 +104,13 @@ export default class ViewerMessasges extends Page {
     this.isFind = false;
     this.isFindGrop = false;
     this.isCreateWindow = false;
+    this.isEditeMessageWindow = false;
+    this.isEditeMessage = false;
     this.findWindow = null;
     this.findGroupWindow = null;
     this.createGroupWindow = null;
+    this.editeMessageWindow = null;
+    this.editeMessageId = '';
     this.messagesRoomsMembersElement = [];
     this.groupRoomsElement = [];
     this.messagesField = createHtmlElement('div', 'messages__field');
@@ -138,11 +150,17 @@ export default class ViewerMessasges extends Page {
     this.sortASC.setAttribute('value', SORTBY.ASC);
     this.sortSelect.value = this.model.sort;
     this.sortSelect.addEventListener('change', () => this.emit('setSort', this.sortSelect.value));
-    const sendInputContainer = createHtmlElement('div', 'send-input-container');
+    const sendInputWrapper = createHtmlElement('div', 'send-input-wrapper');
+    this.buttonEditeClose = createHtmlElement('div', 'button_close', '✖', sendInputWrapper);
+    this.buttonEditeClose.style.display = 'none';
+    this.buttonEditeClose.addEventListener('click', this.stopeEdite);
+    const sendInputContainer = createHtmlElement('div', 'send-input-container', '', sendInputWrapper);
     this.buttonSend = new Button('sendButton', this.model, this.sendMessage);
-    sendInputContainer.append(this.input, this.buttonSend.render());
+    this.buttonEdite = new Button('editeButton', this.model, this.updateMessage);
+    this.buttonEdite.element.style.display = 'none';
+    sendInputContainer.append(this.input, this.buttonSend.render(), this.buttonEdite.render());
 
-    this.mainWrapper.append(buttonsHeaderContainer, this.messagesField, sendInputContainer, this.containerButtons);
+    this.mainWrapper.append(buttonsHeaderContainer, this.messagesField, sendInputWrapper, this.containerButtons);
     this.messagesChat.innerHTML = `<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`;
     this.messagesChat.classList.add('messages__field_load');
     this.model.on('updateData', this.updateData);
@@ -166,9 +184,11 @@ export default class ViewerMessasges extends Page {
     this.isFind = false;
     this.isCreateWindow = false;
     this.isFindGrop = false;
+    this.isEditeMessageWindow = false;
     this.findWindow = null;
     this.createGroupWindow = null;
     this.findGroupWindow = null;
+    this.editeMessageWindow = null;
     this.buttonsHeader.forEach((button) => button.element.classList.remove('button_active'));
     this.buttonNewGroup.element.classList.remove('button_active');
     this.buttonFindGroup.element.classList.remove('button_active');
@@ -183,6 +203,7 @@ export default class ViewerMessasges extends Page {
     this.limitText.classList.remove('disabled');
     this.messagesField.append(this.messagesChatContainer);
     this.messagesChatContainer.scrollTop = this.messagesChatContainer.scrollHeight;
+    this.stopeEdite();
   };
 
   private goToRooms = () => {
@@ -194,6 +215,7 @@ export default class ViewerMessasges extends Page {
     this.limitText.classList.add('disabled');
     this.messagesField.append(this.messagesRooms);
     this.messagesRoomsChatContainer.scrollTop = this.messagesRoomsChatContainer.scrollHeight;
+    this.stopeEdite();
   };
 
   private goToGroupRooms = () => {
@@ -205,6 +227,7 @@ export default class ViewerMessasges extends Page {
     this.limitText.classList.add('disabled');
     this.messagesField.append(this.messagesGroupRooms);
     this.messagesRoomsChatContainer.scrollTop = this.messagesRoomsChatContainer.scrollHeight;
+    this.stopeEdite();
   };
 
   private createButtonsHeader = () => {
@@ -286,8 +309,41 @@ export default class ViewerMessasges extends Page {
     }
   };
 
-  private deleteMessage = (id: string) => {
-    this.emit('deleteMessage', id);
+  private updateMessage = () => {
+    if (this.model.isChat || (this.model.isRooms && this.model.currentDialog) || (this.model.isGroupRooms && this.model.currentGroup)) {
+      this.emit('edite', this.editeMessageId, this.input.value);
+      this.stopeEdite();
+    }
+  };
+
+  deleteMessage = (id: string) => {
+    if (this.model.isChat) {
+      this.emit('deleteMessage', id);
+    }
+    if (this.model.isRooms) {
+      this.emit('deleteDialogMessage', id);
+    }
+    if (this.model.isGroupRooms) {
+      this.emit('deleteGroupMessage', id);
+    }
+  };
+
+  editeMessage = (id: string, text: string) => {
+    this.editeMessageId = id;
+    this.input.value = text;
+    this.buttonSend.element.style.display = 'none';
+    this.buttonEdite.element.style.display = 'flex';
+    this.buttonEditeClose.style.display = 'block';
+    this.setTextAreaHeight();
+  };
+
+  stopeEdite = () => {
+    this.editeMessageId = '';
+    this.input.value = '';
+    this.buttonSend.element.style.display = 'flex';
+    this.buttonEdite.element.style.display = 'none';
+    this.buttonEditeClose.style.display = 'none';
+    this.setTextAreaHeight();
   };
 
   private updateData = () => {
@@ -308,10 +364,7 @@ export default class ViewerMessasges extends Page {
       }
       const ava = this.createAva(`${userProp[index].userAvatar}`);
       const name = createHtmlElement('span', '', `${userProp[index].userName}`);
-      const button = createHtmlElement('div', 'messages__member__button');
-      createHtmlElement('span', '', '', button);
-      createHtmlElement('span', '', '', button);
-      createHtmlElement('span', '', '', button);
+      const button = this.createHumburgerButton();
       member.append(ava, name, button);
       this.messagesRoomsMembersElement.push(member);
       button.addEventListener('click', (e) =>
@@ -324,6 +377,14 @@ export default class ViewerMessasges extends Page {
         this.emit('checkDialog', index);
       });
     }
+  };
+
+  private createHumburgerButton = () => {
+    const button = createHtmlElement('div', 'messages__member__button');
+    createHtmlElement('span', 'button__span', '', button);
+    createHtmlElement('span', 'button__span', '', button);
+    createHtmlElement('span', 'button__span', '', button);
+    return button;
   };
 
   private createGroups = async () => {
@@ -340,10 +401,7 @@ export default class ViewerMessasges extends Page {
       }
       const ava = this.createAva(`${group.groupAvatar}`);
       const name = createHtmlElement('span', '', `${group.nameGroup}`);
-      const button = createHtmlElement('div', 'messages__member__button');
-      createHtmlElement('span', '', '', button);
-      createHtmlElement('span', '', '', button);
-      createHtmlElement('span', '', '', button);
+      const button = this.createHumburgerButton();
       groupElement.append(ava, name, button);
       this.groupRoomsElement.push(groupElement);
       button.addEventListener('click', (e) => {
@@ -373,16 +431,22 @@ export default class ViewerMessasges extends Page {
       const title = createHtmlElement('div', 'messageTitle', '', message);
       const ava = this.createAva(element.avatar);
       title.append(ava);
-      createHtmlElement('span', '', `${element.name}`, title);
+      createHtmlElement('span', 'messages-autor', `${element.name}`, title);
       const container = createHtmlElement('div', 'container-text', '', message);
       createHtmlElement('p', 'message-text', element?.text, container);
       const time = this.createDataElement(element?.time);
       message.append(time);
       if (element.uid === this.model.user?.uid) {
-        const button = new Button('deleteButton', this.model, () => this.emit('deleteDialogMessage', element.key));
-        this.buttonsDialog.push(button);
-        const containerButton = createHtmlElement('div', 'message__container-button', '', title);
-        containerButton.append(button.render());
+        const button = this.createHumburgerButton();
+        title.append(button);
+        button.addEventListener('click', (e) => {
+          if (!this.isEditeMessageWindow) {
+            e.stopPropagation();
+          }
+          this.isEditeMessageWindow = true;
+          this.editeMessageWindow = new EditeMessage(this, this.model, element.key, element?.text);
+          message.append(this.editeMessageWindow.render());
+        });
       }
     });
     this.messagesRoomsChatContainer.scrollTop = this.messagesRoomsChatContainer.scrollHeight;
@@ -409,17 +473,26 @@ export default class ViewerMessasges extends Page {
         const title = createHtmlElement('div', 'messageTitle', '', message);
         const ava = this.createAva(messages[key].avatar);
         title.append(ava);
-        createHtmlElement('span', '', `${messages[key].name}`, title);
+        if (messages[key].uid !== this.model.user?.uid) {
+          ava.addEventListener('click', (e) => this.createModalUserWindow(e, messages[key].name, messages[key].uid, messages[key].avatar));
+        }
+        createHtmlElement('span', 'messages-autor', `${messages[key].name}`, title);
 
         const container = createHtmlElement('div', 'container-text', '', message);
         createHtmlElement('p', 'message-text', messages[key]?.text, container);
         const time = this.createDataElement(messages[key].time);
         message.append(time);
         if (messages[key].uid === this.model.user?.uid) {
-          const button = new Button('deleteButton', this.model, () => this.emit('deleteGroupMessage', key));
-          this.buttonsDialog.push(button);
-          const containerButton = createHtmlElement('div', 'message__container-button', '', title);
-          containerButton.append(button.render());
+          const button = this.createHumburgerButton();
+          title.append(button);
+          button.addEventListener('click', (e) => {
+            if (!this.isEditeMessageWindow) {
+              e.stopPropagation();
+            }
+            this.isEditeMessageWindow = true;
+            this.editeMessageWindow = new EditeMessage(this, this.model, key, messages[key]?.text);
+            message.append(this.editeMessageWindow.render());
+          });
         }
       });
     }
@@ -459,13 +532,19 @@ export default class ViewerMessasges extends Page {
       if (document.uid !== this.model.user?.uid) {
         ava.addEventListener('click', (e) => this.createModalUserWindow(e, document.name, document.uid, document.photo));
       }
-      createHtmlElement('span', '', `${document.name}`, title);
+      createHtmlElement('span', 'messages-autor', `${document.name}`, title);
 
       if (document.uid === this.model.user?.uid) {
-        const buttonDelete = new Button('deleteButton', this.model, () => this.deleteMessage(doc.id));
-        const containerButton = createHtmlElement('div', 'message__container-button', '', title);
-        this.buttons.push(buttonDelete);
-        containerButton.append(buttonDelete.render());
+        const button = this.createHumburgerButton();
+        title.append(button);
+        button.addEventListener('click', (e) => {
+          if (!this.isEditeMessageWindow) {
+            e.stopPropagation();
+          }
+          this.isEditeMessageWindow = true;
+          this.editeMessageWindow = new EditeMessage(this, this.model, doc.id, document.text);
+          containerMessage.append(this.editeMessageWindow.render());
+        });
       }
       createHtmlElement('p', 'message-text', `${document.text}`, containerMessage);
       containerMessage.append(this.createDataElement(document.created?.seconds * 1000));
@@ -556,6 +635,7 @@ export default class ViewerMessasges extends Page {
     this.buttonFindGroup.changeLang();
     this, this.buttonNewGroup.changeLang();
     this.buttonSend.changeLang();
+    this.buttonEdite.changeLang();
     if (this.findWindow) {
       this.findWindow.changeLang();
     }
@@ -564,6 +644,9 @@ export default class ViewerMessasges extends Page {
     }
     if (this.createGroupWindow) {
       this.createGroupWindow.changeLang();
+    }
+    if (this.editeMessageWindow) {
+      this.editeMessageWindow.changeLang();
     }
     this.input.placeholder = LANGTEXT['messagePlaceholder'][this.model.lang];
     this.titleInRooms.innerText = LANGTEXT['textInRooms'][this.model.lang];

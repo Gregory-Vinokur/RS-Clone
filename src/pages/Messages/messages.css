@@ -70,6 +70,7 @@
 .containerMessage {
   min-width: 80%;
   margin: 10px 0;
+  position: relative;
   display: flex;
   flex-direction: column;
   border-radius: 15px;
@@ -133,7 +134,7 @@
   transition: all 0.4s;
 }
 
-.containerMessage span {
+.containerMessage .messages-autor {
   color: #000;
   font-size: 16px;
   padding: 10px 5px;
@@ -160,14 +161,20 @@
   white-space: nowrap;
 }
 
-.send-input-container {
+.send-input-wrapper {
   width: 100%;
   padding: 15px 10px;
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
   background-color: #fff;
   border-radius: 15px;
+}
+
+.send-input-container {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .input__limit,
@@ -227,7 +234,8 @@
   background-color: #fff;
 }
 
-.button.button_deleteButton {
+.button.button_deleteButton,
+.button.button_editeButton {
   width: 60px;
   height: 16px;
   font-size: 12px;
@@ -293,7 +301,7 @@
 }
 
 .messages__member__button {
-  width: 25px;
+  min-width: 25px;
   height: 16px;
   position: relative;
   display: flex;
@@ -302,6 +310,7 @@
   margin-top: 4px;
   align-self: start;
   justify-content: space-between;
+  cursor: pointer;
 }
 
 .new-message .messages__member__button::before {
@@ -317,7 +326,7 @@
   background-color: green;
 }
 
-.messages__member__button span {
+.messages__member__button .button__span {
   display: inline-block;
   width: 100%;
   height: 3px;
@@ -326,7 +335,7 @@
   transition: all 0.3s;
 }
 
-.messages__member__button:hover span {
+.messages__member__button:hover .button__span {
   background-color: gray;
   transform: scale(1.1);
   transition: all 0.3s;
@@ -354,6 +363,56 @@
   font-size: 1.3em;
 }
 
+.button_sendButton,
+.send-input-container .button.button_editeButton {
+  width: 80px;
+  height: 26px;
+  background: #5181b8;
+  color: #fff;
+  padding: 2px 8px;
+}
+
+.button_sendButton:hover,
+.send-input-container .button.button_editeButton:hover {
+  background: #346397;
+}
+
+.modal__name {
+  color: #000000;
+  margin-bottom: 15px;
+}
+
+.dark-theme .containerMessage,
+.dark-theme .buttons-header,
+.dark-theme .send-input-container,
+.dark-theme .input__message,
+.dark-theme .message__containerButtons,
+.dark-theme .sort__select,
+.dark-theme .input__limit {
+  background-color: #222222;
+  color: #e1e3e6;
+}
+
+.dark-theme .messages__field {
+  background-color: inherit;
+}
+
+.dark-theme .message-text,
+.dark-theme .containerMessage .messages-autor,
+.dark-theme .messages__member span,
+.dark-theme .modal__name {
+  color: #e1e3e6;
+}
+
+.dark-theme .containerMessage .message-text {
+  background-color: #222222;
+}
+
+.dark-theme .messages__member,
+.dark-theme .modal-user-window {
+  background-color: #222222;
+}
+
 @media (max-width: 850px) {
   .messages__rooms {
     flex-direction: column;
@@ -375,13 +434,14 @@
 }
 
 @media (max-width: 430px) {
-  .containerMessage span {
+  .containerMessage .messages-autor {
     font-size: 14px;
   }
   .containerMessage .message_time {
     font-size: 10px;
   }
-  .button.button_deleteButton {
+  .button.button_deleteButton,
+  .button.button_editeButton {
     width: 50px;
     height: 14px;
     font-size: 10px;
@@ -396,7 +456,8 @@
   .buttons-header {
     gap: 5px;
   }
-  .button.button_sendButton {
+  .button.button_sendButton,
+  .send-input-container .button.button_editeButton {
     width: 68px;
   }
   .input__limit,
@@ -489,50 +550,4 @@
   100% {
     opacity: 0;
   }
-}
-
-.button_sendButton {
-  background: #5181b8;
-  color: #fff;
-  padding: 2px 8px;
-}
-
-.button_sendButton:hover {
-  background: #346397;
-}
-
-.modal__name {
-  color: #000000;
-  margin-bottom: 15px;
-}
-
-.dark-theme .containerMessage,
-.dark-theme .buttons-header,
-.dark-theme .send-input-container,
-.dark-theme .input__message,
-.dark-theme .message__containerButtons,
-.dark-theme .sort__select,
-.dark-theme .input__limit {
-  background-color: #222222;
-  color: #e1e3e6;
-}
-
-.dark-theme .messages__field {
-  background-color: inherit;
-}
-
-.dark-theme .message-text,
-.dark-theme .containerMessage span,
-.dark-theme .messages__member span,
-.dark-theme .modal__name {
-  color: #e1e3e6;
-}
-
-.dark-theme .containerMessage .message-text {
-  background-color: #222222;
-}
-
-.dark-theme .messages__member,
-.dark-theme .modal-user-window {
-  background-color: #222222;
 }
