@@ -30,6 +30,7 @@ export default class ModelProfile extends Model {
       userId: id,
     });
   }
+
   setUserName(name: string) {
     update(refDB(this.db, 'users/' + this.user?.uid), {
       userName: name,
@@ -111,6 +112,9 @@ export default class ModelProfile extends Model {
       likes: 0,
       liked: {},
       logo: this.user?.photoURL,
+      createdUser: this.user?.uid,
+      shares: 0,
+      reposted: '',
     };
     updatesUserPost['/users/' + this.user?.uid + '/userPost/' + newPostKey] = postData;
     updatesPosts[`posts/${newPostKey}`] = postData;
@@ -173,16 +177,19 @@ export default class ModelProfile extends Model {
     this.emit('updateData');
   }
 
-  async setPostRepostCount(id: string) {
+  async setPostRepostCount(params: { [key: string]: string }) {
+    const postRef = params.link === 'newsRepost' ? `posts/${params.repostId}` : `users/${params.createdUserId}/userPost/${params.repostId}`;
     const dbRef = refDB(getDatabase());
-    await get(child(dbRef, `posts/${id}`))
+    await get(child(dbRef, postRef))
       .then((snapshot) => {
         if (snapshot.exists()) {
           const posts = snapshot.val();
           const shares = posts.shares;
           const reposted = posts.reposted;
-          delete reposted[this.user?.uid as string];
-          update(refDB(this.db, `posts/${id}`), {
+          if (reposted) {
+            delete reposted[this.user?.uid as string];
+          }
+          update(refDB(this.db, postRef), {
             shares: shares - 1,
             reposted: reposted,
           });

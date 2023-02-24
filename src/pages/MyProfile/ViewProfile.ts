@@ -10,6 +10,7 @@ import ModelMusicPage from '../Music/ModelMusicPage';
 import formatTime from '../../utils/formatTime';
 import { getTimeDifference } from '../../utils/getTimeDifference';
 import qs from 'query-string';
+/* TODO: счетчик репостов, эффект при наведении на аватар, возврат на свою страницу*/
 type EmitsName =
   | 'uploadAvatar'
   | 'changeLang'
@@ -285,7 +286,7 @@ export default class ViewProfile extends Page {
 
     Object.keys(userPost).forEach((postId: string) => {
       const postContainer = createHtmlElement('div', 'post__container_user', '', createdPostContainer as HTMLElement);
-      postContainer.id = `${userPost[postId].id}`;
+      postContainer.id = `${postId}`;
       if (userPost[postId].postsId) postContainer.setAttribute('data-id', userPost[postId].postsId);
       const postHeader = createHtmlElement('div', 'post__header_user', '', postContainer);
       const postInfo = createHtmlElement('div', 'post__info_user', '', postHeader);
@@ -306,20 +307,31 @@ export default class ViewProfile extends Page {
       const likeImg = createHtmlElement('div', 'like__img', '', likePostBtn);
       let likeCounter = userPost[postId].likes || 0;
       const likeCounterHTML = createHtmlElement('span', 'like__counter', `${likeCounter}`, likePostBtn);
-
+      const repostCounter = userPost[postId].shares || 0;
       const repostPostBtn = createHtmlElement('button', 'share__button share__btn_user', '', actionPost); // Исправить счетчик если 0 то не показывать
       createHtmlElement('div', 'share__img', '', repostPostBtn);
-      createHtmlElement('span', 'share__counter', `${userPost[postId].shares || 0}`, repostPostBtn);
-
+      createHtmlElement('span', 'share__counter', `${repostCounter === 0 ? '' : String(repostCounter)}`, repostPostBtn);
+      repostPostBtn.style.display = 'none';
       if (userPost[postId].liked && userPost[postId].liked[this.model.user?.uid as string] === true) {
         likePostBtn.classList.add('liked');
         likeImg.classList.add('liked__img');
       }
 
       deleteBtn.addEventListener('click', () => {
-        const repostId = postContainer.getAttribute('data-id');
-        if (repostId) this.emit('changePostsCounter', repostId);
         this.emit('deletePost', postContainer.id);
+        const repostId = postContainer.getAttribute('data-id');
+        if (repostId)
+          this.emit('changePostsCounter', {
+            repostId: repostId,
+            link: 'newsRepost',
+          });
+        else if (userPost[postId].createdUser !== (this.model.user?.uid as string)) {
+          this.emit('changePostsCounter', {
+            repostId: userPost[postId].id,
+            link: 'userRepost',
+            createdUserId: userPost[postId].createdUser,
+          });
+        }
       });
 
       likePostBtn.addEventListener('click', () => {
@@ -348,10 +360,14 @@ export default class ViewProfile extends Page {
       });
 
       repostPostBtn.addEventListener('click', () => {
-        this.emit('shareNews', {
-          postId: postContainer.id,
-          userId: this.currendOpenPageId,
-        });
+        if (userPost[postId].createdUser !== this.model.user?.uid) {
+          this.emit('shareNews', {
+            postId: postContainer.id,
+            userId: this.currendOpenPageId,
+          });
+        } else {
+          return;
+        }
       });
     });
   }
@@ -404,6 +420,7 @@ export default class ViewProfile extends Page {
         const changeNameBtn: HTMLElement | null = document.querySelector('.profile__name-btn');
         const changeStatusBtn: HTMLElement | null = document.querySelector('.profile__status-btn');
         const uploadCoverBtn: HTMLElement | null = document.querySelector('.profile__label-cover');
+        const shareButtons = document.querySelectorAll('.share__btn_user');
         if (profileAvaBtn) profileAvaBtn.style.visibility = 'hidden';
         if (createNews) createNews.style.display = 'none';
         if (changeNameBtn) changeNameBtn.style.display = 'none';
@@ -411,6 +428,9 @@ export default class ViewProfile extends Page {
         if (uploadCoverBtn) uploadCoverBtn.style.display = 'none';
         deleteNewsBtn.forEach((btn) => {
           (btn as HTMLElement).style.display = 'none';
+        });
+        shareButtons.forEach((btn) => {
+          (btn as HTMLElement).style.display = 'flex';
         });
       }
 
@@ -458,6 +478,7 @@ export default class ViewProfile extends Page {
     const changeNameBtn: HTMLElement | null = document.querySelector('.profile__name-btn');
     const changeStatusBtn: HTMLElement | null = document.querySelector('.profile__status-btn');
     const uploadCoverBtn: HTMLElement | null = document.querySelector('.profile__label-cover');
+    const shareButtons = document.querySelectorAll('.share__btn_user');
     if (profileAvaBtn) profileAvaBtn.style.visibility = 'hidden';
     if (createNews) createNews.style.display = 'none';
     if (changeNameBtn) changeNameBtn.style.display = 'none';
@@ -465,6 +486,9 @@ export default class ViewProfile extends Page {
     if (uploadCoverBtn) uploadCoverBtn.style.display = 'none';
     deleteNewsBtn.forEach((btn) => {
       (btn as HTMLElement).style.display = 'none';
+    });
+    shareButtons.forEach((btn) => {
+      (btn as HTMLElement).style.display = 'flex';
     });
   }
 
