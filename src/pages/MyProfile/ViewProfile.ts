@@ -310,7 +310,7 @@ export default class ViewProfile extends Page {
       const repostCounter = userPost[postId].shares || 0;
       const repostPostBtn = createHtmlElement('button', 'share__button share__btn_user', '', actionPost); // Исправить счетчик если 0 то не показывать
       createHtmlElement('div', 'share__img', '', repostPostBtn);
-      createHtmlElement('span', 'share__counter', `${repostCounter === 0 ? '' : String(repostCounter)}`, repostPostBtn);
+      const repostCounterHTML = createHtmlElement('span', 'share__counter', `${repostCounter === 0 ? '' : String(repostCounter)}`, repostPostBtn);
       repostPostBtn.style.display = 'none';
       if (userPost[postId].liked && userPost[postId].liked[this.model.user?.uid as string] === true) {
         likePostBtn.classList.add('liked');
@@ -368,6 +368,7 @@ export default class ViewProfile extends Page {
         } else {
           return;
         }
+        repostCounterHTML.textContent = `${repostCounter + 1}`;
       });
     });
   }
