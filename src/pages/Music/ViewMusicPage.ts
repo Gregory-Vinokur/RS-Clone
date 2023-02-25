@@ -337,12 +337,17 @@ export default class ViewMusicPage extends Page {
     this.myMusicBtn.addEventListener('click', async () => {
       this.recommendedMusicBtn.classList.remove('playlist__page-active');
       this.myMusicBtn.classList.add('playlist__page-active');
+      this.searchMusicInput.style.display = 'none';
+      this.searchMusicBtn.style.display = 'none';
+      this.notFoundMusic.style.display = 'none';
       await this.renderFavoriteTracks(userId);
     });
 
     this.recommendedMusicBtn.addEventListener('click', async () => {
       this.myMusicBtn.classList.remove('playlist__page-active');
       this.recommendedMusicBtn.classList.add('playlist__page-active');
+      this.searchMusicInput.style.display = 'block';
+      this.searchMusicBtn.style.display = 'block';
       await this.renderMusicChart();
       await this.highlightFavoriteMusic(this.model.user?.uid as string);
     });
