@@ -191,7 +191,6 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 15px 10px;
 }
 
 .create__news {
@@ -326,7 +325,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 8px 5px;
+  transition: all 0.4s;
 }
+
+.profile__friends_content:hover,
+.recommended__friends_content:hover {
+  background-color: #f0f0f0;
+  border-radius: 7px;
+  transition: all 0.4s;
+}
+
 .profile__friends_ava,
 .recommended__friends_ava {
   width: 64px;
@@ -336,6 +345,7 @@
   background-repeat: no-repeat;
   background-position: center;
   cursor: pointer;
+  margin-bottom: 2px;
 }
 
 .profile__friends_name,

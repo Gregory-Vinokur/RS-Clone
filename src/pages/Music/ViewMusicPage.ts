@@ -187,7 +187,6 @@ export default class ViewMusicPage extends Page {
 
   playNextTrack(tracks: Track[]) {
     this.nextBtnMainPlayer.addEventListener('click', () => {
-      console.log(tracks);
       this.removePlayIcon();
       if (this.currentMusicIndex < tracks.length) {
         this.currentMusicIndex += 1;
@@ -197,7 +196,6 @@ export default class ViewMusicPage extends Page {
             : tracks[this.currentMusicIndex].id;
         this.currentTrack.src = `${tracks[this.currentMusicIndex].previewURL}`;
         this.currentTrackId = `${trackId}`;
-        console.log(this.currentMusicIndex);
         this.addPlayIcon();
         setTimeout(() => {
           this.playMusicItem();
@@ -228,7 +226,6 @@ export default class ViewMusicPage extends Page {
             : tracks[this.currentMusicIndex].id;
         this.currentTrack.src = `${tracks[this.currentMusicIndex].previewURL}`;
         this.currentTrackId = `${trackId}`;
-        console.log(this.currentMusicIndex);
         this.addPlayIcon();
         setTimeout(() => {
           this.playMusicItem();
@@ -315,7 +312,6 @@ export default class ViewMusicPage extends Page {
     });
     this.playNextTrack(tracks);
     this.playPrevTrack(tracks);
-    console.log(this.currentMusicIndex);
     await this.highlightFavoriteMusic(this.model.user?.uid as string);
   }
 

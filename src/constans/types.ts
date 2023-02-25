@@ -36,4 +36,19 @@ type GroupProps = {
   };
 };
 
-export { Sort, TypeUser, UserProp, GroupProps, DialogMessages };
+type EmitsNameViewProfile =
+  | 'uploadAvatar'
+  | 'changeLang'
+  | 'changeName'
+  | 'changeStatus'
+  | 'createNews'
+  | 'deletePost'
+  | 'uploadPostImg'
+  | 'subscriptionUser'
+  | 'unsubscriptionUser'
+  | 'likePost'
+  | 'openUserPage'
+  | 'changePostsCounter'
+  | 'shareNews';
+
+export { Sort, TypeUser, UserProp, GroupProps, DialogMessages, EmitsNameViewProfile };
