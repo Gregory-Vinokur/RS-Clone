@@ -192,6 +192,10 @@ const LANGTEXT = {
     rus: 'Музыка',
     eng: 'Music',
   },
+  emptyUserFriends: {
+    rus: 'Пользователь ни на кого не подписан',
+    eng: 'The user is not following anyone',
+  },
 };
 
 type LangNameElement = keyof typeof LANGTEXT;

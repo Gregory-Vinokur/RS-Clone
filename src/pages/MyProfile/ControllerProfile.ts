@@ -15,25 +15,25 @@ export default class ControllerProfule {
     });
 
     this.view.on('changeStatus', (status) => {
-      this.model.setUserStatus((status as string) || '');
+      if (typeof status === 'string') this.model.setUserStatus(status);
     });
 
     this.view.on('createNews', (newsText) => {
-      this.model.createNews(newsText as string);
+      if (typeof newsText === 'string') this.model.createNews(newsText);
     });
 
     this.view.on('deletePost', (id) => {
-      this.model.deleteUserPost(id as string);
+      if (typeof id === 'string') this.model.deleteUserPost(id);
     });
 
     this.view.on('uploadPostImg', (img) => {
       this.model.createPostImg(img as File);
     });
     this.view.on('unsubscriptionUser', (userId) => {
-      this.model.unsubscriptionUser(userId as string);
+      if (typeof userId === 'string') this.model.unsubscriptionUser(userId);
     });
     this.view.on('subscriptionUser', (userId) => {
-      this.model.subscriptionUser(userId as string);
+      if (typeof userId === 'string') this.model.subscriptionUser(userId);
     });
 
     this.view.on('changePostsCounter', (params) => {
