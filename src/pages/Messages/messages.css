@@ -60,6 +60,13 @@
   padding: 10px;
 }
 
+.messages__chat h2 {
+  color: #818c99;
+  font-size: 1.3em;
+  align-self: center;
+  margin-top: 100px;
+}
+
 .messages__field_load {
   display: flex;
   flex-direction: column;
