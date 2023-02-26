@@ -15,6 +15,7 @@ export default class FindGroupWindow {
   status: HTMLElement[];
   inputFind: HTMLInputElement;
   userFild: HTMLElement;
+  notFind: HTMLElement;
   constructor(parent: ViewerMessasges, model: ModelMessages) {
     this.parrent = parent;
     this.model = model;
@@ -34,6 +35,7 @@ export default class FindGroupWindow {
     buttonClose.addEventListener('click', () => {
       this.closeWindow();
     });
+    this.notFind = createHtmlElement('h2', '', LANGTEXT.notFind[this.model.lang]);
   }
 
   private findUser = async () => {
@@ -44,9 +46,13 @@ export default class FindGroupWindow {
     }
     const groups = await this.allGroup;
     const findedGroups = groups.filter((group) => group.nameGroup.toUpperCase().includes(this.inputFind.value.toUpperCase()));
-    findedGroups.forEach((group) => {
-      this.userFild.appendChild(this.createGroup(group));
-    });
+    if (findedGroups.length) {
+      findedGroups.forEach((group) => {
+        this.userFild.appendChild(this.createGroup(group));
+      });
+    } else {
+      this.userFild.appendChild(this.notFind);
+    }
   };
 
   private createGroup = (group: GroupProps) => {
@@ -72,6 +78,7 @@ export default class FindGroupWindow {
 
   changeLang = () => {
     this.inputFind.placeholder = LANGTEXT['groupPlaceholder'][this.model.lang];
+    this.notFind.innerText = LANGTEXT.notFind[this.model.lang];
   };
 
   render = () => {
