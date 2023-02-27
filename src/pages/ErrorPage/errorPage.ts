@@ -1,20 +1,21 @@
 import './errorPage.css';
 import { createHtmlElement } from '../../utils/createElement';
 import Page from '../Template/page';
-import { Lang } from '../../constans/constans';
+import { Lang, LANGTEXT } from '../../constans/constans';
 
 export default class ErrorPage extends Page {
-  constructor(id: string) {
+  errorText: HTMLElement;
+  constructor(id: string, lang: Lang) {
     super(id);
     this.mainWrapper.className = 'error__wrap';
+    this.errorText = createHtmlElement('h1', 'error__text', `${LANGTEXT['errorPageText'][lang]}`, this.mainWrapper);
   }
 
   changeLang = (lang: Lang) => {
-    console.log(lang);
+    this.errorText.textContent = LANGTEXT['errorPageText'][lang];
   };
 
   render(): HTMLElement {
-    createHtmlElement('h1', 'error__text', 'PAGE NOT FOUND (404)', this.mainWrapper);
     return this.mainWrapper;
   }
 }

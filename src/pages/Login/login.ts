@@ -4,7 +4,7 @@ import Page from '../Template/page';
 import { checkAuthStatus, handleLogout, resetPassword, signIn, signUp } from './../../server/firebaseAuth';
 import qs from 'query-string';
 import { PATH } from '../../app/app';
-import { Lang } from '../../constans/constans';
+import { Lang, LANGTEXT } from '../../constans/constans';
 
 export default class LoginPage extends Page {
   userNamePasswordWrap: HTMLElement;
@@ -14,37 +14,49 @@ export default class LoginPage extends Page {
   submitButtonForSigUp: HTMLButtonElement;
   resetPasswordLink: HTMLElement;
   userNameLabel: HTMLElement;
-  constructor(id: string) {
+  continueBtn: HTMLElement;
+  changeUserBtn: HTMLElement;
+  userMailTitle: HTMLElement;
+  userNameTitle: HTMLElement;
+  userPasswordTitle: HTMLElement;
+  errorMessageMail: HTMLElement;
+  errorMessageName: HTMLElement;
+  errorMessagePassword: HTMLElement;
+  constructor(id: string, lang: Lang) {
     super(id);
     this.mainWrapper.className = 'error__wrap';
     const form = createHtmlElement('form', 'login__form', '', this.mainWrapper);
     const buttonsWrap = createHtmlElement('div', 'btns__wrap', '');
-    const continueBtn = createHtmlElement('div', 'continue__btn', 'Continue', buttonsWrap);
-    const changeUserBtn = createHtmlElement('div', 'change__user-btn', 'Change user', buttonsWrap);
+    this.continueBtn = createHtmlElement('div', 'continue__btn', '', buttonsWrap);
+    this.changeUserBtn = createHtmlElement('div', 'change__user-btn', '', buttonsWrap);
 
     this.userNamePasswordWrap = createHtmlElement('div', 'user__mail-wrap', '', form);
-    const userMailLabel = createHtmlElement('label', 'label__item', 'E-mail:', this.userNamePasswordWrap);
+    const userMailLabel = createHtmlElement('label', 'label__item', '', this.userNamePasswordWrap);
+    this.userMailTitle = createHtmlElement('span', 'user__label-title', '', userMailLabel);
     const userMailInput = createHtmlElement('input', 'username', '', userMailLabel) as HTMLInputElement;
     userMailInput.setAttribute('type', 'text');
     userMailInput.setAttribute('required', '');
     userMailInput.setAttribute('pattern', `[a-zA-Z0-9._-]+@[a-zA-Z]+\\.[a-zA-Z]{2,3}`);
-    const ErrorMessageMail = createHtmlElement('span', 'error__message', 'Invalid e-mail', userMailLabel);
-    this.userNameLabel = createHtmlElement('label', 'user__name-label', 'Name:', this.userNamePasswordWrap);
+    this.errorMessageMail = createHtmlElement('span', 'error__message error__message-mail', '', userMailLabel);
+    this.userNameLabel = createHtmlElement('label', 'user__name-label', '', this.userNamePasswordWrap);
+    this.userNameTitle = createHtmlElement('span', 'user__label-title', '', this.userNameLabel);
     const userNameInput = createHtmlElement('input', 'username', '', this.userNameLabel) as HTMLInputElement;
     userNameInput.setAttribute('type', 'text');
     userNameInput.setAttribute('required', '');
-    const ErrorMessageName = createHtmlElement('span', 'error__message', 'Enter your name, please.', this.userNameLabel);
+    this.errorMessageName = createHtmlElement('span', 'error__message error__message-name', '', this.userNameLabel);
 
     userNameInput.addEventListener('invalid', function (e: Event) {
       e.preventDefault();
+      const errorMessageName = document.querySelector('.error__message-name') as HTMLElement;
       if (!userNameInput.validity.valid) {
-        ErrorMessageName.classList.toggle('active');
+        errorMessageName.classList.toggle('active');
         userNameInput.classList.toggle('invalid');
       }
     });
     userNameInput.addEventListener('input', function () {
-      if (ErrorMessageName.classList.contains('active')) {
-        ErrorMessageName.classList.toggle('active');
+      const errorMessageName = document.querySelector('.error__message-name') as HTMLElement;
+      if (errorMessageName.classList.contains('active')) {
+        errorMessageName.classList.toggle('active');
         userNameInput.classList.toggle('invalid');
       }
       if (userNameInput.classList.contains('invalid')) {
@@ -52,8 +64,9 @@ export default class LoginPage extends Page {
       }
     });
     userNameInput.addEventListener('blur', function () {
+      const errorMessageName = document.querySelector('.error__message-name') as HTMLElement;
       if (!userNameInput.validity.valid) {
-        ErrorMessageName.classList.toggle('active');
+        errorMessageName.classList.toggle('active');
         userNameInput.classList.toggle('invalid');
       }
     });
@@ -61,14 +74,15 @@ export default class LoginPage extends Page {
     userMailInput.addEventListener('invalid', function (e: Event) {
       e.preventDefault();
       if (!userMailInput.validity.valid) {
-        ErrorMessageMail.classList.toggle('active');
+        this.classList.toggle('active');
         userMailInput.classList.toggle('invalid');
       }
     });
     userMailInput.addEventListener('input', function () {
       const resetPasswordLink = document.querySelector('.reset__link') as HTMLElement;
-      if (ErrorMessageMail.classList.contains('active')) {
-        ErrorMessageMail.classList.toggle('active');
+      const errorMessageMail = document.querySelector('.error__message-mail') as HTMLElement;
+      if (errorMessageMail.classList.contains('active')) {
+        errorMessageMail.classList.toggle('active');
         userMailInput.classList.toggle('invalid');
       }
       if (userMailInput.classList.contains('invalid')) {
@@ -81,33 +95,37 @@ export default class LoginPage extends Page {
       }
     });
     userMailInput.addEventListener('blur', function () {
+      const errorMessageMail = document.querySelector('.error__message-mail') as HTMLElement;
       if (!userMailInput.validity.valid) {
-        ErrorMessageMail.classList.toggle('active');
+        errorMessageMail.classList.toggle('active');
         userMailInput.classList.toggle('invalid');
       }
     });
 
-    const passwordLabel = createHtmlElement('label', 'label__item', 'Password:', this.userNamePasswordWrap);
+    const passwordLabel = createHtmlElement('label', 'label__item', '', this.userNamePasswordWrap);
+    this.userPasswordTitle = createHtmlElement('span', 'user__label-title', '', passwordLabel);
     const passwordWrap = createHtmlElement('div', 'password__wrap', '', passwordLabel);
     const passwordInput = createHtmlElement('input', 'password', '', passwordWrap) as HTMLInputElement;
-    this.resetPasswordLink = createHtmlElement('a', 'reset__link', 'Forgot your password?', this.userNamePasswordWrap);
+    this.resetPasswordLink = createHtmlElement('a', 'reset__link', '', this.userNamePasswordWrap);
     const resetPasswordMessage = createHtmlElement('div', 'reset__text', '', this.userNamePasswordWrap);
     passwordInput.setAttribute('type', 'password');
     passwordInput.setAttribute('required', '');
     passwordInput.setAttribute('pattern', `[A-Za-zА-Яа-яЁё0-9-]{6,}`);
     const hidePasswordSvg = createHtmlElement('i', 'show__svg', '', passwordWrap);
-    const ErrorMessagePassword = createHtmlElement('span', 'error__message', 'Invalid password', passwordLabel);
+    this.errorMessagePassword = createHtmlElement('span', 'error__message error__message-password', '', passwordLabel);
 
     passwordInput.addEventListener('invalid', function (e: Event) {
+      const errorMessagePassword = document.querySelector('.error__message-password') as HTMLElement;
       e.preventDefault();
       if (!passwordInput.validity.valid) {
-        ErrorMessagePassword.classList.toggle('active');
+        errorMessagePassword.classList.toggle('active');
         passwordInput.classList.toggle('invalid');
       }
     });
     passwordInput.addEventListener('input', function () {
-      if (ErrorMessagePassword.classList.contains('active')) {
-        ErrorMessagePassword.classList.toggle('active');
+      const errorMessagePassword = document.querySelector('.error__message-password') as HTMLElement;
+      if (errorMessagePassword.classList.contains('active')) {
+        errorMessagePassword.classList.toggle('active');
         passwordInput.classList.toggle('invalid');
       }
     });
@@ -118,12 +136,12 @@ export default class LoginPage extends Page {
       hidePasswordSvg.classList.toggle('hide__svg');
     });
 
-    this.signInButton = createHtmlElement('button', 'sign__in', 'Sign in', form) as HTMLButtonElement;
+    this.signInButton = createHtmlElement('button', 'sign__in', '', form) as HTMLButtonElement;
 
-    this.signUpButton = createHtmlElement('button', 'sign__up', 'Sign up', form) as HTMLButtonElement;
+    this.signUpButton = createHtmlElement('button', 'sign__up', '', form) as HTMLButtonElement;
 
-    this.submitButtonForSigIn = createHtmlElement('button', 'submit', 'Submit', form) as HTMLButtonElement;
-    this.submitButtonForSigUp = createHtmlElement('button', 'submit', 'Submit', form) as HTMLButtonElement;
+    this.submitButtonForSigIn = createHtmlElement('button', 'submit', '', form) as HTMLButtonElement;
+    this.submitButtonForSigUp = createHtmlElement('button', 'submit', '', form) as HTMLButtonElement;
 
     this.signInButton.addEventListener('click', (e: Event) => {
       e.preventDefault();
@@ -137,29 +155,43 @@ export default class LoginPage extends Page {
 
     this.submitButtonForSigIn.addEventListener('click', (e: Event) => {
       e.preventDefault();
-      signIn(userMailInput, passwordInput, ErrorMessageMail, ErrorMessagePassword);
+      signIn(userMailInput, passwordInput, this.errorMessageMail, this.errorMessagePassword, lang);
     });
 
     this.submitButtonForSigUp.addEventListener('click', (e: Event) => {
       e.preventDefault();
-      signUp(userMailInput.value, userNameInput.value, passwordInput.value, passwordInput, ErrorMessagePassword);
+      signUp(userMailInput.value, userNameInput.value, passwordInput.value, passwordInput, this.errorMessagePassword, lang);
     });
 
-    checkAuthStatus(form, buttonsWrap);
+    checkAuthStatus(form, buttonsWrap, lang);
 
-    continueBtn.addEventListener('click', () => this.emit('navigate', PATH.profilePage));
+    this.continueBtn.addEventListener('click', () => this.emit('navigate', PATH.profilePage));
 
-    changeUserBtn.addEventListener('click', () => {
+    this.changeUserBtn.addEventListener('click', () => {
       handleLogout();
     });
 
     this.resetPasswordLink.addEventListener('click', () => {
       resetPassword(userMailInput.value, userMailInput, resetPasswordMessage, this.resetPasswordLink);
     });
+
+    this.changeLang(lang);
   }
 
   changeLang = (lang: Lang) => {
-    console.log(lang);
+    this.continueBtn.innerText = LANGTEXT['continueButton'][lang];
+    this.changeUserBtn.innerText = LANGTEXT['changeUserBtn'][lang];
+    this.signInButton.innerText = LANGTEXT['signInButton'][lang];
+    this.signUpButton.innerText = LANGTEXT['signUpButton'][lang];
+    this.userMailTitle.innerText = LANGTEXT['userMailTitle'][lang];
+    this.userNameTitle.innerText = LANGTEXT['userNameTitle'][lang];
+    this.userPasswordTitle.innerText = LANGTEXT['userPasswordTitle'][lang];
+    this.resetPasswordLink.innerText = LANGTEXT['resetPasswordLink'][lang];
+    this.submitButtonForSigIn.innerText = LANGTEXT['submitButton'][lang];
+    this.submitButtonForSigUp.innerText = LANGTEXT['submitButton'][lang];
+    this.errorMessageMail.innerText = LANGTEXT['errorMessageMail'][lang];
+    this.errorMessageName.innerText = LANGTEXT['errorMessageName'][lang];
+    this.errorMessagePassword.innerText = LANGTEXT['errorMessagePassword'][lang];
   };
 
   render(): HTMLElement {

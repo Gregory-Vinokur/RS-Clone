@@ -7,39 +7,29 @@ async function loadCats() {
     return data[0].url;
 }
 
-let postCount = 0;
-let intervalId: NodeJS.Timer;
+export const generateCatsPost = async () => {
+    loadCats()
+        .then((image) => {
+            const data = {
+                author: "Cats images",
+                date: Date.now(),
+                text: "We love cats!",
+                image,
+                likes: 0,
+                shares: 0,
+                logo: cat_logo,
+                comments: [],
+                liked: "",
+                reposted: "",
+                id: ""
+            };
 
-export const loadCatsPosts = () => {
-    intervalId = setInterval(() => {
-        if (postCount === 10) {
-            clearInterval(intervalId);
-        } else {
-            postCount++;
-            loadCats()
-                .then((image) => {
-                    const data = {
-                        author: "Cats images",
-                        date: Date.now(),
-                        text: "We love cats!",
-                        image,
-                        likes: 0,
-                        shares: 0,
-                        logo: cat_logo,
-                        comments: [],
-                        liked: "",
-                        reposted: "",
-                        id: ""
-                    };
-
-                    return database.ref("posts/").push(data);
-                })
-                .then((response) => {
-                    console.log("Post saved successfully: ", response);
-                })
-                .catch((error) => {
-                    console.error("Error saving post: ", error);
-                });
-        }
-    }, 60 * 1000);
-};
+            return database.ref("posts/").push(data);
+        })
+        .then((response) => {
+            console.log("Post saved successfully: ", response);
+        })
+        .catch((error) => {
+            console.error("Error saving post: ", error);
+        });
+}

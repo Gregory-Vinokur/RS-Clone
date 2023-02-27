@@ -8,40 +8,30 @@ async function loadSportNews() {
     return data.articles;
 }
 
-let postCount = 0;
-let intervalId: NodeJS.Timeout;
+export const generateSportPost = async () => {
+    loadSportNews()
+        .then((articles) => {
+            const article = articles[Math.floor(Math.random() * articles.length)];
+            const data = {
+                author: "Sport News",
+                date: Date.now(),
+                text: article.title,
+                image: article.urlToImage,
+                likes: 0,
+                shares: 0,
+                logo: sport_logo,
+                comments: [],
+                liked: '',
+                reposted: "",
+                id: ""
+            };
 
-export const loadSportPosts = () => {
-    intervalId = setInterval(() => {
-        if (postCount === 10) {
-            clearInterval(intervalId);
-            return;
-        }
-        loadSportNews()
-            .then((articles) => {
-                const article = articles[Math.floor(Math.random() * articles.length)];
-                const data = {
-                    author: "Sport News",
-                    date: Date.now(),
-                    text: article.title,
-                    image: article.urlToImage,
-                    likes: 0,
-                    shares: 0,
-                    logo: sport_logo,
-                    comments: [],
-                    liked: '',
-                    reposted: "",
-                    id: ""
-                };
-
-                return database.ref("posts/").push(data);
-            })
-            .then((response) => {
-                console.log("Post saved successfully: ", response);
-                postCount += 1;
-            })
-            .catch((error) => {
-                console.error("Error saving post: ", error);
-            });
-    }, 3600 * 1000);
-};
+            return database.ref("posts/").push(data);
+        })
+        .then((response) => {
+            console.log("Post saved successfully: ", response);
+        })
+        .catch((error) => {
+            console.error("Error saving post: ", error);
+        });
+}

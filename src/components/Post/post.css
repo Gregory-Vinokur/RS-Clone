@@ -343,7 +343,7 @@
   font-size: 13px;
   position: absolute;
   top: 55px;
-  right: 135px;
+  right: 148px;
 }
 
 .save__btn {
@@ -361,4 +361,141 @@
 .dark-theme .post__container {
   background-color: #222222;
   box-shadow: none;
+}
+
+.dark-theme .comment__username {
+  color: #e1e3e6;
+}
+
+.dark-theme .comment__text {
+  color: #e1e3e6;
+}
+
+.dark-theme .reply__textarea {
+  color: #e1e3e6;
+  background-color: #222222;
+}
+
+@media (max-width: 625px) {
+  .post__container {
+    width: 500px;
+  }
+  .cross__btn-active,
+  .edit__btn-active,
+  .like__btn-reply-active {
+    width: 25px;
+    height: 25px;
+  }
+
+  .like__btn-reply-active {
+    right: 28px;
+  }
+
+  .like__button,
+  .share__button,
+  .comment__button {
+    padding: 4px 17px;
+  }
+
+  .like__img,
+  .comment__img,
+  .share__img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .post__text {
+    font-size: 18px;
+  }
+
+  .comment__text {
+    font-size: 17px;
+  }
+
+  .user__avatar-reply,
+  .comment__avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .like__counter,
+  .share__counter,
+  .comment__counter {
+    font-size: 15.5px;
+  }
+}
+
+@media (max-width: 530px) {
+  .post__container {
+    width: 400px;
+  }
+  .cross__btn-active,
+  .edit__btn-active,
+  .like__btn-reply-active {
+    width: 27px;
+    height: 27px;
+  }
+
+  .post__author {
+    font-size: 20px;
+  }
+
+  .post__date {
+    font-size: 14px;
+  }
+
+  .post__text {
+    font-size: 20px;
+  }
+
+  .comment__date {
+    font-size: 15px;
+  }
+
+  .save__btn {
+    right: 27px;
+  }
+
+  .cancel__btn {
+    right: 128px;
+  }
+}
+
+@media (max-width: 430px) {
+  .post__container {
+    width: 300px;
+  }
+
+  .cross__btn-active,
+  .edit__btn-active,
+  .like__btn-reply-active {
+    width: 29px;
+    height: 29px;
+  }
+
+  .like__btn-reply-active {
+    right: 25px;
+  }
+
+  .save__btn {
+    right: -34px;
+    padding: 0 5px;
+  }
+
+  .cancel__btn {
+    right: 50px;
+  }
+
+  .reply__textarea {
+    width: 120%;
+  }
+
+  .leave__comment {
+    height: 58px;
+  }
+
+  .reply__submit-btn {
+    width: 30px;
+    height: 30px;
+  }
 }

@@ -6,7 +6,7 @@ import { firebaseConfig } from './firebase.config';
 import { app } from './../index';
 import { PATH } from '../app/app';
 import 'firebase/compat/database';
-import { PATCH_TO_DB } from '../constans/constans';
+import { Lang, LANGTEXT, PATCH_TO_DB } from '../constans/constans';
 import { getDatabase, ref, update } from 'firebase/database';
 import { initializeApp } from 'firebase/app';
 
@@ -19,7 +19,8 @@ export function signIn(
   usernameInput: HTMLInputElement,
   passwordInput: HTMLInputElement,
   ErrorMessageUser: HTMLElement,
-  ErrorMessagePassword: HTMLElement
+  ErrorMessagePassword: HTMLElement,
+  lang: Lang
 ) {
   firebase
     .auth()
@@ -31,19 +32,19 @@ export function signIn(
     .catch(function (error) {
       if (error.code === 'auth/wrong-password') {
         passwordInput.classList.toggle('invalid');
-        ErrorMessagePassword.textContent = 'Wrong password';
+        ErrorMessagePassword.textContent = `${LANGTEXT['errorMessagePassword'][lang]}`;
         ErrorMessagePassword.classList.toggle('active');
         console.log('Wrong password entered!');
       }
       if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-email') {
         usernameInput.classList.toggle('invalid');
-        ErrorMessageUser.textContent = 'Wrong e-mail';
+        ErrorMessageUser.textContent = `${LANGTEXT['errorMessageMail'][lang]}`;
         ErrorMessageUser.classList.toggle('active');
         console.log('Wrong user!');
       }
       if (error.code === 'auth/too-many-requests') {
         passwordInput.classList.toggle('invalid');
-        ErrorMessagePassword.textContent = 'Too many requests. Try again later.';
+        ErrorMessagePassword.textContent = `${LANGTEXT['tooManyRequests'][lang]}`;
         ErrorMessagePassword.classList.toggle('active');
       } else {
         console.error(error.code);
@@ -66,11 +67,11 @@ export function handleLogout() {
 }
 
 // Check authentication status
-export function checkAuthStatus(loginForm: HTMLElement, buttonsWrap: HTMLElement) {
+export function checkAuthStatus(loginForm: HTMLElement, buttonsWrap: HTMLElement, lang: Lang) {
   firebase.auth().onAuthStateChanged(function (user) {
     if (user) {
       loginForm.innerHTML = '';
-      const authQuestion = createHtmlElement('div', 'auth__q', `Want to continue as ${user.displayName}?`, loginForm);
+      const authQuestion = createHtmlElement('div', 'auth__q', `${LANGTEXT['authQuestion'][lang]} ${user.displayName}?`, loginForm);
       loginForm.append(buttonsWrap);
       console.log('User is signed in:', user);
     } else {
@@ -80,7 +81,7 @@ export function checkAuthStatus(loginForm: HTMLElement, buttonsWrap: HTMLElement
 }
 
 // Function to sign up a new user
-export function signUp(email: string, username: string, password: string, passwordInput: HTMLInputElement, ErrorMessagePassword: HTMLElement) {
+export function signUp(email: string, username: string, password: string, passwordInput: HTMLInputElement, ErrorMessagePassword: HTMLElement, lang: Lang) {
   firebase
     .auth()
     .createUserWithEmailAndPassword(email, password)
@@ -115,7 +116,7 @@ export function signUp(email: string, username: string, password: string, passwo
     .catch(function (error) {
       if (error.code === 'auth/weak-password') {
         passwordInput.classList.toggle('invalid');
-        ErrorMessagePassword.textContent = 'Password should be at least 6 characters.';
+        ErrorMessagePassword.textContent = LANGTEXT['ErrorMessagePassword'][lang];
         ErrorMessagePassword.classList.toggle('active');
         console.log('Weak password entered!');
       } else {

@@ -105,7 +105,7 @@ class App {
   };
   private loginPage = async () => {
     this.container.innerHTML = '';
-    const main = new LoginPage(PATH.login);
+    const main = new LoginPage(PATH.login, this.lang);
     this.page = main;
     main.on('navigate', this.navigate);
     this.container.append(main.render());
@@ -113,7 +113,7 @@ class App {
   };
   private errorPage = () => {
     this.container.innerHTML = '';
-    const page = new ErrorPage(PATH.errorPage);
+    const page = new ErrorPage(PATH.errorPage, this.lang);
     this.page = page;
     this.container.append(page.render());
   };

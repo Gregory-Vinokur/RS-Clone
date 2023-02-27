@@ -4,7 +4,7 @@ import { IPost } from './../../interfaces/IPost';
 import { database } from '../../server/firebaseAuth';
 import { loadComments } from './../../data/news_api/load_comments_to_posts';
 import ModelProfile from './../../pages/MyProfile/ModelProfile';
-import { Lang } from '../../constans/constans';
+import { Lang, LANGTEXT } from '../../constans/constans';
 import { TypeUser } from '../../constans/types';
 import cat_logo from '../../../assets/img/cat_logo.jpg';
 import meme_logo from '../../../assets/img/meme_logo.jpg';
@@ -78,9 +78,14 @@ export default class Post extends ModelProfile {
     const replyContainer = createHtmlElement('div', 'reply__container', '', replyWrapper);
     const userAvatarReply = createHtmlElement('img', 'user__avatar-reply', '', replyContainer) as HTMLImageElement;
     userAvatarReply.src = this.user?.photoURL as string;
+    userAvatarReply.addEventListener('click', () => {
+      const url = `${window.location.origin}/profile`;
+      window.history.pushState({}, '', url);
+      window.location.href = url;
+    })
     const form = createHtmlElement('form', 'reply__form', '', replyContainer);
-    const textarea = createHtmlElement('textarea', 'reply__textarea', '', form) as HTMLTextAreaElement;
-    textarea.placeholder = 'Leave a comment...';
+    const textarea = createHtmlElement('textarea', 'reply__textarea leave__comment', '', form) as HTMLTextAreaElement;
+    textarea.placeholder = LANGTEXT['replyComment'][lang];
     const replySubmitButton = createHtmlElement('button', 'reply__submit-btn', '', form);
 
     likeButton.addEventListener('click', () => {
@@ -155,7 +160,7 @@ export default class Post extends ModelProfile {
       if (Number(commentCounter.textContent) > 0) {
         commentsContainer.classList.toggle('comments__container-active');
       }
-      loadComments(this.element.id, commentsContainer, commentCounter, this.user);
+      loadComments(this.element.id, commentsContainer, commentCounter, this.user, lang);
     });
 
     replySubmitButton.addEventListener('click', (e: Event) => {
