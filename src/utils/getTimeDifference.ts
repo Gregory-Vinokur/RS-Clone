@@ -3,7 +3,7 @@ export const getTimeDifference = (timestamp: number) => {
     const difference = now - timestamp;
     const seconds = Math.floor(difference / 1000);
     const lang = localStorage.getItem('LANG');
-    if (lang === 'eng') {
+    if (lang === 'eng' || (!lang)) {
         if (seconds < 60) {
             if (seconds === 1) {
                 return `1 second ago`;
