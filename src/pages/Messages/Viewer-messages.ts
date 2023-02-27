@@ -84,6 +84,7 @@ export default class ViewerMessasges extends Page {
   editeMessageId: string;
   buttonEdite: Button<ModelMessages>;
   buttonEditeClose: HTMLElement;
+  noMessage: HTMLElement;
 
   emit(event: EmitsName, data?: string | number, text?: string) {
     return super.emit(event, data, text);
@@ -159,6 +160,7 @@ export default class ViewerMessasges extends Page {
     this.buttonEdite = new Button('editeButton', this.model, this.updateMessage);
     this.buttonEdite.element.style.display = 'none';
     sendInputContainer.append(this.input, this.buttonSend.render(), this.buttonEdite.render());
+    this.noMessage = createHtmlElement('h2', '', LANGTEXT.noMessage[this.model.lang]);
 
     this.mainWrapper.append(buttonsHeaderContainer, this.messagesField, sendInputWrapper, this.containerButtons);
     this.messagesChat.innerHTML = `<div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>`;
@@ -422,7 +424,8 @@ export default class ViewerMessasges extends Page {
     this.messagesRoomsChat.innerHTML = '';
     this.buttonsDialog = [];
     const index = this.model.dialogRooms.findIndex((el) => el === this.model.currentDialog);
-    if (!this.model.dialogsMessages[index]) {
+    if (!this.model.dialogsMessages[index].length) {
+      this.messagesRoomsChat.appendChild(this.noMessage);
       return;
     }
     this.model.dialogsMessages[index].forEach((element) => {
@@ -463,6 +466,7 @@ export default class ViewerMessasges extends Page {
 
       const messages = this.model.groupsProp[index][PATCH_TO_DB.MESSAGES];
       if (!messages) {
+        this.messagesGroupRoomsChat.append(this.noMessage);
         return;
       }
       const messagesKeys = Object.keys(messages);
@@ -519,7 +523,9 @@ export default class ViewerMessasges extends Page {
     this.messagesChat.innerHTML = '';
     this.messagesChat.classList.remove('messages__field_load');
     this.buttons = [];
+    let isMessage = 0;
     this.model.messages?.forEach((doc) => {
+      isMessage++;
       const document = doc.data();
       const classMessage = document.uid === this.model.user?.uid ? 'my_message' : 'other_message';
       const containerMessage = createHtmlElement('div', `containerMessage ${classMessage}`);
@@ -549,6 +555,10 @@ export default class ViewerMessasges extends Page {
       createHtmlElement('p', 'message-text', `${document.text}`, containerMessage);
       containerMessage.append(this.createDataElement(document.created?.seconds * 1000));
     });
+    console.log(isMessage);
+    if (!isMessage) {
+      this.messagesChat.appendChild(this.noMessage);
+    }
     this.messagesChatContainer.scrollTop = this.messagesChatContainer.scrollHeight;
   };
 
@@ -648,6 +658,7 @@ export default class ViewerMessasges extends Page {
     if (this.editeMessageWindow) {
       this.editeMessageWindow.changeLang();
     }
+    this.noMessage.innerText = LANGTEXT.noMessage[this.model.lang];
     this.input.placeholder = LANGTEXT['messagePlaceholder'][this.model.lang];
     this.titleInRooms.innerText = LANGTEXT['textInRooms'][this.model.lang];
     this.titleInGroupRooms.innerText = LANGTEXT['textInRooms'][this.model.lang];

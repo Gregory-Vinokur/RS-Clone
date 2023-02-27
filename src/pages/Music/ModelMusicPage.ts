@@ -2,7 +2,7 @@ import Model from '../Template/Model';
 import { TypeUser } from '../../constans/types';
 import { Lang } from '../../constans/constans';
 import FavoriteTrack from '../../interfaces/FavoriteTrack';
-import { getDatabase, ref, update, get, child, push } from 'firebase/database';
+import { getDatabase, ref, update, get, child } from 'firebase/database';
 import { database } from '../../server/firebaseAuth';
 type Track = { [key: string]: string | number };
 export default class ModelMusicPage extends Model {
@@ -40,6 +40,7 @@ export default class ModelMusicPage extends Model {
       });
       const data = await response.json();
       const tracks = data.search.data.tracks;
+      console.log(tracks);
       this.emit('findSearchTracks', tracks);
       return tracks;
     } catch (error) {

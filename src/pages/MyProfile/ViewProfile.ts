@@ -10,19 +10,7 @@ import ModelMusicPage from '../Music/ModelMusicPage';
 import formatTime from '../../utils/formatTime';
 import { getTimeDifference } from '../../utils/getTimeDifference';
 import qs from 'query-string';
-type EmitsName =
-  | 'uploadAvatar'
-  | 'changeLang'
-  | 'changeName'
-  | 'changeStatus'
-  | 'createNews'
-  | 'deletePost'
-  | 'uploadPostImg'
-  | 'subscriptionUser'
-  | 'unsubscriptionUser'
-  | 'likePost'
-  | 'openUserPage'
-  | 'changePostsCounter';
+import { EmitsNameViewProfile } from '../../constans/types';
 
 export default class ViewProfile extends Page {
   model: ModelProfile;
@@ -48,11 +36,13 @@ export default class ViewProfile extends Page {
   currentTrack: HTMLAudioElement;
   paramsId: string;
   currendOpenPageId: string;
-  emit(event: EmitsName, data?: string | File | { [key: string]: string }) {
+  currentUserUid: string;
+
+  emit(event: EmitsNameViewProfile, data?: string | File | { [key: string]: string }) {
     return super.emit(event, data);
   }
 
-  on(event: EmitsName, callback: (data?: string | File | object) => void) {
+  on(event: EmitsNameViewProfile, callback: (data?: string | File | object) => void) {
     return super.on(event, callback);
   }
 
@@ -60,6 +50,7 @@ export default class ViewProfile extends Page {
     super(id);
     this.model = model;
     this.musicModel = musicModel;
+    this.currentUserUid = this.model.user?.uid !== undefined ? this.model.user?.uid : '';
     this.mainWrapper.className = 'my__page';
     this.profileWrapper = createHtmlElement('div', 'profile__wrapper', '', this.mainWrapper);
     this.profileInfo = createHtmlElement('div', 'profile__info', '', this.profileWrapper);
@@ -93,8 +84,8 @@ export default class ViewProfile extends Page {
 
     this.paramsId = qs.parse(window.location.search).id as string;
 
-    this.paramsId !== undefined ? this.loadFriendsProfile(this.paramsId) : this.renderUserPage(this.model.user?.uid as string);
-    this.currendOpenPageId = this.model.user?.uid as string;
+    this.paramsId !== undefined ? this.loadFriendsProfile(this.paramsId) : this.renderUserPage(this.currentUserUid);
+    this.currendOpenPageId = this.currentUserUid;
     this.renderFriendProfile();
 
     this.inputAvatar.addEventListener('change', (e: Event) => {
@@ -113,16 +104,16 @@ export default class ViewProfile extends Page {
       this.emit('uploadPostImg', this.inputCreatePostImg.files![0]);
     });
 
-    this.model.on('updateData', async () => await this.renderNews(this.model.user?.uid as string));
+    this.model.on('updateData', async () => await this.renderNews(this.currentUserUid));
 
     this.model.on('uploadAvatar', () => {
       this.profileAvatar.innerHTML = '';
-      this.renderProfileAvatar(this.model.user?.uid as string);
+      this.renderProfileAvatar(this.currentUserUid);
     });
 
     this.model.on('uploadCover', () => {
       this.profileCover.innerHTML = '';
-      this.renderProfileCover(this.model.user?.uid as string);
+      this.renderProfileCover(this.currentUserUid);
     });
 
     this.model.on('loadPostImg', () => {
@@ -130,12 +121,15 @@ export default class ViewProfile extends Page {
       this.createNewsBtn.textContent = '';
       this.createNewsBtn.append(this.spinnerLoad);
     });
+
     this.model.on('postImgLoaded', () => {
       (this.createNewsBtn as HTMLButtonElement).disabled = false;
       this.createNewsBtn.textContent = 'Поделиться';
     });
 
-    this.model.on('loadPercentFoto', (percent) => this.renderLoadImg(percent as number));
+    this.model.on('loadPercentFoto', (percent) => {
+      if (typeof percent === 'number') this.renderLoadImg(percent);
+    });
     this.model.on('emptyUserNews', () => (this.emptyBlock.style.display = 'block'));
     this.model.on('notEmptyUserNews', () => (this.emptyBlock.style.display = 'none'));
     this.model.on('changeLang', this.changeLang);
@@ -185,7 +179,6 @@ export default class ViewProfile extends Page {
     const profileCoverImg = createHtmlElement('img', 'profile__cover-img', '', this.profileCover);
     this.profileCover.append(this.inputCover);
     profileCoverImg.setAttribute('src', `${user.userCover || defaultCover}`);
-
     createHtmlElement('div', 'profile__header', '', this.profileCover);
   }
 
@@ -282,7 +275,7 @@ export default class ViewProfile extends Page {
 
     Object.keys(userPost).forEach((postId: string) => {
       const postContainer = createHtmlElement('div', 'post__container_user', '', createdPostContainer as HTMLElement);
-      postContainer.id = `${userPost[postId].id}`;
+      postContainer.id = `${postId}`;
       if (userPost[postId].postsId) postContainer.setAttribute('data-id', userPost[postId].postsId);
       const postHeader = createHtmlElement('div', 'post__header_user', '', postContainer);
       const postInfo = createHtmlElement('div', 'post__info_user', '', postHeader);
@@ -303,20 +296,31 @@ export default class ViewProfile extends Page {
       const likeImg = createHtmlElement('div', 'like__img', '', likePostBtn);
       let likeCounter = userPost[postId].likes || 0;
       const likeCounterHTML = createHtmlElement('span', 'like__counter', `${likeCounter}`, likePostBtn);
-
-      const repostPostBtn = createHtmlElement('button', 'share__button share__btn_user', '', actionPost);
+      const repostCounter = userPost[postId].shares || 0;
+      const repostPostBtn = createHtmlElement('button', 'share__button share__btn_user', '', actionPost); // Исправить счетчик если 0 то не показывать
       createHtmlElement('div', 'share__img', '', repostPostBtn);
-      createHtmlElement('span', 'share__counter', '', repostPostBtn);
-
-      if (userPost[postId].liked && userPost[postId].liked[this.model.user?.uid as string] === true) {
+      const repostCounterHTML = createHtmlElement('span', 'share__counter', `${repostCounter === 0 ? '' : String(repostCounter)}`, repostPostBtn);
+      repostPostBtn.style.display = 'none';
+      if (userPost[postId].liked && userPost[postId].liked[this.currentUserUid] === true) {
         likePostBtn.classList.add('liked');
         likeImg.classList.add('liked__img');
       }
 
       deleteBtn.addEventListener('click', () => {
-        const repostId = postContainer.getAttribute('data-id');
-        if (repostId) this.emit('changePostsCounter', repostId);
         this.emit('deletePost', postContainer.id);
+        const repostId = postContainer.getAttribute('data-id');
+        if (repostId)
+          this.emit('changePostsCounter', {
+            repostId: repostId,
+            link: 'newsRepost',
+          });
+        else if (userPost[postId].createdUser !== (this.model.user?.uid as string)) {
+          this.emit('changePostsCounter', {
+            repostId: userPost[postId].id,
+            link: 'userRepost',
+            createdUserId: userPost[postId].createdUser,
+          });
+        }
       });
 
       likePostBtn.addEventListener('click', () => {
@@ -325,7 +329,7 @@ export default class ViewProfile extends Page {
           likeImg.classList.add('liked__img');
           likeCounter++;
           this.emit('likePost', {
-            likeCounter: likeCounter,
+            likeCounter: String(likeCounter),
             postId: postContainer.id,
             liked: 'true',
             userId: this.currendOpenPageId,
@@ -335,13 +339,25 @@ export default class ViewProfile extends Page {
           likeImg.classList.remove('liked__img');
           likeCounter--;
           this.emit('likePost', {
-            likeCounter: likeCounter,
+            likeCounter: String(likeCounter),
             postId: postContainer.id,
             liked: 'false',
             userId: this.currendOpenPageId,
           });
         }
         likeCounterHTML.textContent = `${likeCounter}`;
+      });
+
+      repostPostBtn.addEventListener('click', () => {
+        if (userPost[postId].createdUser !== this.model.user?.uid) {
+          this.emit('shareNews', {
+            postId: postContainer.id,
+            userId: this.currendOpenPageId,
+          });
+        } else {
+          return;
+        }
+        repostCounterHTML.textContent = `${repostCounter + 1}`;
       });
     });
   }
@@ -361,7 +377,7 @@ export default class ViewProfile extends Page {
         (userAva as HTMLImageElement).src = `${userPage.userAvatar || defaultAva}`;
       });
     } else {
-      createHtmlElement('div', 'profile__friends_empty', 'Пользователь ни на кого не подписан', this.profileFriends);
+      createHtmlElement('div', 'profile__friends_empty', LANGTEXT['emptyUserFriends'][this.model.lang], this.profileFriends);
     }
   }
 
@@ -369,7 +385,21 @@ export default class ViewProfile extends Page {
     this.profileFriendsWrapper?.addEventListener('click', async (e: Event) => {
       const { target } = e;
       const userId = (target as HTMLElement).parentElement?.id;
-      if (userId) {
+
+      if (userId === this.currentUserUid) {
+        this.profileAvatar.innerHTML = '';
+        this.profileCover.innerHTML = '';
+        this.profilePerson.innerHTML = '';
+        this.userNewsContainer.innerHTML = '';
+        this.profileFriends.innerHTML = '';
+        this.userMusicContainer.innerHTML = '';
+        this.profileFriendsWrapper.innerHTML = '';
+        this.emptyBlock.innerHTML = '';
+        this.subscriptionBtn.style.display = 'none';
+        this.unsubscriptionBtn.style.display = 'none';
+        window.history.pushState({}, 'path', window.location.origin + window.location.pathname);
+        this.renderUserPage(this.currentUserUid);
+      } else if (userId) {
         const params = qs.parse(window.location.search);
         params.id = userId;
         const search = qs.stringify(params);
@@ -381,6 +411,7 @@ export default class ViewProfile extends Page {
         this.userNewsContainer.innerHTML = '';
         this.profileFriends.innerHTML = '';
         this.userMusicContainer.innerHTML = '';
+
         await this.renderProfileAvatar(userId);
         await this.renderProfileName(userId);
         await this.renderProfileCover(userId);
@@ -388,28 +419,31 @@ export default class ViewProfile extends Page {
         await this.renderUserFriends(userId);
         await this.renderUserMusicItem(userId);
         await this.checkSubscription(userId);
+
         const profileAvaBtn: HTMLElement | null = document.querySelector('.profile__label');
         const createNews: HTMLElement | null = document.querySelector('.create__news');
-        const deleteNewsBtn: HTMLElement | null = this.userNewsContainer.querySelector('.delete__post_user');
+        const deleteNewsBtn = this.userNewsContainer.querySelectorAll('.delete__post_user');
         const changeNameBtn: HTMLElement | null = document.querySelector('.profile__name-btn');
         const changeStatusBtn: HTMLElement | null = document.querySelector('.profile__status-btn');
         const uploadCoverBtn: HTMLElement | null = document.querySelector('.profile__label-cover');
+        const shareButtons = document.querySelectorAll('.share__btn_user');
         if (profileAvaBtn) profileAvaBtn.style.visibility = 'hidden';
         if (createNews) createNews.style.display = 'none';
-        if (deleteNewsBtn) deleteNewsBtn.style.display = 'none';
         if (changeNameBtn) changeNameBtn.style.display = 'none';
         if (changeStatusBtn) changeStatusBtn.style.display = 'none';
         if (uploadCoverBtn) uploadCoverBtn.style.display = 'none';
-      }
-
-      if (userId === (this.model.user?.uid as string)) {
-        console.log('me');
+        deleteNewsBtn.forEach((btn) => {
+          (btn as HTMLElement).style.display = 'none';
+        });
+        shareButtons.forEach((btn) => {
+          (btn as HTMLElement).style.display = 'flex';
+        });
       }
     });
   }
 
   async checkSubscription(userId: string) {
-    const { userSubscripts } = await this.model.getUserInfo(this.model.user?.uid as string);
+    const { userSubscripts } = await this.model.getUserInfo(this.currentUserUid);
     if (userSubscripts) {
       const id = Object.keys(userSubscripts).find((subscript) => {
         return subscript === userId;
@@ -442,20 +476,21 @@ export default class ViewProfile extends Page {
     await this.checkSubscription(paramsId);
     const profileAvaBtn: HTMLElement | null = document.querySelector('.profile__label');
     const createNews: HTMLElement | null = document.querySelector('.create__news');
-    // const deleteNewsBtn: HTMLElement | null = this.userNewsContainer.querySelector('.delete__post_user');
     const deleteNewsBtn = this.userNewsContainer.querySelectorAll('.delete__post_user');
-    console.log(deleteNewsBtn);
     const changeNameBtn: HTMLElement | null = document.querySelector('.profile__name-btn');
     const changeStatusBtn: HTMLElement | null = document.querySelector('.profile__status-btn');
     const uploadCoverBtn: HTMLElement | null = document.querySelector('.profile__label-cover');
+    const shareButtons = document.querySelectorAll('.share__btn_user');
     if (profileAvaBtn) profileAvaBtn.style.visibility = 'hidden';
     if (createNews) createNews.style.display = 'none';
     if (changeNameBtn) changeNameBtn.style.display = 'none';
     if (changeStatusBtn) changeStatusBtn.style.display = 'none';
     if (uploadCoverBtn) uploadCoverBtn.style.display = 'none';
-
     deleteNewsBtn.forEach((btn) => {
       (btn as HTMLElement).style.display = 'none';
+    });
+    shareButtons.forEach((btn) => {
+      (btn as HTMLElement).style.display = 'flex';
     });
   }
 
@@ -553,9 +588,11 @@ export default class ViewProfile extends Page {
     const userRecommendedSubscriptions: HTMLElement | null = document.querySelector('.recommended__text');
     const emptyBlockText: HTMLElement | null = document.querySelector('.empty__block_text');
     const musicTitle: HTMLElement | null = document.querySelector('.user__music-title');
+    const userEmptyFriends: HTMLElement | null = document.querySelector('.profile__friends_empty');
     if (userSubscriptionsBtn) userSubscriptionsBtn.innerText = LANGTEXT['userSubscriptions'][this.model.lang];
     if (userRecommendedSubscriptions) userRecommendedSubscriptions.innerText = LANGTEXT['recommendedSubscriptions'][this.model.lang];
     if (emptyBlockText) emptyBlockText.innerText = LANGTEXT['emptyUserNews'][this.model.lang];
     if (musicTitle) musicTitle.innerText = LANGTEXT['userMusicTitle'][this.model.lang];
+    if (userEmptyFriends) userEmptyFriends.innerText = LANGTEXT['emptyUserFriends'][this.model.lang];
   };
 }

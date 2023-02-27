@@ -15,6 +15,7 @@ export default class FindWindow {
   model: ModelMessages;
   allUser: Promise<UserProp[]>;
   status: HTMLElement[];
+  notFind: HTMLElement;
   constructor(parrent: ViewerMessasges, model: ModelMessages) {
     this.parrent = parrent;
     this.model = model;
@@ -36,6 +37,7 @@ export default class FindWindow {
       this.parrent.buttonFind.element.classList.remove('button_active');
       this.container.remove();
     });
+    this.notFind = createHtmlElement('h2', '', LANGTEXT.notFind[this.model.lang]);
   }
 
   findUser = async () => {
@@ -48,9 +50,13 @@ export default class FindWindow {
     const findedUsers = users.filter(
       (user) => user.userName.toUpperCase().includes(this.inputFind.value.toUpperCase()) && user.userId !== this.model.user?.uid
     );
-    findedUsers.forEach((user) => {
-      this.userFild.appendChild(this.createUser(user));
-    });
+    if (findedUsers.length) {
+      findedUsers.forEach((user) => {
+        this.userFild.appendChild(this.createUser(user));
+      });
+    } else {
+      this.userFild.appendChild(this.notFind);
+    }
   };
 
   createUser = (user: UserProp) => {
@@ -73,6 +79,7 @@ export default class FindWindow {
   changeLang = () => {
     this.status.forEach((el) => (el.innerText = LANGTEXT['status'][this.model.lang]));
     this.inputFind.placeholder = LANGTEXT['findPlaceholder'][this.model.lang];
+    this.notFind.innerText = LANGTEXT.notFind[this.model.lang];
   };
 
   render = () => {

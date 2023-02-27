@@ -132,6 +132,14 @@ const LANGTEXT = {
     rus: 'Найти',
     eng: 'Find user',
   },
+  notFind: {
+    rus: 'Не найдено',
+    eng: 'Not found',
+  },
+  noMessage: {
+    rus: 'Еще нет ни одного сообщения.',
+    eng: 'There are no messages yet.',
+  },
   status: {
     rus: 'Статус',
     eng: 'Status',
@@ -191,6 +199,10 @@ const LANGTEXT = {
   userMusicTitle: {
     rus: 'Музыка',
     eng: 'Music',
+  },
+  emptyUserFriends: {
+    rus: 'Пользователь ни на кого не подписан',
+    eng: 'The user is not following anyone',
   },
   continueButton: {
     rus: 'Продолжить',

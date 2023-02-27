@@ -46,6 +46,12 @@
   gap: 10px;
 }
 
+.find-user-fild h2 {
+  color: #000;
+  align-self: center;
+  margin-top: 50%;
+}
+
 .finded-user-container {
   color: blue;
   display: flex;
