@@ -53,5 +53,6 @@
   .side__bar.open {
     transition: top 0.5s;
     top: 0;
+    z-index: 4;
   }
 }

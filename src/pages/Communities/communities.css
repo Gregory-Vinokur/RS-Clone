@@ -49,6 +49,12 @@
   font-size: 16px;
 }
 
+.followers__text,
+.followers__number {
+  color: #626d7a;
+  font-size: 16px;
+}
+
 .community__page {
   width: 100%;
   min-height: 100vh;
@@ -88,7 +94,7 @@
   border: none;
   border-radius: 5px;
   font-size: 13px;
-  width: 80%;
+  width: 100%;
   cursor: pointer;
   transition: all 0.3s;
 }
@@ -150,6 +156,23 @@
   justify-content: space-between;
 }
 
+.community__page-content-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.generate__posts {
+  color: #346297;
+  background-color: #bbd1ea;
+  border: none;
+  width: 80%;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgb(0 0 0 / 4%), 0 0 4px rgb(0 0 0 / 6%);
+  align-self: center;
+  cursor: pointer;
+}
+
 .community__page-posts {
   border-radius: 15px;
   margin-top: -18px;
@@ -161,6 +184,10 @@
   height: 40%;
   width: 35%;
   border-radius: 15px;
+}
+
+.community__page-followers-text-wrap {
+  display: flex;
 }
 
 .community__page-followers-text {
@@ -221,4 +248,105 @@
 .dark-theme .follow__btn {
   background-color: #424242;
   color: #e1e3e6;
+}
+
+.community__page-followers-small {
+  display: none;
+}
+
+@media (max-width: 1220px) {
+  .community__page {
+    width: 92%;
+  }
+
+  .community__page-cover {
+    width: 92%;
+  }
+
+  .community__page-header {
+    width: 92%;
+  }
+
+  .community__page-content {
+    gap: 15px;
+  }
+}
+
+@media (max-width: 1050px) {
+  .community__page-followers {
+    display: none;
+  }
+
+  .community__page-followers-small {
+    display: block;
+  }
+
+  .community__page-followers-wrap {
+    display: none;
+  }
+
+  .community__page-followers-text-wrap-small {
+    display: flex;
+    cursor: pointer;
+  }
+
+  .visible {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: flex-start;
+    gap: 5px;
+    background-color: white;
+    border-radius: 10px;
+    width: 70%;
+    position: absolute;
+    left: 100px;
+    height: 100px;
+    box-shadow: 0 1px 6px rgb(0 0 0 / 38%);
+    padding: 5px;
+  }
+
+  .dark-theme .visible {
+    background-color: #222222;
+  }
+}
+
+@media (max-width: 801px) {
+  .main__content {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 500px) {
+  .community__page-logo {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+@media (max-width: 400px) {
+  .visible {
+    width: 85%;
+    left: 25px;
+  }
+
+  .followed {
+    font-size: 13px;
+  }
+
+  .main__content {
+    padding: 10px 5px;
+  }
+
+  .community__page {
+    width: 100%;
+  }
+
+  .community__page-cover {
+    width: 100%;
+  }
+
+  .community__page-header {
+    width: 100%;
+  }
 }

@@ -3,7 +3,9 @@ import { TypeUser } from '../../constans/types';
 import { database } from './../../server/firebaseAuth';
 import { loadPosts } from './load_post';
 
-export const loadMorePosts = async (lang: Lang, user: TypeUser, postsLimit: number, postsCount: number, wrapper: HTMLElement, author?: string) => {
+let postsLimit = 10;
+
+export const loadMorePosts = async (lang: Lang, user: TypeUser, wrapper: HTMLElement, author?: string) => {
     const postsRef = database.ref("posts");
     let postLength = 0;
 
@@ -23,7 +25,6 @@ export const loadMorePosts = async (lang: Lang, user: TypeUser, postsLimit: numb
             else {
                 loadPosts(wrapper, postsLimit, lang, user);
             }
-            postsCount += 10;
         }
     }
 

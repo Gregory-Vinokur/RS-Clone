@@ -204,6 +204,122 @@ const LANGTEXT = {
     rus: 'Пользователь ни на кого не подписан',
     eng: 'The user is not following anyone',
   },
+  continueButton: {
+    rus: 'Продолжить',
+    eng: 'Continue',
+  },
+  authQuestion: {
+    rus: 'Хотите продолжить как',
+    eng: 'Want to continue as',
+  },
+  changeUserBtn: {
+    rus: 'Сменить пользователя',
+    eng: 'Change user',
+  },
+  signInButton: {
+    rus: 'Войти',
+    eng: 'Sign in',
+  },
+  signUpButton: {
+    rus: 'Зарегистрироваться',
+    eng: 'Sign up',
+  },
+  userMailTitle: {
+    rus: 'Электронная почта:',
+    eng: 'E-mail:',
+  },
+  userNameTitle: {
+    rus: 'Имя:',
+    eng: 'Name:',
+  },
+  userPasswordTitle: {
+    rus: 'Пароль:',
+    eng: 'Password:',
+  },
+  resetPasswordLink: {
+    rus: 'Забыли пароль?',
+    eng: 'Forgot your password?',
+  },
+  submitButton: {
+    rus: 'Подтвердить',
+    eng: 'Submit',
+  },
+  errorMessageMail: {
+    rus: 'Неверный адрес',
+    eng: 'Invalid e-mail',
+  },
+  errorMessageName: {
+    rus: 'Введите Ваше имя, пожалуйста',
+    eng: 'Enter your name, please',
+  },
+  errorMessagePassword: {
+    rus: 'Неверный пароль',
+    eng: 'Invalid password',
+  },
+  tooManyRequests: {
+    rus: 'Слишком много запросов. Попробуйте позже.',
+    eng: 'Too many requests. Try again later.',
+  },
+  replyComment: {
+    rus: 'Оставьте комментарий...',
+    eng: 'Leave a comment...',
+  },
+  cancelBtn: {
+    rus: 'Отмена',
+    eng: 'Cancel',
+  },
+  saveBtn: {
+    rus: 'Сохранить',
+    eng: 'Save',
+  },
+  animals: {
+    rus: 'Животные',
+    eng: 'Animals',
+  },
+  humor: {
+    rus: 'Юмор',
+    eng: 'Humor',
+  },
+  public_page: {
+    rus: 'Публичная страница',
+    eng: 'Public page',
+  },
+  follower: {
+    rus: ' подписчик',
+    eng: ' follower',
+  },
+  followers: {
+    rus: ' подписчика',
+    eng: ' followers',
+  },
+  following: {
+    rus: '✔ Вы подписаны',
+    eng: '✔ Following',
+  },
+  followBtn: {
+    rus: 'Подписаться',
+    eng: 'Follow',
+  },
+  unfollowBtn: {
+    rus: 'Отписаться',
+    eng: 'Unfollow',
+  },
+  followersText: {
+    rus: ' подписчики',
+    eng: ' followers',
+  },
+  generatePost: {
+    rus: 'Сгенерировать пост',
+    eng: 'Generate post',
+  },
+  errorPageText: {
+    rus: 'СТРАНИЦА НЕ НАЙДЕНА (404)',
+    eng: 'PAGE NOT FOUND (404)',
+  },
+  ErrorMessagePassword: {
+    rus: 'Пароль должен быть не менее 6 символов.',
+    eng: 'Password should be at least 6 characters.',
+  },
 };
 
 type LangNameElement = keyof typeof LANGTEXT;

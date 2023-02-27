@@ -1,4 +1,5 @@
 
+import { Lang, LANGTEXT } from '../../constans/constans';
 import { TypeUser } from '../../constans/types';
 import { IComment } from '../../interfaces/IComment';
 import { createHtmlElement } from '../../utils/createElement';
@@ -6,7 +7,7 @@ import { getTimeDifference } from '../../utils/getTimeDifference';
 import { database } from './../../server/firebaseAuth';
 import { editComment } from './edit_comments';
 
-export const loadComments = (postId: string, commentsContainer: HTMLElement, commentCounter: HTMLSpanElement, user: TypeUser) => {
+export const loadComments = (postId: string, commentsContainer: HTMLElement, commentCounter: HTMLSpanElement, user: TypeUser, lang: Lang) => {
     database
         .ref(`posts/${postId}/comments`)
         .on("value", (snapshot) => {
@@ -20,7 +21,7 @@ export const loadComments = (postId: string, commentsContainer: HTMLElement, com
             comments.forEach((comment) => {
                 const commentItem = createHtmlElement("div", "comment__item");
                 commentItem.setAttribute('data-comment-id', `${comment.id}`);
-                const commentAvatar = createHtmlElement("img", "comment__avatar", "", commentItem) as HTMLImageElement;;
+                const commentAvatar = createHtmlElement("img", "comment__avatar", "", commentItem) as HTMLImageElement;
                 const commentContent = createHtmlElement("div", "comment__content", "", commentItem);
                 const commentHeader = createHtmlElement("div", "comment__header", "", commentContent);
                 const commentUsername = createHtmlElement("span", "comment__username", comment.author, commentHeader);
@@ -38,6 +39,9 @@ export const loadComments = (postId: string, commentsContainer: HTMLElement, com
 
                 if (!userUid) {
                     return;
+                }
+                if (userUid) {
+                    commentAvatar.id = userUid;
                 }
                 if (comment.liked && comment.liked[userUid] === true) {
                     likeButton.classList.add('liked__comment');
@@ -73,8 +77,8 @@ export const loadComments = (postId: string, commentsContainer: HTMLElement, com
 
                 editButton.addEventListener('click', () => {
                     const textArea = createHtmlElement("textarea", 'reply__textarea') as HTMLTextAreaElement;
-                    const cancelBtn = createHtmlElement("button", 'cancel__btn', 'Cancel') as HTMLButtonElement;
-                    const saveBtn = createHtmlElement("button", 'save__btn', 'Save') as HTMLButtonElement;
+                    const cancelBtn = createHtmlElement("button", 'cancel__btn', `${LANGTEXT['cancelBtn'][lang]}`) as HTMLButtonElement;
+                    const saveBtn = createHtmlElement("button", 'save__btn', `${LANGTEXT['saveBtn'][lang]}`) as HTMLButtonElement;
                     const commentTextValue = commentText.textContent;
                     if (commentTextValue) {
                         textArea.value = commentTextValue;
@@ -130,6 +134,12 @@ export const loadComments = (postId: string, commentsContainer: HTMLElement, com
 
                 commentAvatar.src = comment.logo;
                 commentsContainer.append(commentItem);
+
+                commentAvatar.addEventListener('click', () => {
+                    const url = `${window.location.origin}/profile?id=${commentAvatar.id}`;
+                    window.history.pushState({}, '', url);
+                    window.location.href = url;
+                })
             });
         });
 }

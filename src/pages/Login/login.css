@@ -32,6 +32,12 @@
   gap: 5px;
 }
 
+.user__label-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: black;
+}
+
 .username,
 .password {
   width: 100%;
@@ -57,7 +63,7 @@
   mask-size: cover;
   background-color: #99a2ad;
   margin-left: -35px;
-  margin-top: 16px;
+  margin-top: 13px;
   position: relative;
   z-index: 20;
   cursor: pointer;
@@ -204,8 +210,36 @@
   cursor: pointer;
   margin-bottom: 20px;
   text-align: center;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
 }
 
 .dark-theme .login__form {
   background-color: #222222;
+}
+
+.dark-theme .user__label-title {
+  color: #e1e3e6;
+}
+
+.dark-theme .username {
+  background-color: #424242;
+  color: #e1e3e6;
+}
+
+.dark-theme .password {
+  background-color: #424242;
+  color: #e1e3e6;
+}
+
+.dark-theme .auth__q {
+  color: #e1e3e6;
+}
+
+@media (max-width: 430px) {
+  .login__form {
+    width: 300px;
+  }
 }

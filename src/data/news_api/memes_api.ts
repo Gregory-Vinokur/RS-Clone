@@ -8,39 +8,29 @@ async function loadMemes() {
     return data.url;
 }
 
-let postCount = 0;
-let intervalId: NodeJS.Timeout;
+export const generateMemePost = async () => {
+    loadMemes()
+        .then((image) => {
+            const data = {
+                author: "Memes",
+                date: Date.now(),
+                text: "Laugh with memes!",
+                image,
+                likes: 0,
+                shares: 0,
+                logo: meme_logo,
+                comments: [],
+                liked: '',
+                reposted: "",
+                id: ""
+            };
 
-export const loadMemePosts = () => {
-    intervalId = setInterval(() => {
-        if (postCount === 10) {
-            clearInterval(intervalId);
-            return;
-        }
-        loadMemes()
-            .then((image) => {
-                const data = {
-                    author: "Memes",
-                    date: Date.now(),
-                    text: "Laugh with memes!",
-                    image,
-                    likes: 0,
-                    shares: 0,
-                    logo: meme_logo,
-                    comments: [],
-                    liked: '',
-                    reposted: "",
-                    id: ""
-                };
-
-                return database.ref("posts/").push(data);
-            })
-            .then((response) => {
-                console.log("Post saved successfully: ", response);
-                postCount += 1;
-            })
-            .catch((error) => {
-                console.error("Error saving post: ", error);
-            });
-    }, 3600 * 1000);
-};
+            return database.ref("posts/").push(data);
+        })
+        .then((response) => {
+            console.log("Post saved successfully: ", response);
+        })
+        .catch((error) => {
+            console.error("Error saving post: ", error);
+        });
+}
