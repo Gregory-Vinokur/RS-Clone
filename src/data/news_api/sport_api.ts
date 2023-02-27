@@ -9,8 +9,11 @@ async function loadSportNews() {
 }
 
 export const generateSportPost = async () => {
-    loadSportNews()
-        .then((articles) => {
+    try {
+        const articles = await loadSportNews();
+        if (!articles || articles.length === 0) {
+            throw new Error('No sports news found');
+        } else if (articles || articles.length > 0) {
             const article = articles[Math.floor(Math.random() * articles.length)];
             const data = {
                 author: "Sport News",
@@ -25,13 +28,11 @@ export const generateSportPost = async () => {
                 reposted: "",
                 id: ""
             };
-
-            return database.ref("posts/").push(data);
-        })
-        .then((response) => {
+            const response = await database.ref("posts/").push(data);
             console.log("Post saved successfully: ", response);
-        })
-        .catch((error) => {
-            console.error("Error saving post: ", error);
-        });
-}
+        }
+    } catch (error) {
+        console.error("Error generating sport post: ", error);
+    }
+};
+
