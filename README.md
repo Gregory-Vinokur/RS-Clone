@@ -3,6 +3,18 @@
 + Deploy: https://vk-clone-rs-clone-party-team.netlify.app/
 + Backend, Database: https://firebase.google.com/
 
+## Stack
++ TypeScript
++ CSS
++ Webpack
++ EsLint
+
+## Libraries
++ [qs](https://www.npmjs.com/package/qs) (A querystring parsing and stringifying library with some added security)
++ [events](https://www.npmjs.com/package/events) (This implements the Node.js events module for environments that do not have it, like browsers.)
++ [firebase](https://firebase.google.com/) (Database, backend)
++ [Napster API](https://developer.prod.napster.com/) (Music tracks)
+
 ## Setup and Running
 
 ### Install dependencies:
