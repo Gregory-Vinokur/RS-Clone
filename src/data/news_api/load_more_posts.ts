@@ -17,6 +17,9 @@ export const loadMorePosts = async (lang: Lang, user: TypeUser, wrapper: HTMLEle
     });
 
     if (document.body.scrollTop + document.body.offsetHeight >= document.body.scrollHeight) {
+        if (window.location.pathname !== '/news') {
+            postsLimit = 10
+        }
         if (postLength > postsLimit) {
             postsLimit += 10;
             if (author) {
