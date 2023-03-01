@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "outDir": "./",
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "strict": true,
+    "noImplicitAny": true,
+    "module": "es6",
+    "target": "ES6",
+    "allowJs": true
+  },
+  "files": ["src/index.ts", "src/module.d.ts"]
+}
+

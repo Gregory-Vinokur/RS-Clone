@@ -1,0 +1,67 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-size: 18px;
+  color: white;
+  font-family: Philosopher, sans-serif;
+  word-wrap: break-word;
+}
+
+html {
+  box-sizing: border-box;
+  height: 100%;
+  width: 100vw;
+  margin: 0 auto;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0077ff;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #dfe8f1;
+  border-radius: 20px;
+  border: 2px solid #0077ff;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #063161;
+}
+
+body {
+  background-color: #e0e9f2;
+  margin: 0px;
+  padding: 0px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  height: 100vh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.dark-theme {
+  background-color: RGB(25, 25, 25);
+}
+
+a {
+  text-decoration: none;
+}
+
+textarea:focus,
+input:focus {
+  outline: none;
+}

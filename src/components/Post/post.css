@@ -1,0 +1,501 @@
+.post__container {
+  width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  box-shadow: 0px 0px 10px #ddd;
+  border-radius: 15px;
+}
+
+.post__header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 15px;
+}
+
+.post__logo {
+  width: 40px;
+  height: 40px;
+  position: relative;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.post__author {
+  font-weight: bold;
+  color: #000;
+}
+
+.post__date {
+  font-size: 12px;
+  color: #999;
+}
+
+.post__text {
+  font-size: 16px;
+  line-height: 24px;
+  margin-bottom: 20px;
+  color: black;
+}
+
+.post__image {
+  width: 100%;
+  height: 100%;
+  max-width: 550px;
+  max-height: 510px;
+  display: block;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+
+.post__actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.like__button,
+.share__button,
+.comment__button {
+  padding: 4px 12px;
+  background-color: #f0f2f5;
+  border-radius: 32px;
+  color: #fff;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.like__counter,
+.share__counter,
+.comment__counter {
+  color: #626d7a;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+.liked {
+  background-color: #ffeded;
+}
+
+.like__button:hover,
+.share__button:hover,
+.comment__button:hover {
+  background-color: #dadcdf;
+}
+
+.liked:hover {
+  background-color: #fce1e1;
+}
+
+.like__img {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  background: url(../../../assets/img/like.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 80%;
+  cursor: pointer;
+}
+
+.liked__img {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  background: url(../../../assets/img/liked.png);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 80%;
+  cursor: pointer;
+}
+
+.share__img {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  background: url(../../../assets/img/share.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 80%;
+  cursor: pointer;
+}
+
+.comment__img {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  background: url(../../../assets/img/comment.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 80%;
+  cursor: pointer;
+}
+
+.reply__container {
+  display: none;
+}
+
+.reply__container-active {
+  display: flex;
+  width: 100%;
+  padding: 20px 0px;
+  align-items: center;
+  gap: 10px;
+}
+
+.user__avatar-reply,
+.comment__avatar {
+  width: 34px;
+  height: 34px;
+  position: relative;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.reply__form {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 15px;
+}
+
+.reply__textarea {
+  width: 90%;
+  height: 40px;
+  padding: 10px;
+  box-sizing: border-box;
+  border-radius: 5px;
+  border: 1px solid lightgray;
+  font-size: 16px;
+  resize: none;
+  color: black;
+}
+
+.reply__submit-btn {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  background: url(../../../assets/img/arrow_unactive.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  cursor: pointer;
+  border: none;
+}
+
+.button__active {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  background: url(../../../assets/img/arrow_active.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  cursor: pointer;
+  border: none;
+}
+
+.comments__container {
+  display: none;
+}
+
+.comments__container-active {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding: 20px 0px;
+}
+
+.comment__item {
+  display: flex;
+  gap: 10px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid #dce1e6;
+}
+
+.comment__item:last-child {
+  border: none;
+  padding-bottom: 0px;
+}
+
+.comment__content {
+  width: 100%;
+}
+
+.comment__header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+
+.comment__username {
+  font-size: 16px;
+  font-weight: bold;
+  color: black;
+}
+
+.comment__date {
+  font-size: 14px;
+  color: gray;
+}
+
+.comment__text {
+  font-size: 15px;
+  color: black;
+  position: relative;
+}
+
+.cross__btn,
+.edit__btn,
+.like__btn-reply {
+  transition: 0.2s ease all;
+  opacity: 0;
+}
+
+.cross__btn-active {
+  width: 20px;
+  height: 20px;
+  position: relative;
+  background: url(../../../assets/img/cross.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s ease-out;
+  opacity: 1;
+}
+
+.edit__btn-active {
+  width: 20px;
+  height: 20px;
+  position: relative;
+  background: url(../../../assets/img/edit.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s ease-out;
+  opacity: 1;
+}
+
+.like__btn-reply-active {
+  width: 20px;
+  height: 20px;
+  position: relative;
+  background: url(../../../assets/img/like.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s ease-out;
+  opacity: 1;
+  top: 30px;
+  right: 25px;
+}
+
+.like__counter-reply {
+  position: relative;
+  color: #626d7a;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 500;
+  top: -1px;
+  left: 13px;
+}
+
+.liked__comment {
+  width: 20px;
+  height: 20px;
+  position: relative;
+  background: url(../../../assets/img/liked_comment.svg);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100%;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s ease-out;
+  opacity: 1;
+  top: 30px;
+  right: 25px;
+}
+
+.cancel__btn {
+  color: #346297;
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  position: absolute;
+  top: 55px;
+  right: 148px;
+}
+
+.save__btn {
+  background: #447bba;
+  padding: 0 16px;
+  height: 32px;
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  position: absolute;
+  top: 44px;
+  right: 48px;
+}
+
+.dark-theme .post__container {
+  background-color: #222222;
+  box-shadow: none;
+}
+
+.dark-theme .comment__username {
+  color: #e1e3e6;
+}
+
+.dark-theme .comment__text {
+  color: #e1e3e6;
+}
+
+.dark-theme .reply__textarea {
+  color: #e1e3e6;
+  background-color: #222222;
+}
+
+@media (max-width: 625px) {
+  .post__container {
+    width: 500px;
+  }
+  .cross__btn-active,
+  .edit__btn-active,
+  .like__btn-reply-active {
+    width: 25px;
+    height: 25px;
+  }
+
+  .like__btn-reply-active {
+    right: 28px;
+  }
+
+  .like__button,
+  .share__button,
+  .comment__button {
+    padding: 4px 17px;
+  }
+
+  .like__img,
+  .comment__img,
+  .share__img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .post__text {
+    font-size: 18px;
+  }
+
+  .comment__text {
+    font-size: 17px;
+  }
+
+  .user__avatar-reply,
+  .comment__avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .like__counter,
+  .share__counter,
+  .comment__counter {
+    font-size: 15.5px;
+  }
+}
+
+@media (max-width: 530px) {
+  .post__container {
+    width: 400px;
+  }
+  .cross__btn-active,
+  .edit__btn-active,
+  .like__btn-reply-active {
+    width: 27px;
+    height: 27px;
+  }
+
+  .post__author {
+    font-size: 20px;
+  }
+
+  .post__date {
+    font-size: 14px;
+  }
+
+  .post__text {
+    font-size: 20px;
+  }
+
+  .comment__date {
+    font-size: 15px;
+  }
+
+  .save__btn {
+    right: 27px;
+  }
+
+  .cancel__btn {
+    right: 128px;
+  }
+}
+
+@media (max-width: 430px) {
+  .post__container {
+    width: 300px;
+  }
+
+  .cross__btn-active,
+  .edit__btn-active,
+  .like__btn-reply-active {
+    width: 29px;
+    height: 29px;
+  }
+
+  .like__btn-reply-active {
+    right: 25px;
+  }
+
+  .save__btn {
+    right: -34px;
+    padding: 0 5px;
+  }
+
+  .cancel__btn {
+    right: 50px;
+  }
+
+  .reply__textarea {
+    width: 120%;
+  }
+
+  .leave__comment {
+    height: 58px;
+  }
+
+  .reply__submit-btn {
+    width: 30px;
+    height: 30px;
+  }
+}

@@ -1,0 +1,27 @@
+.error__wrap {
+  height: 70vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error__text {
+  font-size: 200%;
+  background: #0077ff;
+  padding: 1rem;
+  border-radius: 1rem;
+  z-index: 2;
+}
+
+@media (max-width: 610px) {
+  .error__text {
+    font-size: 150%;
+  }
+}
+
+@media (max-width: 470px) {
+  .error__text {
+    font-size: 100%;
+  }
+}
